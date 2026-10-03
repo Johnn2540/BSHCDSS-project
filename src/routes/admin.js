@@ -8,6 +8,8 @@ const resources = require('../admin/resources');
 const { dashboard } = require('../controllers/admin/dashboardController');
 const pages = require('../controllers/admin/pagesController');
 const tutors = require('../controllers/admin/tutorsController');
+const account = require('../controllers/accountController');
+const { changePasswordLimiter } = require('../middleware/rateLimits');
 
 const router = express.Router();
 
@@ -23,6 +25,10 @@ router.use((req, res, next) => {
 });
 
 router.get('/', dashboard);
+
+// Your account
+router.get('/password', account.showChangePassword);
+router.post('/password', changePasswordLimiter, account.changePasswordRules, account.changePassword);
 
 // Page content (edit only)
 router.get('/pages', pages.list);

@@ -39,6 +39,19 @@ module.exports = {
           .filter(Boolean)
       : [],
 
+  // Field definitions for the change-password form
+  passwordFields: (minLength) => [
+    { id: 'current-password', name: 'currentPassword', label: 'Current password', autocomplete: 'current-password' },
+    {
+      id: 'new-password',
+      name: 'newPassword',
+      label: 'New password',
+      autocomplete: 'new-password',
+      help: `At least ${minLength} characters.`,
+    },
+    { id: 'confirm-password', name: 'confirmPassword', label: 'Confirm new password', autocomplete: 'new-password' },
+  ],
+
   // Value lookup on an object by key, e.g. {{get values field.name}}.
   get: (obj, key) => (obj && key != null ? obj[key] : undefined),
 

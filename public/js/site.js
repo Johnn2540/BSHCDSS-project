@@ -203,6 +203,19 @@
     });
   });
 
+  // Show/hide buttons on password fields (hidden without JavaScript)
+  Array.prototype.forEach.call(document.querySelectorAll('[data-password-toggle]'), function (btn) {
+    var input = document.getElementById(btn.getAttribute('data-password-toggle'));
+    if (!input) return;
+    btn.hidden = false;
+    btn.addEventListener('click', function () {
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.textContent = show ? 'Hide' : 'Show';
+      btn.setAttribute('aria-pressed', String(show));
+    });
+  });
+
   // Click-to-play videos: swap the thumbnail link for the embedded player only when asked,
   // so pages with many videos stay light on slow connections.
   Array.prototype.forEach.call(document.querySelectorAll('[data-video-embed]'), function (link) {
