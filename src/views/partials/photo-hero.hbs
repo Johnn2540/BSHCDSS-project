@@ -1,0 +1,39 @@
+{{!-- Page banner with a photo. Shared by About and Contact so page banners look like one system.
+     Phone: full-bleed photo; a dark shade at the top blends into the black header and a navy fade
+            at the bottom carries the text.
+     Desktop (lg+): text on navy at left, photo in the right half with its left edge fading into the navy.
+     Params: image (from config/pageImages.js), title, summary, titleId, caption (optional),
+             overlap (true when the next section's cards overlap the banner's bottom edge),
+             actions (true when passing action buttons as the block).
+     Note: don't test {{#if @partial-block}}: Handlebars reports it as missing when the block's
+     content is only an {{#if}}...{{/if}}, so callers set `actions` explicitly. --}}
+<section class="photo-hero relative isolate overflow-hidden bg-brand-blue-dark text-white" aria-labelledby="{{titleId}}">
+  <picture>
+    <source type="image/webp" srcset="{{image.srcset}}" sizes="(min-width: 1024px) 50vw, 100vw">
+    <img src="{{image.fallback}}" width="{{image.width}}" height="{{image.height}}" alt="{{image.alt}}" fetchpriority="high" decoding="async"
+         style="--pos: {{image.position}}; --pos-lg: {{image.positionLg}};"
+         class="photo-hero-img absolute inset-0 -z-20 h-full w-full object-cover lg:left-auto lg:w-1/2">
+  </picture>
+  <div class="photo-shade-top pointer-events-none absolute inset-x-0 top-0 -z-10 h-40 lg:hidden" aria-hidden="true"></div>
+  <div class="photo-shade-bottom pointer-events-none absolute inset-0 -z-10" aria-hidden="true"></div>
+  {{#if caption}}
+    {{!-- Photo caption, on the photo itself on larger screens --}}
+    <p class="absolute bottom-4 right-4 z-0 hidden max-w-xs rounded bg-black/55 px-3 py-1.5 text-xs leading-snug text-white/90 backdrop-blur-sm lg:block">{{caption}}</p>
+  {{/if}}
+
+  <div class="relative mx-auto flex min-h-[78svh] max-w-7xl flex-col justify-end px-4 pt-40 sm:px-6 lg:min-h-[34rem] lg:justify-center lg:py-20 {{#if overlap}}pb-24 sm:pb-28{{else}}pb-12 sm:pb-16{{/if}}">
+    <div class="max-w-xl lg:w-1/2 lg:max-w-none lg:pr-12">
+      <nav aria-label="Breadcrumb" class="text-sm text-white/75">
+        <ol class="flex items-center gap-1.5">
+          <li><a href="/" class="hover:text-white hover:underline">Home</a></li>
+          <li aria-hidden="true">/</li>
+          <li aria-current="page" class="font-medium text-white">{{title}}</li>
+        </ol>
+      </nav>
+      <div class="mt-5 h-1 w-14 bg-brand-yellow" aria-hidden="true"></div>
+      <h1 id="{{titleId}}" class="mt-5 text-4xl font-bold leading-tight sm:text-5xl">{{title}}</h1>
+      {{#if summary}}<p class="mt-4 max-w-lg text-base leading-relaxed text-white/90 sm:text-lg">{{summary}}</p>{{/if}}
+      {{#if actions}}<div class="mt-8 flex flex-col gap-3 sm:flex-row">{{> @partial-block}}</div>{{/if}}
+    </div>
+  </div>
+</section>

@@ -110,6 +110,15 @@
     @apply max-w-prose;
   }
 
+  /* About page "At a glance" panel */
+  .glance-label {
+    @apply text-xs font-semibold uppercase tracking-wider text-brand-green;
+  }
+  .glance-link {
+    @apply inline-flex items-center gap-1.5 font-medium text-brand-blue underline-offset-2 hover:underline
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue;
+  }
+
   /* Contact page hero and detail cards */
   .contact-card {
     @apply flex items-start gap-4 rounded-lg border border-neutral-200 bg-white p-5 shadow-lg shadow-black/5;
@@ -231,17 +240,17 @@
   }
 }
 
-/* Contact hero photo and shades.
-   Phone: keep the face in the upper part of the frame; shade the top into the black header and
-   fade the bottom into navy so white text stays readable over the bright desk.
-   Desktop: the photo fills the right half; a horizontal fade blends its left edge into the navy. */
-.contact-hero-img {
-  object-position: 62% 18%;
+/* Photo banner (partials/photo-hero.hbs), used by About and Contact.
+   Phone: shade the top into the black header and fade the bottom into navy so white text stays
+   readable over bright photos. Desktop: the photo fills the right half; a horizontal fade blends
+   its left edge into the navy. Each photo sets its own framing via --pos / --pos-lg. */
+.photo-hero-img {
+  object-position: var(--pos, 50% 50%);
 }
-.contact-shade-top {
+.photo-shade-top {
   background: linear-gradient(to bottom, rgb(0 0 0 / 0.7), rgb(0 0 0 / 0));
 }
-.contact-shade-bottom {
+.photo-shade-bottom {
   background: linear-gradient(
     to top,
     var(--color-brand-blue-dark) 0%,
@@ -251,10 +260,10 @@
   );
 }
 @media (min-width: 64rem) {
-  .contact-hero-img {
-    object-position: 58% 22%;
+  .photo-hero-img {
+    object-position: var(--pos-lg, var(--pos, 50% 50%));
   }
-  .contact-shade-bottom {
+  .photo-shade-bottom {
     background:
       linear-gradient(to top, rgb(10 47 117 / 0.55), rgb(10 47 117 / 0) 35%),
       linear-gradient(

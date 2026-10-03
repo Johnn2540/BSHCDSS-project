@@ -5,6 +5,7 @@ const content = require('../services/content');
 const { parseVideoUrl } = require('../services/video');
 const { sendMail } = require('../services/mailer');
 const { collectErrors } = require('../admin/fields');
+const pageImages = require('../config/pageImages');
 
 // Icon shown on each home page activity card, by activity slug.
 const ACTIVITY_ICONS = { 'in-service-training': 'users', cpd: 'growth', lms: 'screen' };
@@ -37,9 +38,9 @@ function albumCards(albums) {
 
 // ─── Pages ────────────────────────────────────────────────────────────────────
 
-async function home(req, res) {
-  const { page, curriculum, activities } = await content.getHomePage();
-  const focusItems = [
+// Cards for the project's areas of work: Curriculum, then each published activity.
+function buildFocusItems(curriculum, activities) {
+  return [
     { icon: 'book', title: curriculum.title, summary: curriculum.summary, href: '/curriculum' },
     ...activities.map((a) => ({
       icon: ACTIVITY_ICONS[a.slug] || 'growth',
@@ -48,18 +49,34 @@ async function home(req, res) {
       href: `/activities/${a.slug}`,
     })),
   ];
+}
+
+async function home(req, res) {
+  const { page, curriculum, activities } = await content.getHomePage();
   const firstActivity = activities[0];
   res.render('public/home', {
     isHome: true,
     page,
-    focusItems,
+    focusItems: buildFocusItems(curriculum, activities),
     activitiesHref: firstActivity ? `/activities/${firstActivity.slug}` : '/curriculum',
   });
 }
 
 async function about(req, res) {
-  const page = await content.getPage('about');
-  res.render('public/about', { title: page.title, metaDescription: page.summary, page });
+  const [page, curriculum, activities] = await Promise.all([
+    content.getPage('about'),
+    content.getPage('curriculum'),
+    content.getActivities(),
+  ]);
+  const focusItems = buildFocusItems(curriculum, activities);
+  res.render('public/about', {
+    title: page.title,
+    metaDescription: page.summary,
+    metaImage: pageImages.about.fallback,
+    heroImage: pageImages.about,
+    page,
+    focusItems,
+  });
 }
 
 async function team(req, res) {
@@ -132,7 +149,8 @@ async function renderContact(req, res, { values = {}, errors = {}, status = 200 
   res.status(status).render('public/contact', {
     title: page.title,
     metaDescription: page.summary,
-    metaImage: '/images/pages/contact-1200.jpg',
+    metaImage: pageImages.contact.fallback,
+    heroImage: pageImages.contact,
     page,
     values,
     errors,

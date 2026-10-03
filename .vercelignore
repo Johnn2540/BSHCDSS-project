@@ -8,3 +8,4 @@ public/uploads
 
 # Original full-size photos (the site uses the optimised copies in public/images/pages/)
 public/images/contact.jpg
+public/images/about.jpeg

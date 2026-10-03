@@ -1,0 +1,17 @@
+{{!-- Cards for Curriculum + each published activity. Param: items [{ icon, title, summary, href }] (see buildFocusItems) --}}
+<ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+  {{#each items}}
+    <li>
+      <a href="{{href}}" class="group flex h-full flex-col rounded border border-neutral-200 border-t-4 border-t-brand-green bg-white p-6 shadow-sm transition hover:border-t-brand-blue hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-blue/10 text-brand-blue">
+          {{> icon name=icon class="h-6 w-6"}}
+        </span>
+        <h3 class="mt-5 text-lg font-semibold leading-snug text-neutral-900 group-hover:text-brand-blue">{{title}}</h3>
+        <p class="mt-2 flex-1 text-sm leading-relaxed text-neutral-700">{{summary}}</p>
+        <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-blue">
+          Read more<span class="sr-only"> about {{title}}</span> {{> icon name="arrow" class="h-4 w-4 transition group-hover:translate-x-0.5"}}
+        </span>
+      </a>
+    </li>
+  {{/each}}
+</ul>

@@ -1,50 +1,17 @@
-{{!-- ── Hero ──────────────────────────────────────────────────────────────────
-     Phone: full-bleed photo; a dark shade at the top blends into the black header,
-            a navy fade at the bottom carries the heading and quick actions.
-     Desktop (lg+): split layout, text on navy at left, photo at right whose left edge
-            fades into the navy. --}}
-<section class="contact-hero relative isolate overflow-hidden bg-brand-blue-dark text-white" aria-labelledby="contact-title">
-  <picture>
-    <source type="image/webp"
-            srcset="/images/pages/contact-480.webp 480w, /images/pages/contact-800.webp 800w, /images/pages/contact-1200.webp 1200w, /images/pages/contact-1600.webp 1600w"
-            sizes="(min-width: 1024px) 50vw, 100vw">
-    <img src="/images/pages/contact-1200.jpg" width="1200" height="1800" alt="" fetchpriority="high" decoding="async"
-         class="contact-hero-img absolute inset-0 -z-20 h-full w-full object-cover lg:left-auto lg:w-1/2">
-  </picture>
-  {{!-- Shades (decorative) --}}
-  <div class="contact-shade-top pointer-events-none absolute inset-x-0 top-0 -z-10 h-40 lg:hidden" aria-hidden="true"></div>
-  <div class="contact-shade-bottom pointer-events-none absolute inset-0 -z-10" aria-hidden="true"></div>
-
-  <div class="relative mx-auto flex min-h-[78svh] max-w-7xl flex-col justify-end px-4 pb-24 pt-40 sm:px-6 sm:pb-28 lg:min-h-[34rem] lg:justify-center lg:py-20">
-    <div class="max-w-xl lg:w-1/2 lg:max-w-none lg:pr-12">
-      <nav aria-label="Breadcrumb" class="text-sm text-white/75">
-        <ol class="flex items-center gap-1.5">
-          <li><a href="/" class="hover:text-white hover:underline">Home</a></li>
-          <li aria-hidden="true">/</li>
-          <li aria-current="page" class="font-medium text-white">{{page.title}}</li>
-        </ol>
-      </nav>
-      <div class="mt-5 h-1 w-14 bg-brand-yellow" aria-hidden="true"></div>
-      <h1 id="contact-title" class="mt-5 text-4xl font-bold leading-tight sm:text-5xl">{{page.title}}</h1>
-      {{#if page.summary}}<p class="mt-4 max-w-lg text-base leading-relaxed text-white/90 sm:text-lg">{{page.summary}}</p>{{/if}}
-
-      {{#if (or site.contact.phone site.contact.email)}}
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-          {{#if site.contact.phone}}
-            <a href="tel:{{telHref site.contact.phone}}" class="btn bg-white text-brand-blue-dark shadow-lg hover:bg-neutral-100 focus-visible:outline-white">
-              {{> icon name="phone" class="h-5 w-5"}} Call {{site.contact.phone}}
-            </a>
-          {{/if}}
-          {{#if site.contact.email}}
-            <a href="mailto:{{site.contact.email}}" class="btn border border-white/60 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 focus-visible:outline-white">
-              {{> icon name="mail" class="h-5 w-5"}} Email us
-            </a>
-          {{/if}}
-        </div>
-      {{/if}}
-    </div>
-  </div>
-</section>
+{{!-- Banner: shared photo hero (partials/photo-hero.hbs) with quick Call / Email actions --}}
+{{#> photo-hero image=heroImage title=page.title summary=page.summary titleId="contact-title" overlap=true actions=true}}
+  {{!-- Inside a partial block, page data must be read through @root --}}
+  {{#if @root.site.contact.phone}}
+    <a href="tel:{{telHref @root.site.contact.phone}}" class="btn bg-white text-brand-blue-dark shadow-lg hover:bg-neutral-100 focus-visible:outline-white">
+      {{> icon name="phone" class="h-5 w-5"}} Call {{@root.site.contact.phone}}
+    </a>
+  {{/if}}
+  {{#if @root.site.contact.email}}
+    <a href="mailto:{{@root.site.contact.email}}" class="btn border border-white/60 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 focus-visible:outline-white">
+      {{> icon name="mail" class="h-5 w-5"}} Email us
+    </a>
+  {{/if}}
+{{/photo-hero}}
 
 {{!-- ── Contact details: cards that overlap the bottom of the hero ──────────── --}}
 <section aria-label="Contact details" class="relative z-10 mx-auto -mt-14 max-w-7xl px-4 sm:-mt-16 sm:px-6">

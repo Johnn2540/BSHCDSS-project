@@ -1,20 +1,101 @@
-{{> page-hero title=page.title summary=page.summary}}
+{{!-- Banner: shared photo hero (partials/photo-hero.hbs) --}}
+{{#> photo-hero image=heroImage title=page.title summary=page.summary caption=page.imageCaption titleId="about-title" actions=true}}
+  <a href="/team" class="btn bg-white text-brand-blue-dark shadow-lg hover:bg-neutral-100 focus-visible:outline-white">
+    {{> icon name="users" class="h-5 w-5"}} Meet the project team
+  </a>
+  <a href="/contact" class="btn border border-white/60 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 focus-visible:outline-white">
+    {{> icon name="mail" class="h-5 w-5"}} Contact us
+  </a>
+{{/photo-hero}}
 
-<div class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[2fr_1fr]">
-  <article>
-    {{> prose text=page.body}}
+{{!-- ── The story + "At a glance" ───────────────────────────────────────────── --}}
+<div class="mx-auto grid max-w-7xl gap-12 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-16">
+  <article aria-labelledby="story-heading" class="min-w-0">
+    <h2 id="story-heading" class="section-heading">{{page.bodyHeading}}</h2>
+    <div class="mt-8 space-y-5 text-base leading-relaxed text-neutral-800 sm:text-lg">
+      {{#each (paragraphs page.body)}}
+        {{#if @first}}
+          <p class="max-w-prose text-xl font-medium leading-relaxed text-neutral-900 sm:text-2xl sm:leading-relaxed">{{this}}</p>
+        {{else}}
+          <p class="max-w-prose">{{this}}</p>
+        {{/if}}
+      {{/each}}
+    </div>
   </article>
 
-  <aside aria-labelledby="partners-aside" class="self-start rounded border-l-4 border-brand-green bg-neutral-50 p-6">
-    <h2 id="partners-aside" class="text-lg font-semibold text-brand-blue">Implemented in partnership with</h2>
-    <ul class="mt-4 space-y-3">
-      {{#each partners}}
-        <li>
-          {{#if url}}<a href="{{url}}" rel="noopener" target="_blank" class="font-medium text-neutral-900 underline-offset-2 hover:text-brand-blue hover:underline">{{name}}<span class="sr-only"> (opens in a new tab)</span></a>{{else}}<span class="font-medium">{{name}}</span>{{/if}}
-          {{#if isMain}}<span class="badge badge-green ml-1">Main partner</span>{{/if}}
-        </li>
-      {{/each}}
-    </ul>
-    <a href="/team" class="mt-6 inline-flex items-center gap-2 font-semibold text-brand-blue underline-offset-4 hover:underline">Meet the project team {{> icon name="arrow" class="h-4 w-4"}}</a>
+  <aside aria-labelledby="glance-heading" class="lg:pt-2">
+    <div class="rounded-lg border border-neutral-200 bg-white shadow-sm lg:sticky lg:top-8">
+      <div class="rounded-t-lg border-b-4 border-brand-green bg-brand-blue-dark px-6 py-4">
+        <h2 id="glance-heading" class="text-sm font-semibold uppercase tracking-[0.16em] text-brand-yellow">At a glance</h2>
+      </div>
+      <dl class="divide-y divide-neutral-200 px-6">
+        <div class="py-4">
+          <dt class="glance-label">Lead ministry</dt>
+          <dd class="mt-1 font-medium text-neutral-900">{{site.ministry}}</dd>
+        </div>
+        <div class="py-4">
+          <dt class="glance-label">Country</dt>
+          <dd class="mt-1 font-medium text-neutral-900">{{site.country}}</dd>
+        </div>
+        {{#if partners.length}}
+          <div class="py-4">
+            <dt class="glance-label">Partners</dt>
+            <dd class="mt-2">
+              <ul class="space-y-2">
+                {{#each partners}}
+                  <li class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    {{#if url}}
+                      <a href="{{url}}" rel="noopener" target="_blank" class="font-medium text-neutral-900 underline-offset-2 hover:text-brand-blue hover:underline">{{name}}<span class="sr-only"> (opens in a new tab)</span></a>
+                    {{else}}
+                      <span class="font-medium text-neutral-900">{{name}}</span>
+                    {{/if}}
+                    {{#if isMain}}<span class="badge badge-green">Main partner</span>{{/if}}
+                  </li>
+                {{/each}}
+              </ul>
+            </dd>
+          </div>
+        {{/if}}
+      </dl>
+      <div class="rounded-b-lg border-t border-neutral-200 bg-neutral-50 px-6 py-4">
+        <p class="glance-label">Explore</p>
+        <ul class="mt-2 space-y-1.5 text-sm">
+          <li><a href="/team" class="glance-link">Project team {{> icon name="arrow" class="h-4 w-4"}}</a></li>
+          <li><a href="/curriculum" class="glance-link">Curriculum documents {{> icon name="arrow" class="h-4 w-4"}}</a></li>
+          <li><a href="/gallery" class="glance-link">Pictures and videos {{> icon name="arrow" class="h-4 w-4"}}</a></li>
+        </ul>
+      </div>
+    </div>
   </aside>
 </div>
+
+{{!-- ── Areas of work ─────────────────────────────────────────────────────────── --}}
+{{#if focusItems.length}}
+  <section aria-labelledby="work-heading" class="bg-neutral-50">
+    <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
+      <div class="max-w-2xl">
+        <h2 id="work-heading" class="section-heading">{{page.workHeading}}</h2>
+        {{#if page.workLead}}<p class="mt-4 text-neutral-700 sm:text-lg">{{page.workLead}}</p>{{/if}}
+      </div>
+      <div class="mt-10">{{> focus-cards items=focusItems}}</div>
+    </div>
+  </section>
+{{/if}}
+
+{{!-- ── Closing call to action ────────────────────────────────────────────────── --}}
+<section aria-labelledby="cta-heading" class="relative overflow-hidden bg-brand-blue-dark text-white">
+  <div class="hero-pattern pointer-events-none absolute inset-0 opacity-[0.07]" aria-hidden="true"></div>
+  <div class="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-14 sm:px-6 sm:py-16 lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex items-start gap-5">
+      <img src="{{#if site.brand}}{{site.brand.emblem.webp128}}{{else}}{{site.logoUrl}}{{/if}}" alt="" width="64" height="64" loading="lazy" class="hidden h-16 w-16 shrink-0 object-contain sm:block">
+      <div>
+        <h2 id="cta-heading" class="text-2xl font-bold sm:text-3xl">{{page.ctaHeading}}</h2>
+        {{#if page.ctaText}}<p class="mt-2 max-w-xl text-white/85">{{page.ctaText}}</p>{{/if}}
+      </div>
+    </div>
+    <div class="flex shrink-0 flex-col gap-3 sm:flex-row">
+      <a href="/team" class="btn bg-brand-yellow text-black hover:bg-yellow-300 focus-visible:outline-white">Meet the project team</a>
+      <a href="/contact" class="btn btn-outline-light">Contact us</a>
+    </div>
+  </div>
+</section>
