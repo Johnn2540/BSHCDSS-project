@@ -2,10 +2,33 @@
 // After seeding, everything here is edited from the admin panel.
 // (Default page text lives in src/config/pages.js.)
 
+// Logos are static files in public/images/partners/ (no Cloudinary public ID, so replacing
+// one in the admin panel uploads the new logo to Cloudinary and leaves these files alone).
 const partners = [
-  { name: 'Ministry of General Education and Instruction', shortName: 'MoGEI', url: null, isMain: true, displayOrder: 1 },
-  { name: 'Kenyatta University', shortName: 'Kenyatta University', url: 'https://www.ku.ac.ke', isMain: false, displayOrder: 2 },
-  { name: 'World Bank Group', shortName: 'World Bank Group', url: 'https://www.worldbank.org', isMain: false, displayOrder: 3 },
+  {
+    name: 'Ministry of General Education and Instruction',
+    shortName: 'MoGEI',
+    url: null,
+    logoUrl: '/images/partners/mogei.webp',
+    isMain: true,
+    displayOrder: 1,
+  },
+  {
+    name: 'Kenyatta University',
+    shortName: 'Kenyatta University',
+    url: 'https://www.ku.ac.ke',
+    logoUrl: '/images/partners/kenyatta-university.webp',
+    isMain: false,
+    displayOrder: 2,
+  },
+  {
+    name: 'World Bank Group',
+    shortName: 'World Bank Group',
+    url: 'https://www.worldbank.org',
+    logoUrl: '/images/partners/world-bank.webp',
+    isMain: false,
+    displayOrder: 3,
+  },
 ];
 
 // Slugs match the routes in the navigation (/activities/<slug>).

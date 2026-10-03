@@ -1,0 +1,23 @@
+{{!-- One partner in the scrolling strip. Context: a partner, plus `dup` (a repeated copy:
+     hidden from screen readers and skipped by the keyboard so each partner is met once). --}}
+<li class="partner-tile-item{{#if dup}} partner-dup{{/if}}" {{#if dup}}aria-hidden="true"{{/if}}>
+  {{#if url}}
+    <a href="{{url}}" target="_blank" rel="noopener" class="partner-tile group" {{#if dup}}tabindex="-1"{{/if}}>
+  {{else}}
+    <div class="partner-tile">
+  {{/if}}
+      {{#if logoUrl}}
+        <img src="{{img logoUrl "w_128,h_128,c_pad,b_white"}}" alt="" width="64" height="64" loading="lazy" decoding="async"
+             class="h-16 w-16 shrink-0 object-contain">
+      {{else}}
+        <span class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-brand-blue/10 text-lg font-bold text-brand-blue" aria-hidden="true">{{#if shortName}}{{shortName}}{{else}}{{name}}{{/if}}</span>
+      {{/if}}
+      <span class="min-w-0">
+        <span class="partner-tile-name">{{name}}</span>
+        {{#if isMain}}<span class="mt-1 inline-block rounded-full bg-green-100 px-2 py-0.5 text-[0.7rem] font-semibold text-green-800">Main partner</span>{{/if}}
+        {{#if url}}
+          <span class="partner-tile-visit">Visit website {{> icon name="external" class="h-3.5 w-3.5"}}<span class="sr-only"> (opens in a new tab)</span></span>
+        {{/if}}
+      </span>
+  {{#if url}}</a>{{else}}</div>{{/if}}
+</li>

@@ -14,6 +14,19 @@ function buildNavigation(activities) {
     .filter((item) => !item.children || item.children.length);
 }
 
+// Partners strip in the footer: the set is repeated until it's long enough to fill wide
+// screens, then rendered twice so the right-to-left loop is seamless. Repeats are marked
+// `dup` so screen readers and keyboard users meet each partner only once.
+const MIN_TILES_PER_SET = 6;
+const SECONDS_PER_TILE = 4;
+function buildPartnerMarquee(partners) {
+  if (!partners.length) return null;
+  const repeats = Math.ceil(MIN_TILES_PER_SET / partners.length);
+  const set = [];
+  for (let r = 0; r < repeats; r += 1) partners.forEach((p) => set.push({ ...p, dup: r > 0 }));
+  return { set, duration: set.length * SECONDS_PER_TILE };
+}
+
 // Makes site-wide data available to every view (header, footer, nav state).
 async function siteLocals(req, res, next) {
   const [site, partners, activities] = await Promise.all([
@@ -23,6 +36,7 @@ async function siteLocals(req, res, next) {
   ]);
   res.locals.site = site;
   res.locals.partners = partners;
+  res.locals.partnerMarquee = buildPartnerMarquee(partners);
   res.locals.navigation = buildNavigation(activities);
   res.locals.currentPath = req.path;
   // Absolute URLs for canonical and Open Graph tags. APP_URL should be set in production.

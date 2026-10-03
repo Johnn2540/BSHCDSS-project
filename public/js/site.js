@@ -216,6 +216,21 @@
     });
   });
 
+  // Partners strip: Pause/Play button (moving content must be pausable). Hover and keyboard
+  // focus also pause it via CSS. Hidden for reduced-motion users, who get a still layout.
+  Array.prototype.forEach.call(document.querySelectorAll('[data-marquee-toggle]'), function (btn) {
+    var marquee = document.getElementById(btn.getAttribute('aria-controls'));
+    var label = btn.querySelector('[data-marquee-label]');
+    if (!marquee) return;
+    btn.hidden = false;
+    btn.addEventListener('click', function () {
+      var paused = !marquee.classList.contains('is-paused');
+      marquee.classList.toggle('is-paused', paused);
+      btn.setAttribute('aria-pressed', String(paused));
+      label.textContent = paused ? 'Play' : 'Pause';
+    });
+  });
+
   // Click-to-play videos: swap the thumbnail link for the embedded player only when asked,
   // so pages with many videos stay light on slow connections.
   Array.prototype.forEach.call(document.querySelectorAll('[data-video-embed]'), function (link) {
