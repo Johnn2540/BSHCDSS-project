@@ -1,0 +1,23 @@
+{{!-- Grid of videos. Each shows a thumbnail; the player only loads when clicked (saves data on slow
+     connections). Without JavaScript the link opens the video on YouTube/Vimeo. Param: videos --}}
+<ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  {{#each videos}}
+    <li class="overflow-hidden rounded border border-neutral-200 bg-white shadow-sm">
+      <div class="relative aspect-video bg-neutral-900">
+        <a href="{{watchUrl}}" target="_blank" rel="noopener" data-video-embed="{{embedUrl}}" data-video-title="{{title}}"
+           class="group absolute inset-0 flex items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-brand-yellow">
+          {{#if thumbnailUrl}}<img src="{{thumbnailUrl}}" alt="" loading="lazy" class="absolute inset-0 h-full w-full object-cover opacity-90 group-hover:opacity-100">{{/if}}
+          <span class="relative flex h-16 w-16 items-center justify-center rounded-full bg-brand-red text-white shadow-lg transition group-hover:scale-105">
+            <svg class="ml-1 h-7 w-7" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          </span>
+          <span class="sr-only">Play video: {{title}}</span>
+        </a>
+      </div>
+      <div class="p-4">
+        <h3 class="font-semibold text-neutral-900">{{title}}</h3>
+        {{#if date}}<p class="mt-1 text-sm text-neutral-600">{{formatDate date}}</p>{{/if}}
+        {{#if description}}<p class="mt-2 text-sm text-neutral-700">{{description}}</p>{{/if}}
+      </div>
+    </li>
+  {{/each}}
+</ul>

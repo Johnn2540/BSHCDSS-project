@@ -1,0 +1,7 @@
+# Never upload secrets or local files when deploying with the Vercel CLI.
+.env
+.env.*
+!.env.example
+node_modules
+uploads
+public/uploads

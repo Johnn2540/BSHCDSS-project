@@ -1,0 +1,50 @@
+{{#> admin/page-header title=resource.label intro=resource.intro}}
+  <a href="{{resource.base}}/new" class="btn btn-primary">{{> icon name="plus" class="h-4 w-4"}} Add {{resource.singular}}</a>
+{{/admin/page-header}}
+
+{{#if rows.length}}
+  <div class="admin-card overflow-x-auto">
+    <table class="admin-table">
+      <caption class="sr-only">{{resource.label}} ({{total}})</caption>
+      <thead>
+        <tr>
+          {{#each columns}}<th scope="col">{{label}}</th>{{/each}}
+          <th scope="col"><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each rows}}
+          <tr>
+            {{#each cells}}
+              <td>
+                {{#if isTitle}}
+                  <a href="{{../../resource.base}}/{{../id}}/edit" class="font-semibold text-brand-blue underline-offset-2 hover:underline">{{value}}</a>
+                {{else}}
+                  {{> admin/cell}}
+                {{/if}}
+              </td>
+            {{/each}}
+            <td class="whitespace-nowrap text-right">
+              <a href="{{../resource.base}}/{{id}}/edit" class="action-link">Edit<span class="sr-only"> {{title}}</span></a>
+              <a href="{{../resource.base}}/{{id}}/delete" class="action-link action-link-danger">Delete<span class="sr-only"> {{title}}</span></a>
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  <p class="mt-3 text-sm text-neutral-600">{{total}} in total.</p>
+
+  {{#if pagination}}
+    <nav aria-label="Pagination" class="mt-4 flex items-center gap-3 text-sm">
+      {{#if pagination.prev}}<a href="{{pageUrl resource.base pagination.prev}}" class="action-link">&larr; Previous</a>{{/if}}
+      <span>Page {{pagination.page}} of {{pagination.pages}}</span>
+      {{#if pagination.next}}<a href="{{pageUrl resource.base pagination.next}}" class="action-link">Next &rarr;</a>{{/if}}
+    </nav>
+  {{/if}}
+{{else}}
+  <div class="admin-card p-8 text-center">
+    <p class="text-neutral-700">No {{resource.label}} yet.</p>
+    <a href="{{resource.base}}/new" class="btn btn-primary mt-4">Add the first {{resource.singular}}</a>
+  </div>
+{{/if}}

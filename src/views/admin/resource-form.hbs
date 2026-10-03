@@ -1,0 +1,26 @@
+{{#> admin/page-header title=title back=resource.base backLabel=resource.label}}
+  {{#if item}}<a href="{{resource.base}}/{{item.id}}/delete" class="btn border border-brand-red/40 bg-white text-brand-red hover:bg-red-50 focus-visible:outline-brand-red">Delete</a>{{/if}}
+{{/admin/page-header}}
+
+{{#if errors}}{{#each errors}}{{#if @first}}
+  <div role="alert" class="mb-4 rounded border-l-4 border-brand-red bg-red-50 px-4 py-3 text-sm text-red-900">
+    Please correct the highlighted fields below.
+  </div>
+{{/if}}{{/each}}{{/if}}
+
+<form method="post" novalidate class="admin-card space-y-6 p-5 sm:p-8"
+      action="{{action}}{{#if hasUploads}}?_csrf={{csrfToken}}{{/if}}"
+      {{#if hasUploads}}enctype="multipart/form-data"{{#if maxUploadBytes}} data-max-upload-bytes="{{maxUploadBytes}}"{{/if}}{{/if}}>
+  <input type="hidden" name="_csrf" value="{{csrfToken}}">
+  {{#each fields}}
+    {{> admin/field}}
+  {{/each}}
+  <div class="flex flex-wrap gap-3 border-t border-neutral-200 pt-6">
+    <button type="submit" class="btn btn-primary">{{#if item}}Save changes{{else}}Create {{resource.singular}}{{/if}}</button>
+    <a href="{{resource.base}}" class="btn border border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 focus-visible:outline-brand-blue">Cancel</a>
+  </div>
+</form>
+
+{{#if extras}}
+  {{> (lookup extras "partial") extras}}
+{{/if}}

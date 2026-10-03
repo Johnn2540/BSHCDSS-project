@@ -1,0 +1,50 @@
+const express = require('express');
+const { requireLogin, requireRole } = require('../middleware/auth');
+const content = require('../services/content');
+const adminNavigation = require('../config/adminNavigation');
+const { MAX_REQUEST_BYTES } = require('../middleware/upload');
+const { crudRouter } = require('../admin/crud');
+const resources = require('../admin/resources');
+const { dashboard } = require('../controllers/admin/dashboardController');
+const pages = require('../controllers/admin/pagesController');
+const tutors = require('../controllers/admin/tutorsController');
+
+const router = express.Router();
+
+router.use(requireLogin, requireRole('ADMIN'));
+
+router.use((req, res, next) => {
+  res.locals.layout = 'admin';
+  res.locals.adminNavigation = adminNavigation;
+  res.locals.maxUploadBytes = MAX_REQUEST_BYTES; // set on Vercel only; checked in the browser
+  // Any change made in the admin panel clears the public content cache.
+  if (req.method === 'POST') res.on('finish', content.clearCache);
+  next();
+});
+
+router.get('/', dashboard);
+
+// Page content (edit only)
+router.get('/pages', pages.list);
+router.get('/pages/:slug/edit', pages.editForm);
+router.post('/pages/:slug', pages.validate, pages.update);
+
+// Tutors
+router.get('/tutors', tutors.list);
+router.get('/tutors/new', tutors.newForm);
+router.post('/tutors', tutors.createRules, tutors.create);
+router.get('/tutors/:id/edit', tutors.editForm);
+router.post('/tutors/:id', tutors.rules, tutors.update);
+router.post('/tutors/:id/approve', tutors.approve);
+router.post('/tutors/:id/suspend', tutors.suspend);
+router.post('/tutors/:id/reactivate', tutors.reactivate);
+router.post('/tutors/:id/invite', tutors.resendInvite);
+router.get('/tutors/:id/delete', tutors.confirmDelete);
+router.post('/tutors/:id/delete', tutors.destroy);
+
+// Team, activities, documents, albums (+ photos), videos, announcements, partners
+for (const resource of resources) {
+  router.use(`/${resource.key}`, crudRouter(resource));
+}
+
+module.exports = router;

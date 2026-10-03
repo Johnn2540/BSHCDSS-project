@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{{#if title}}{{title}} | {{/if}}Admin | {{site.shortName}}</title>
+  <link rel="icon" href="{{site.logoUrl}}">
+  <script nonce="{{cspNonce}}">document.documentElement.className = document.documentElement.className.replace('no-js', 'js');</script>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/site.js" defer></script>
+</head>
+<body class="min-h-screen bg-neutral-100 text-neutral-900 antialiased">
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-brand-yellow focus:px-4 focus:py-2 focus:font-semibold focus:text-black">Skip to main content</a>
+
+  <div class="lg:flex">
+    {{!-- Sidebar (desktop) / collapsible menu (mobile) --}}
+    <aside class="bg-brand-blue-dark text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-64 lg:shrink-0 lg:flex-col">
+      <div class="flex items-center justify-between gap-3 px-4 py-3 lg:py-5">
+        <a href="/admin" class="flex min-w-0 items-center gap-3">
+          <img src="{{site.logoUrl}}" alt="" width="40" height="40" class="h-10 w-10 shrink-0 rounded-full bg-white object-contain p-0.5">
+          <span class="min-w-0">
+            <span class="block font-bold tracking-wide">{{site.shortName}}</span>
+            <span class="block text-xs text-white/70">Administration</span>
+          </span>
+        </a>
+        <button type="button" class="menu-toggle inline-flex items-center gap-2 rounded border border-white/30 px-3 py-2 text-sm font-semibold hover:bg-white/10 lg:hidden"
+                data-menu-toggle aria-controls="mobile-menu" aria-expanded="false">
+          <svg class="icon-open h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          <svg class="icon-close h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          <span>Menu</span>
+        </button>
+      </div>
+      <div class="flex h-1" aria-hidden="true">
+        <span class="flex-[6] bg-brand-green"></span><span class="flex-1 bg-brand-red"></span><span class="flex-1 bg-brand-yellow"></span>
+      </div>
+
+      <nav id="mobile-menu" aria-label="Admin" class="mobile-menu flex-1 overflow-y-auto px-3 py-4 lg:block!">
+        <ul class="space-y-0.5">
+          {{#each adminNavigation}}
+            {{#if heading}}
+              <li class="px-3 pb-1 pt-5 text-xs font-semibold uppercase tracking-wider text-white/60">{{heading}}</li>
+            {{else}}
+              <li>
+                <a href="{{href}}" class="admin-nav-link"
+                   {{#if exact}}{{#if (eq ../currentPath href)}}aria-current="page"{{/if}}{{else}}{{#if (isActive ../currentPath href)}}aria-current="page"{{/if}}{{/if}}>
+                  {{> icon name=icon class="h-5 w-5 shrink-0"}} {{label}}
+                </a>
+              </li>
+            {{/if}}
+          {{/each}}
+        </ul>
+        <div class="mt-6 border-t border-white/15 pt-4">
+          <a href="/" class="admin-nav-link">{{> icon name="external" class="h-5 w-5 shrink-0"}} View website</a>
+          <p class="mt-4 px-3 text-xs text-white/70">Logged in as<br><span class="font-semibold text-white">{{currentUser.name}}</span></p>
+          <form method="post" action="/logout" class="mt-3 px-3">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <button type="submit" class="w-full rounded border border-white/30 px-3 py-2 text-sm font-semibold hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-brand-yellow">Log out</button>
+          </form>
+        </div>
+      </nav>
+    </aside>
+
+    <main id="main" tabindex="-1" class="min-w-0 flex-1">
+      <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-10">
+        {{> flash}}
+        {{{body}}}
+      </div>
+    </main>
+  </div>
+</body>
+</html>

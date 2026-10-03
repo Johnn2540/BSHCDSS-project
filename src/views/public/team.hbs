@@ -1,0 +1,34 @@
+{{> page-hero title=page.title summary=page.summary}}
+
+<section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16" aria-label="Team members">
+  {{#if members.length}}
+    <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {{#each members}}
+        <li class="flex flex-col rounded border border-neutral-200 bg-white p-6 shadow-sm">
+          <div class="flex items-center gap-4">
+            {{#if photoUrl}}
+              <img src="{{img photoUrl "w_192,h_192,c_fill,g_face"}}" alt="" width="96" height="96" loading="lazy" class="h-24 w-24 shrink-0 rounded-full border-4 border-brand-blue/10 bg-neutral-100 object-cover">
+            {{else}}
+              <span class="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-brand-blue/10 text-brand-blue" aria-hidden="true">{{> icon name="person" class="h-10 w-10"}}</span>
+            {{/if}}
+            <div class="min-w-0">
+              <h2 class="text-lg font-semibold leading-snug text-neutral-900">{{name}}</h2>
+              <p class="mt-0.5 text-sm font-medium text-brand-green">{{title}}</p>
+              {{#if institution}}<p class="mt-0.5 text-sm text-neutral-600">{{institution}}</p>{{/if}}
+            </div>
+          </div>
+          {{#if bio}}
+            <details class="group mt-4 border-t border-neutral-200 pt-3">
+              <summary class="cursor-pointer list-none text-sm font-semibold text-brand-blue hover:underline">
+                <span class="group-open:hidden">Read biography</span><span class="hidden group-open:inline">Hide biography</span><span class="sr-only"> of {{name}}</span>
+              </summary>
+              <div class="mt-3 text-sm">{{> prose text=bio}}</div>
+            </details>
+          {{/if}}
+        </li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <p class="text-neutral-700">Team member profiles will be published here soon.</p>
+  {{/if}}
+</section>

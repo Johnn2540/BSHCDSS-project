@@ -1,0 +1,25 @@
+{{> page-hero title=page.title summary=page.summary}}
+
+<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+  <section aria-labelledby="albums-heading">
+    <h2 id="albums-heading" class="section-heading">Photo albums</h2>
+    <div class="mt-8">
+      {{#if albums.length}}
+        {{> album-cards albums=albums}}
+      {{else}}
+        <p class="text-neutral-700">Photo albums will be published here soon.</p>
+      {{/if}}
+    </div>
+  </section>
+
+  <section aria-labelledby="videos-heading" class="mt-16">
+    <h2 id="videos-heading" class="section-heading">Videos</h2>
+    <div class="mt-8">
+      {{#if videos.length}}
+        {{> video-cards videos=videos}}
+      {{else}}
+        <p class="text-neutral-700">Videos will be published here soon.</p>
+      {{/if}}
+    </div>
+  </section>
+</div>

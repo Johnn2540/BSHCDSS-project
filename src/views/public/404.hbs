@@ -1,0 +1,23 @@
+<section class="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6 sm:py-24">
+  <p class="text-6xl font-bold text-brand-blue" aria-hidden="true">404</p>
+  <h1 class="mt-4 text-2xl font-bold text-neutral-900 sm:text-3xl">Page not found</h1>
+  <p class="mt-4 text-neutral-700">{{#if message}}{{message}}{{else}}Sorry, we couldn't find the page you were looking for. It may have been moved or removed.{{/if}}</p>
+  <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+    <a href="/" class="btn btn-primary">Go to the home page</a>
+    <a href="/contact" class="btn border border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 focus-visible:outline-brand-blue">Contact us</a>
+  </div>
+  {{#unless currentUser}}
+    <nav aria-label="Popular pages" class="mt-12 border-t border-neutral-200 pt-8">
+      <h2 class="text-sm font-semibold uppercase tracking-wider text-neutral-600">You might be looking for</h2>
+      <ul class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2">
+        {{#each navigation}}
+          {{#if children}}
+            {{#each children}}<li><a href="{{href}}" class="font-medium text-brand-blue underline-offset-2 hover:underline">{{label}}</a></li>{{/each}}
+          {{else}}
+            <li><a href="{{href}}" class="font-medium text-brand-blue underline-offset-2 hover:underline">{{label}}</a></li>
+          {{/if}}
+        {{/each}}
+      </ul>
+    </nav>
+  {{/unless}}
+</section>

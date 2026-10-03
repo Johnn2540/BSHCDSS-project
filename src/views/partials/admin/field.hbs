@@ -1,0 +1,70 @@
+{{!-- One form field. Context: a field definition. Needs @root.values and @root.errors. --}}
+<div class="{{#if (eq type "checkbox")}}flex items-start gap-3{{/if}}">
+  {{#if (eq type "checkbox")}}
+    <input type="checkbox" id="f-{{name}}" name="{{name}}" class="mt-1 h-5 w-5 rounded border-neutral-400 accent-brand-blue"
+           {{#if (get @root.values name)}}checked{{/if}} {{#if help}}aria-describedby="f-{{name}}-help"{{/if}}>
+    <div>
+      <label for="f-{{name}}" class="form-label">{{label}}</label>
+      {{#if help}}<p id="f-{{name}}-help" class="form-help">{{help}}</p>{{/if}}
+    </div>
+  {{else}}
+    <label for="f-{{name}}" class="form-label">
+      {{label}}{{#if required}} <span class="text-brand-red" aria-hidden="true">*</span><span class="sr-only">(required)</span>{{/if}}
+    </label>
+    {{#if help}}<p id="f-{{name}}-help" class="form-help">{{help}}</p>{{/if}}
+
+    {{#if (or (eq type "textarea") (eq type "lines"))}}
+      <textarea id="f-{{name}}" name="{{name}}" rows="{{#if rows}}{{rows}}{{else}}4{{/if}}" class="form-input"
+                {{#if required}}required{{/if}} {{#if placeholder}}placeholder="{{placeholder}}"{{/if}}
+                {{#if (get @root.errors name)}}aria-invalid="true" aria-describedby="f-{{name}}-error"{{else}}{{#if help}}aria-describedby="f-{{name}}-help"{{/if}}{{/if}}>{{joinLines (get @root.values name)}}</textarea>
+
+    {{else if (eq type "select")}}
+      <select id="f-{{name}}" name="{{name}}" class="form-input" {{#if required}}required{{/if}}
+              {{#if (get @root.errors name)}}aria-invalid="true" aria-describedby="f-{{name}}-error"{{/if}}>
+        {{#unless required}}<option value="">{{#if emptyLabel}}{{emptyLabel}}{{else}}Choose…{{/if}}</option>{{/unless}}
+        {{#each options}}
+          <option value="{{value}}" {{#if (eq (get @root.values ../name) value)}}selected{{/if}}>{{label}}</option>
+        {{/each}}
+      </select>
+
+    {{else if (or (eq type "image") (eq type "file"))}}
+      {{#if currentUrl}}
+        <div class="mt-2 flex flex-wrap items-center gap-4 rounded border border-neutral-200 bg-neutral-50 p-3">
+          {{#if (eq type "image")}}
+            <img src="{{img currentUrl "w_160,h_160,c_fit"}}" alt="Current {{label}}" class="h-20 w-20 rounded border border-neutral-200 bg-white object-contain">
+          {{else}}
+            <a href="{{currentUrl}}" target="_blank" rel="noopener" class="text-sm font-semibold text-brand-blue underline">{{#if currentName}}{{currentName}}{{else}}Current file{{/if}}</a>
+          {{/if}}
+          {{#unless required}}
+            <label class="flex items-center gap-2 text-sm text-neutral-700">
+              <input type="checkbox" name="remove_{{name}}" class="h-4 w-4 accent-brand-red"> Remove
+            </label>
+          {{/unless}}
+        </div>
+      {{/if}}
+      <input type="file" id="f-{{name}}" name="{{name}}"
+             accept="{{#if (eq type "image")}}.jpg,.jpeg,.png,.webp{{else}}.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx{{/if}}"
+             class="form-file" {{#if (and required (not currentUrl))}}required{{/if}}
+             {{#if (get @root.errors name)}}aria-invalid="true" aria-describedby="f-{{name}}-error"{{/if}}>
+
+    {{else}}
+      {{#if prefix}}<div class="mt-1.5 flex items-stretch"><span class="inline-flex items-center rounded-l border border-r-0 border-neutral-400 bg-neutral-100 px-3 text-sm text-neutral-600">{{prefix}}</span>{{/if}}
+      <input id="f-{{name}}" name="{{name}}"
+             type="{{#if (eq type "email")}}email{{else if (eq type "url")}}url{{else if (eq type "number")}}number{{else if (eq type "date")}}date{{else}}text{{/if}}"
+             value="{{#if (eq type "date")}}{{dateInput (get @root.values name)}}{{else}}{{get @root.values name}}{{/if}}"
+             class="form-input {{#if prefix}}mt-0! rounded-l-none{{/if}}"
+             {{#if required}}required{{/if}} {{#if placeholder}}placeholder="{{placeholder}}"{{/if}}
+             {{#if (eq type "number")}}inputmode="numeric" min="0"{{/if}}
+             {{#if suggestions}}list="f-{{name}}-list"{{/if}}
+             {{#if (get @root.errors name)}}aria-invalid="true" aria-describedby="f-{{name}}-error"{{/if}}>
+      {{#if prefix}}</div>{{/if}}
+      {{#if suggestions}}
+        <datalist id="f-{{name}}-list">{{#each suggestions}}<option value="{{this}}">{{/each}}</datalist>
+      {{/if}}
+    {{/if}}
+  {{/if}}
+
+  {{#if (get @root.errors name)}}
+    <p id="f-{{name}}-error" class="form-error">{{get @root.errors name}}</p>
+  {{/if}}
+</div>

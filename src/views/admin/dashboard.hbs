@@ -1,0 +1,74 @@
+{{> admin/page-header title="Dashboard" intro=(concat "Welcome, " currentUser.name ".")}}
+
+{{#if storageWarning}}
+  <div role="status" class="mb-6 rounded border-l-4 border-brand-yellow bg-yellow-50 px-4 py-3 text-sm text-neutral-900">
+    Cloudinary is not configured, so uploads are being saved to this computer (development only).
+    Add the Cloudinary keys to <code>.env</code> before going live.
+  </div>
+{{/if}}
+
+{{#if tutorCounts.pending}}
+  <section aria-labelledby="pending-heading" class="admin-card mb-6 border-l-4 border-l-brand-yellow p-5">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 id="pending-heading" class="text-lg font-bold">{{tutorCounts.pending}} tutor account(s) awaiting approval</h2>
+      <a href="/admin/tutors?status=PENDING" class="action-link">Review all</a>
+    </div>
+    <ul class="mt-3 divide-y divide-neutral-200">
+      {{#each pending}}
+        <li class="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="font-semibold">{{name}}</p>
+            <p class="text-sm text-neutral-600">{{email}}{{#if institution}} &middot; {{institution}}{{/if}}</p>
+          </div>
+          <form method="post" action="/admin/tutors/{{id}}/approve">
+            <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+            <button type="submit" class="btn btn-green py-2">Approve<span class="sr-only"> {{name}}</span></button>
+          </form>
+        </li>
+      {{/each}}
+    </ul>
+  </section>
+{{/if}}
+
+<ul class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+  {{#each stats}}
+    <li>
+      <a href="{{href}}" class="admin-card group block h-full p-5 hover:border-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
+        <p class="text-sm font-medium text-neutral-600">{{label}}</p>
+        <p class="mt-1 text-3xl font-bold text-brand-blue">{{value}}</p>
+        {{#if detail}}<p class="mt-1 text-xs text-neutral-600">{{detail}}</p>{{/if}}
+      </a>
+    </li>
+  {{/each}}
+</ul>
+
+<div class="mt-8 grid gap-6 lg:grid-cols-2">
+  <section aria-labelledby="tutor-heading" class="admin-card p-5">
+    <h2 id="tutor-heading" class="text-lg font-bold">Tutor accounts</h2>
+    <dl class="mt-4 grid grid-cols-3 gap-3 text-center">
+      <div class="rounded bg-green-50 p-3"><dt class="text-xs font-medium text-neutral-600">Active</dt><dd class="text-2xl font-bold text-brand-green">{{tutorCounts.active}}</dd></div>
+      <div class="rounded bg-yellow-50 p-3"><dt class="text-xs font-medium text-neutral-600">Pending</dt><dd class="text-2xl font-bold text-neutral-900">{{tutorCounts.pending}}</dd></div>
+      <div class="rounded bg-red-50 p-3"><dt class="text-xs font-medium text-neutral-600">Suspended</dt><dd class="text-2xl font-bold text-brand-red">{{tutorCounts.suspended}}</dd></div>
+    </dl>
+    <a href="/admin/tutors/new" class="btn btn-primary mt-4">{{> icon name="plus" class="h-4 w-4"}} Add tutor</a>
+  </section>
+
+  <section aria-labelledby="ann-heading" class="admin-card p-5">
+    <div class="flex items-center justify-between gap-3">
+      <h2 id="ann-heading" class="text-lg font-bold">Recent announcements</h2>
+      <a href="/admin/announcements/new" class="action-link">Add</a>
+    </div>
+    {{#if recentAnnouncements.length}}
+      <ul class="mt-3 divide-y divide-neutral-200">
+        {{#each recentAnnouncements}}
+          <li class="flex items-center justify-between gap-3 py-2.5">
+            <a href="/admin/announcements/{{id}}/edit" class="min-w-0 truncate font-medium text-brand-blue underline-offset-2 hover:underline">{{title}}</a>
+            <span class="shrink-0 text-xs text-neutral-600">{{formatDate publishedAt}}</span>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="mt-3 text-sm text-neutral-600">No announcements yet.</p>
+    {{/if}}
+  </section>
+</div>

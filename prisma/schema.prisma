@@ -1,0 +1,233 @@
+// BSHCDSS database schema.
+// Connection URLs live in prisma.config.js (Prisma 7 no longer reads them from this file).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  TUTOR
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+// Who can see a document or announcement.
+// PUBLIC: anyone on the public site (and tutors). TUTORS: logged-in tutors only.
+enum Audience {
+  PUBLIC
+  TUTORS
+}
+
+enum VideoProvider {
+  YOUTUBE
+  VIMEO
+}
+
+// ─── Accounts ─────────────────────────────────────────────────────────────────
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  name         String
+  phone        String?
+  institution  String?
+  role         Role       @default(TUTOR)
+  status       UserStatus @default(PENDING)
+  lastLoginAt  DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  resetTokens   PasswordResetToken[]
+  announcements Announcement[]
+
+  @@index([role, status])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique // SHA-256 of the token; the raw token only ever goes in the email
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Session table used by connect-pg-simple. Defined here so Prisma migrations own it.
+model Session {
+  sid    String   @id @db.VarChar
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "IDX_session_expire")
+  @@map("session")
+}
+
+// ─── Content ──────────────────────────────────────────────────────────────────
+
+// Editable text for a page or site-wide block, looked up by slug
+// (e.g. "home", "about", "curriculum", "contact", "site" for header/footer details).
+// `body` holds the main text; `sections` holds structured blocks (hero, objectives, etc.).
+model PageContent {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  summary   String?
+  body      String?
+  sections  Json?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model TeamMember {
+  id            String   @id @default(cuid())
+  name          String
+  title         String
+  institution   String?
+  bio           String?
+  photoUrl      String?
+  photoPublicId String? // Cloudinary public_id, used to delete/replace the image
+  displayOrder  Int      @default(0)
+  isPublished   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([isPublished, displayOrder])
+}
+
+model Activity {
+  id                 String   @id @default(cuid())
+  slug               String   @unique
+  title              String
+  summary            String?
+  body               String?
+  coverImageUrl      String?
+  coverImagePublicId String?
+  externalUrl        String? // e.g. the external LMS link
+  displayOrder       Int      @default(0)
+  isPublished        Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  albums Album[]
+  videos Video[]
+}
+
+model Album {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  description String?
+  date        DateTime?
+  activityId  String?
+  isPublished Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  activity Activity? @relation(fields: [activityId], references: [id], onDelete: SetNull)
+  photos   Photo[]
+
+  @@index([activityId])
+  @@index([isPublished, date])
+}
+
+model Photo {
+  id           String   @id @default(cuid())
+  albumId      String
+  imageUrl     String
+  publicId     String
+  caption      String?
+  width        Int?
+  height       Int?
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  album Album @relation(fields: [albumId], references: [id], onDelete: Cascade)
+
+  @@index([albumId, displayOrder])
+}
+
+model Video {
+  id           String        @id @default(cuid())
+  title        String
+  description  String?
+  embedUrl     String // YouTube or Vimeo URL; never an uploaded file
+  provider     VideoProvider
+  activityId   String?
+  date         DateTime?
+  displayOrder Int           @default(0)
+  isPublished  Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  activity Activity? @relation(fields: [activityId], references: [id], onDelete: SetNull)
+
+  @@index([activityId])
+  @@index([isPublished, date])
+}
+
+model Document {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  category     String
+  fileUrl      String
+  filePublicId String
+  fileName     String?
+  mimeType     String?
+  fileSize     Int? // bytes
+  audience     Audience @default(TUTORS)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@index([audience, isPublished])
+}
+
+model Announcement {
+  id          String    @id @default(cuid())
+  title       String
+  body        String
+  audience    Audience  @default(TUTORS)
+  isPublished Boolean   @default(true)
+  publishedAt DateTime  @default(now())
+  authorId    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  author User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([audience, isPublished, publishedAt])
+}
+
+model Partner {
+  id           String   @id @default(cuid())
+  name         String
+  shortName    String?
+  url          String?
+  logoUrl      String?
+  logoPublicId String?
+  isMain       Boolean  @default(false)
+  displayOrder Int      @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([isPublished, displayOrder])
+}

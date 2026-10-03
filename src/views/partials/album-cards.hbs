@@ -1,0 +1,18 @@
+{{!-- Grid of album cards. Param: albums [{ title, slug, date, coverUrl, photoCount }] --}}
+<ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  {{#each albums}}
+    <li>
+      <a href="/gallery/{{slug}}" class="group block overflow-hidden rounded border border-neutral-200 bg-white shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
+        {{#if coverUrl}}
+          <img src="{{img coverUrl "w_640,h_427,c_fill"}}" alt="" width="640" height="427" loading="lazy" class="aspect-[3/2] w-full bg-neutral-100 object-cover transition group-hover:opacity-90">
+        {{else}}
+          <span class="flex aspect-[3/2] w-full items-center justify-center bg-neutral-100 text-neutral-400" aria-hidden="true">{{> icon name="camera" class="h-10 w-10"}}</span>
+        {{/if}}
+        <div class="p-4">
+          <h3 class="font-semibold text-neutral-900 group-hover:text-brand-blue">{{title}}</h3>
+          <p class="mt-1 text-sm text-neutral-600">{{#if date}}{{formatDate date}} &middot; {{/if}}{{photoCount}} photo{{#unless (eq photoCount 1)}}s{{/unless}}</p>
+        </div>
+      </a>
+    </li>
+  {{/each}}
+</ul>

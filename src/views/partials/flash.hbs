@@ -1,0 +1,9 @@
+{{#each flash}}
+  <div role="{{#if (eq type "error")}}alert{{else}}status{{/if}}"
+       class="mb-4 rounded border-l-4 px-4 py-3 text-sm
+              {{#if (eq type "success")}}border-brand-green bg-green-50 text-green-900{{/if}}
+              {{#if (eq type "error")}}border-brand-red bg-red-50 text-red-900{{/if}}
+              {{#if (eq type "info")}}border-brand-blue bg-blue-50 text-blue-900{{/if}}">
+    {{message}}
+  </div>
+{{/each}}

@@ -1,0 +1,48 @@
+# Render Blueprint for the BSHCDSS website.
+# Render dashboard -> New -> Blueprint -> select this repository.
+# Secrets marked `sync: false` are entered in the dashboard when the Blueprint is created;
+# they are never stored in this file.
+
+services:
+  - type: web
+    name: bshcdss
+    runtime: node
+    region: frankfurt # closest Render region to East Africa; Neon project should be in eu-central-1 too
+    plan: free
+    # Dev dependencies (Prisma CLI, Tailwind) are needed to build, so they're installed explicitly.
+    # Migrations run during the build because the free plan has no pre-deploy step.
+    buildCommand: npm ci --include=dev && npm run build && npx prisma migrate deploy
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: APP_URL
+        sync: false # e.g. https://bshcdss.onrender.com (no trailing slash)
+      - key: DATABASE_URL
+        sync: false # Neon POOLED connection string (host contains -pooler)
+      - key: DIRECT_URL
+        sync: false # Neon DIRECT connection string, used by migrations
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_SECURE
+        value: "false"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: MAIL_FROM
+        sync: false # e.g. "BSHCDSS <no-reply@your-domain>"
+      - key: CONTACT_EMAIL
+        sync: false # where contact form messages are delivered

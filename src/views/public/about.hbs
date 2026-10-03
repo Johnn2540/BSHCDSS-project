@@ -1,0 +1,20 @@
+{{> page-hero title=page.title summary=page.summary}}
+
+<div class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[2fr_1fr]">
+  <article>
+    {{> prose text=page.body}}
+  </article>
+
+  <aside aria-labelledby="partners-aside" class="self-start rounded border-l-4 border-brand-green bg-neutral-50 p-6">
+    <h2 id="partners-aside" class="text-lg font-semibold text-brand-blue">Implemented in partnership with</h2>
+    <ul class="mt-4 space-y-3">
+      {{#each partners}}
+        <li>
+          {{#if url}}<a href="{{url}}" rel="noopener" target="_blank" class="font-medium text-neutral-900 underline-offset-2 hover:text-brand-blue hover:underline">{{name}}<span class="sr-only"> (opens in a new tab)</span></a>{{else}}<span class="font-medium">{{name}}</span>{{/if}}
+          {{#if isMain}}<span class="badge badge-green ml-1">Main partner</span>{{/if}}
+        </li>
+      {{/each}}
+    </ul>
+    <a href="/team" class="mt-6 inline-flex items-center gap-2 font-semibold text-brand-blue underline-offset-4 hover:underline">Meet the project team {{> icon name="arrow" class="h-4 w-4"}}</a>
+  </aside>
+</div>

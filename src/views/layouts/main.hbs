@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{#if title}}{{title}} | {{site.shortName}}{{else}}{{site.shortName}} | {{site.fullName}}{{/if}}</title>
+  <meta name="description" content="{{truncate (either metaDescription site.tagline) 160}}">
+  {{#if noindex}}
+    <meta name="robots" content="noindex">
+  {{else}}
+    <link rel="canonical" href="{{canonicalUrl}}">
+  {{/if}}
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{site.shortName}}">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:title" content="{{either title site.fullName}}">
+  <meta property="og:description" content="{{truncate (either metaDescription site.tagline) 200}}">
+  <meta property="og:url" content="{{canonicalUrl}}">
+  {{#if metaImage}}
+    <meta property="og:image" content="{{absoluteUrl (img metaImage "w_1200,h_630,c_fill") baseUrl}}">
+    <meta name="twitter:card" content="summary_large_image">
+  {{else}}
+    <meta property="og:image" content="{{absoluteUrl site.logoUrl baseUrl}}">
+    <meta name="twitter:card" content="summary">
+  {{/if}}
+  <meta name="theme-color" content="#0F47AF">
+  <link rel="icon" href="{{site.logoUrl}}">
+  {{!-- Swap no-js for js before first paint. The nonce lets it pass the CSP. --}}
+  <script nonce="{{cspNonce}}">document.documentElement.className = document.documentElement.className.replace('no-js', 'js');</script>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/site.js" defer></script>
+</head>
+<body class="flex min-h-screen flex-col bg-white text-neutral-900 antialiased">
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-brand-yellow focus:px-4 focus:py-2 focus:font-semibold focus:text-black">Skip to main content</a>
+
+  {{> site-header}}
+
+  <main id="main" class="flex-1" tabindex="-1">
+    {{{body}}}
+  </main>
+
+  {{> site-footer}}
+</body>
+</html>

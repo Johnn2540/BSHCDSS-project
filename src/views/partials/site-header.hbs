@@ -1,0 +1,105 @@
+<header class="relative z-40 bg-white">
+  {{!-- Government bar --}}
+  <div class="bg-neutral-900 text-xs text-white">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-1.5 sm:px-6">
+      <p>{{site.country}} <span class="hidden sm:inline">&middot; {{site.ministry}}</span></p>
+      {{#if site.contact.email}}
+        <a href="mailto:{{site.contact.email}}" class="hidden underline-offset-2 hover:underline md:inline">{{site.contact.email}}</a>
+      {{/if}}
+    </div>
+  </div>
+
+  {{!-- Identity --}}
+  <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+    <a href="/" class="flex min-w-0 items-center gap-3 rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue">
+      <img src="{{site.logoUrl}}" alt="" width="64" height="64" class="h-12 w-12 shrink-0 object-contain sm:h-16 sm:w-16">
+      <span class="min-w-0">
+        <span class="block text-lg font-bold leading-tight tracking-wide text-brand-blue sm:text-2xl">{{site.shortName}}</span>
+        <span class="block text-xs leading-snug text-neutral-700 sm:text-sm">{{site.fullName}}</span>
+      </span>
+    </a>
+
+    <button type="button" class="menu-toggle inline-flex shrink-0 items-center gap-2 rounded border border-neutral-300 px-3 py-2 text-sm font-semibold text-brand-blue hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue xl:hidden"
+            data-menu-toggle aria-controls="mobile-menu" aria-expanded="false">
+      <svg class="icon-open h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <svg class="icon-close h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      <span>Menu</span>
+    </button>
+  </div>
+
+  {{!-- Desktop navigation --}}
+  <nav aria-label="Main" class="hidden bg-brand-blue xl:block">
+    <div class="mx-auto flex max-w-7xl items-stretch justify-between px-4 sm:px-6">
+      <ul class="flex items-stretch">
+        {{#each navigation}}
+          {{#if children}}
+            <li class="dropdown relative flex" data-dropdown>
+              <button type="button" data-dropdown-toggle aria-expanded="false" aria-controls="dropdown-{{@index}}"
+                      class="nav-link inline-flex items-center gap-1 {{#if (isParentActive ../currentPath children)}}is-active{{/if}}">
+                {{label}}
+                <svg class="h-4 w-4 transition-transform" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+              </button>
+              <ul id="dropdown-{{@index}}" data-dropdown-menu class="dropdown-menu absolute left-0 top-full min-w-72 border-t-4 border-brand-green bg-white py-2 shadow-lg">
+                {{#each children}}
+                  <li>
+                    <a href="{{href}}" {{#if (isActive ../../currentPath href)}}aria-current="page"{{/if}}
+                       class="block px-4 py-2.5 text-sm text-neutral-800 hover:bg-neutral-100 hover:text-brand-blue focus-visible:bg-neutral-100 focus-visible:outline-none aria-[current=page]:font-semibold aria-[current=page]:text-brand-blue">{{label}}</a>
+                  </li>
+                {{/each}}
+              </ul>
+            </li>
+          {{else}}
+            <li class="flex">
+              <a href="{{href}}" {{#if (isActive ../currentPath href)}}aria-current="page"{{/if}} class="nav-link">{{label}}</a>
+            </li>
+          {{/if}}
+        {{/each}}
+      </ul>
+      <div class="flex items-center pl-4">
+        {{#if currentUser}}
+          <a href="{{currentUser.homePath}}" class="rounded bg-brand-yellow px-4 py-1.5 text-sm font-semibold text-black hover:bg-yellow-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Dashboard</a>
+        {{else}}
+          <a href="/login" class="rounded bg-brand-yellow px-4 py-1.5 text-sm font-semibold text-black hover:bg-yellow-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Login</a>
+        {{/if}}
+      </div>
+    </div>
+  </nav>
+
+  {{!-- Flag stripe --}}
+  <div class="flex h-1" aria-hidden="true">
+    <span class="flex-[6] bg-brand-green"></span>
+    <span class="flex-1 bg-brand-red"></span>
+    <span class="flex-1 bg-brand-yellow"></span>
+  </div>
+
+  {{!-- Mobile navigation --}}
+  <nav id="mobile-menu" aria-label="Main" class="mobile-menu border-b border-neutral-200 bg-white shadow-md xl:hidden">
+    <ul class="mx-auto max-w-7xl divide-y divide-neutral-200 px-4 py-2 sm:px-6">
+      {{#each navigation}}
+        {{#if children}}
+          <li class="py-2">
+            <p class="px-2 py-1 text-xs font-semibold uppercase tracking-wider text-neutral-600">{{label}}</p>
+            <ul>
+              {{#each children}}
+                <li>
+                  <a href="{{href}}" {{#if (isActive ../../currentPath href)}}aria-current="page"{{/if}} class="mobile-link pl-5">{{label}}</a>
+                </li>
+              {{/each}}
+            </ul>
+          </li>
+        {{else}}
+          <li>
+            <a href="{{href}}" {{#if (isActive ../currentPath href)}}aria-current="page"{{/if}} class="mobile-link">{{label}}</a>
+          </li>
+        {{/if}}
+      {{/each}}
+      <li class="py-3">
+        {{#if currentUser}}
+          <a href="{{currentUser.homePath}}" class="block rounded bg-brand-yellow px-4 py-3 text-center font-semibold text-black hover:bg-yellow-300">Dashboard</a>
+        {{else}}
+          <a href="/login" class="block rounded bg-brand-yellow px-4 py-3 text-center font-semibold text-black hover:bg-yellow-300">Login</a>
+        {{/if}}
+      </li>
+    </ul>
+  </nav>
+</header>

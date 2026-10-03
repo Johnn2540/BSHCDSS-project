@@ -1,0 +1,38 @@
+{{#> admin/page-header title=title back="/admin/tutors" backLabel="Tutors"}}
+  {{#if tutor}}<a href="/admin/tutors/{{tutor.id}}/delete" class="btn border border-brand-red/40 bg-white text-brand-red hover:bg-red-50 focus-visible:outline-brand-red">Delete</a>{{/if}}
+{{/admin/page-header}}
+
+<form method="post" action="{{#if tutor}}/admin/tutors/{{tutor.id}}{{else}}/admin/tutors{{/if}}" novalidate class="admin-card max-w-2xl space-y-6 p-5 sm:p-8">
+  <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+  {{> admin/field name="name" label="Full name" type="text" required=true}}
+  {{> admin/field name="email" label="Email address" type="email" required=true help="The tutor logs in with this address."}}
+  {{> admin/field name="phone" label="Phone number" type="text"}}
+  {{> admin/field name="institution" label="Institution" type="text"}}
+
+  {{#unless tutor}}
+    <fieldset>
+      <legend class="form-label">Account status <span class="text-brand-red" aria-hidden="true">*</span></legend>
+      <div class="mt-2 space-y-2">
+        <label class="flex items-start gap-3">
+          <input type="radio" name="status" value="ACTIVE" class="mt-1 h-4 w-4 accent-brand-blue" {{#if (eq values.status "ACTIVE")}}checked{{/if}}>
+          <span><span class="font-medium">Active</span><span class="block text-sm text-neutral-600">Send an invitation email now so the tutor can choose a password.</span></span>
+        </label>
+        <label class="flex items-start gap-3">
+          <input type="radio" name="status" value="PENDING" class="mt-1 h-4 w-4 accent-brand-blue" {{#if (eq values.status "PENDING")}}checked{{/if}}>
+          <span><span class="font-medium">Pending</span><span class="block text-sm text-neutral-600">Create the account now and approve it later. No email is sent yet.</span></span>
+        </label>
+      </div>
+      {{#if errors.status}}<p class="form-error">{{errors.status}}</p>{{/if}}
+    </fieldset>
+  {{else}}
+    <p class="text-sm text-neutral-700">
+      Status: <strong>{{enumLabel tutor.status}}</strong>. Use the actions on the Tutors list to approve, suspend or reactivate this account.
+    </p>
+  {{/unless}}
+
+  <div class="flex flex-wrap gap-3 border-t border-neutral-200 pt-6">
+    <button type="submit" class="btn btn-primary">{{#if tutor}}Save changes{{else}}Add tutor{{/if}}</button>
+    <a href="/admin/tutors" class="btn border border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 focus-visible:outline-brand-blue">Cancel</a>
+  </div>
+</form>

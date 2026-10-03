@@ -1,0 +1,29 @@
+{{> page-hero title=album.title summary=album.description parentLabel="Pictures and Videos" parentHref="/gallery"}}
+
+<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+  <p class="text-sm text-neutral-600">
+    {{#if album.date}}{{formatDate album.date}} &middot; {{/if}}{{album.photos.length}} photo{{#unless (eq album.photos.length 1)}}s{{/unless}}
+    {{#if album.activity}}{{#if album.activity.isPublished}} &middot; <a href="/activities/{{album.activity.slug}}" class="font-medium text-brand-blue underline-offset-2 hover:underline">{{album.activity.title}}</a>{{/if}}{{/if}}
+  </p>
+
+  {{#if album.photos.length}}
+    <ul class="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+      {{#each album.photos}}
+        <li>
+          <figure>
+            <a href="{{img imageUrl "w_1600,c_limit"}}" class="block overflow-hidden rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
+              <img src="{{img imageUrl "w_480,h_480,c_fill"}}" alt="{{#if caption}}{{caption}}{{else}}Photo {{add @index 1}} from {{../album.title}}{{/if}}"
+                   width="480" height="480" loading="lazy" class="aspect-square w-full bg-neutral-100 object-cover transition hover:opacity-90">
+              <span class="sr-only"> (open full size)</span>
+            </a>
+            {{#if caption}}<figcaption class="mt-1.5 text-sm text-neutral-700">{{caption}}</figcaption>{{/if}}
+          </figure>
+        </li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <p class="mt-6 text-neutral-700">Photos will be added to this album soon.</p>
+  {{/if}}
+
+  <a href="/gallery" class="mt-10 inline-flex items-center gap-2 font-semibold text-brand-blue underline-offset-4 hover:underline">&larr; Back to all albums and videos</a>
+</div>

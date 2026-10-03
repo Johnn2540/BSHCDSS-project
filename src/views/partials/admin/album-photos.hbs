@@ -1,0 +1,50 @@
+{{!-- Photo management on the album edit screen. Context: { album, photos, maxPerUpload } --}}
+<section id="photos" aria-labelledby="photos-heading" class="admin-card mt-8 p-5 sm:p-8">
+  <h2 id="photos-heading" class="text-xl font-bold text-brand-blue">Photos in this album</h2>
+
+  <form method="post" action="/admin/albums/{{album.id}}/photos?_csrf={{@root.csrfToken}}" enctype="multipart/form-data"
+        {{#if @root.maxUploadBytes}}data-max-upload-bytes="{{@root.maxUploadBytes}}"{{/if}}
+        class="mt-4 rounded border border-dashed border-neutral-400 bg-neutral-50 p-4">
+    <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+    <label for="photo-upload" class="form-label">Add photos</label>
+    <p id="photo-upload-help" class="form-help">
+      Select up to {{maxPerUpload}} JPG, PNG or WebP images at once, each up to {{maxImageMb}} MB{{#if maxTotalMb}}, and no more than {{maxTotalMb}} MB in total per upload. For larger batches, upload in several rounds{{/if}}.
+    </p>
+    <div class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <input type="file" id="photo-upload" name="photos" accept=".jpg,.jpeg,.png,.webp" multiple required aria-describedby="photo-upload-help" class="form-file mt-0!">
+      <button type="submit" class="btn btn-green shrink-0">{{> icon name="upload" class="h-4 w-4"}} Upload</button>
+    </div>
+  </form>
+
+  {{#if photos.length}}
+    <form method="post" action="/admin/albums/{{album.id}}/photos/save" class="mt-6">
+      <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+      <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {{#each photos}}
+          <li class="rounded border border-neutral-200 bg-white p-3">
+            <img src="{{img imageUrl "w_480,h_320,c_fill"}}" alt="{{caption}}" loading="lazy" class="aspect-[3/2] w-full rounded bg-neutral-100 object-cover">
+            <label for="caption-{{id}}" class="form-label mt-3">Caption</label>
+            <input id="caption-{{id}}" name="caption_{{id}}" value="{{caption}}" maxlength="300" class="form-input">
+            <div class="mt-3 flex items-end justify-between gap-3">
+              <div class="w-24">
+                <label for="order-{{id}}" class="form-label">Order</label>
+                <input id="order-{{id}}" name="order_{{id}}" type="number" min="0" inputmode="numeric" value="{{displayOrder}}" class="form-input">
+              </div>
+              <button type="submit" form="delete-photo-{{id}}" class="action-link action-link-danger">Delete<span class="sr-only"> photo {{@index}}</span></button>
+            </div>
+          </li>
+        {{/each}}
+      </ul>
+      <button type="submit" class="btn btn-primary mt-6">Save captions and order</button>
+    </form>
+
+    {{!-- Delete forms live outside the captions form (forms can't be nested); buttons point at them via form="…" --}}
+    {{#each photos}}
+      <form id="delete-photo-{{id}}" method="post" action="/admin/albums/{{../album.id}}/photos/{{id}}/delete" hidden>
+        <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+      </form>
+    {{/each}}
+  {{else}}
+    <p class="mt-6 text-neutral-700">No photos yet. Use the form above to add some.</p>
+  {{/if}}
+</section>

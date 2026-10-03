@@ -1,0 +1,16 @@
+{{!-- One table cell value. Context: { type, value } --}}
+{{#if (eq type "image")}}
+  {{#if value}}<img src="{{img value "w_96,h_96,c_fill"}}" alt="" loading="lazy" class="h-12 w-12 rounded border border-neutral-200 bg-white object-cover">{{else}}<span class="inline-block h-12 w-12 rounded border border-dashed border-neutral-300 bg-neutral-50"></span>{{/if}}
+{{else if (eq type "published")}}
+  {{#if value}}<span class="badge badge-green">Published</span>{{else}}<span class="badge badge-grey">Hidden</span>{{/if}}
+{{else if (eq type "yesno")}}
+  {{#if value}}Yes{{else}}<span class="text-neutral-500">No</span>{{/if}}
+{{else if (eq type "badge")}}
+  {{#if value}}<span class="badge {{#if (eq value "TUTORS")}}badge-blue{{else}}badge-grey{{/if}}">{{enumLabel value}}</span>{{/if}}
+{{else if (eq type "date")}}
+  {{formatDate value}}
+{{else if (eq type "bytes")}}
+  {{formatBytes value}}
+{{else}}
+  {{value}}
+{{/if}}

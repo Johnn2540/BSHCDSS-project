@@ -1,0 +1,98 @@
+<footer>
+  {{!-- Partners --}}
+  {{#if partners.length}}
+    <section aria-labelledby="partners-heading" class="border-t border-neutral-200 bg-neutral-50">
+      <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+        <h2 id="partners-heading" class="text-center text-sm font-semibold uppercase tracking-wider text-neutral-600">Our partners</h2>
+        <ul class="mt-6 grid gap-4 sm:grid-cols-3">
+          {{#each partners}}
+            <li>
+              {{#if url}}<a href="{{url}}" rel="noopener" target="_blank" class="partner-card group">{{else}}<div class="partner-card">{{/if}}
+                {{#if logoUrl}}
+                  <img src="{{img logoUrl "h_112,c_fit"}}" alt="{{name}}" loading="lazy" class="max-h-14 w-auto object-contain">
+                {{else}}
+                  <span class="text-center font-semibold text-brand-blue group-hover:underline">{{name}}</span>
+                {{/if}}
+                {{#if isMain}}<span class="mt-1 text-xs font-medium text-brand-green">Main partner</span>{{/if}}
+                {{#if url}}<span class="sr-only">(opens in a new tab)</span>{{/if}}
+              {{#if url}}</a>{{else}}</div>{{/if}}
+            </li>
+          {{/each}}
+        </ul>
+      </div>
+    </section>
+  {{/if}}
+
+  <div class="bg-brand-blue-dark text-neutral-200">
+    <div class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+      {{!-- About --}}
+      <div>
+        <div class="flex items-center gap-3">
+          <img src="{{site.logoUrl}}" alt="" width="48" height="48" loading="lazy" class="h-12 w-12 rounded-full bg-white object-contain p-0.5">
+          <p class="text-lg font-bold tracking-wide text-white">{{site.shortName}}</p>
+        </div>
+        <p class="mt-4 text-sm leading-relaxed">{{site.fullName}}.</p>
+        <p class="mt-2 text-sm leading-relaxed">A project of the {{site.ministry}}, {{site.country}}.</p>
+      </div>
+
+      {{!-- Quick links --}}
+      <nav aria-labelledby="footer-quick-links">
+        <h2 id="footer-quick-links" class="footer-heading">Quick links</h2>
+        <ul class="mt-4 space-y-2 text-sm">
+          {{#each navigation}}
+            {{#unless children}}
+              <li><a href="{{href}}" class="footer-link">{{label}}</a></li>
+            {{/unless}}
+          {{/each}}
+        </ul>
+      </nav>
+
+      {{!-- Activities --}}
+      <nav aria-labelledby="footer-activities">
+        <h2 id="footer-activities" class="footer-heading">Project activities</h2>
+        <ul class="mt-4 space-y-2 text-sm">
+          {{#each navigation}}
+            {{#each children}}
+              <li><a href="{{href}}" class="footer-link">{{label}}</a></li>
+            {{/each}}
+          {{/each}}
+        </ul>
+      </nav>
+
+      {{!-- Contact --}}
+      <div>
+        <h2 class="footer-heading">Contact us</h2>
+        <address class="mt-4 space-y-3 text-sm not-italic">
+          {{#if site.contact.address.length}}
+            <p class="flex gap-3">
+              <svg class="mt-0.5 h-4 w-4 shrink-0 text-brand-yellow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0114 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              <span>{{#each site.contact.address}}{{this}}{{#unless @last}}<br>{{/unless}}{{/each}}</span>
+            </p>
+          {{/if}}
+          {{#if site.contact.phone}}
+            <p class="flex gap-3">
+              <svg class="mt-0.5 h-4 w-4 shrink-0 text-brand-yellow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg>
+              <span><span class="sr-only">Phone: </span>{{site.contact.phone}}</span>
+            </p>
+          {{/if}}
+          {{#if site.contact.email}}
+            <p class="flex gap-3">
+              <svg class="mt-0.5 h-4 w-4 shrink-0 text-brand-yellow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+              <a href="mailto:{{site.contact.email}}" class="footer-link"><span class="sr-only">Email: </span>{{site.contact.email}}</a>
+            </p>
+          {{/if}}
+          {{#if site.contact.hours}}
+            <p class="pl-7 text-neutral-300">{{site.contact.hours}}</p>
+          {{/if}}
+        </address>
+      </div>
+    </div>
+
+    <div class="border-t border-white/15">
+      <div class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-4 text-xs text-neutral-300 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <p>&copy; {{year}} {{site.ministry}}, {{site.country}}.</p>
+        <a href="/login" class="footer-link">Staff and tutor login</a>
+      </div>
+    </div>
+  </div>
+</footer>
