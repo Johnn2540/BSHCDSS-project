@@ -187,6 +187,17 @@ module.exports = [
         rows: 3,
         default: 'For enquiries about the BSHCDSS project, please get in touch using the details below or the contact form.',
       },
+      { name: 'formHeading', label: 'Form heading', type: 'text', max: 80, default: 'Send us a message' },
+      {
+        name: 'formIntro',
+        label: 'Form introduction',
+        help: 'Shown beside the contact form.',
+        type: 'textarea',
+        rows: 3,
+        max: 500,
+        default:
+          'Use this form for enquiries about teacher training, curriculum documents, partnerships or media requests. A member of the project team will reply by email.',
+      },
     ],
   },
 ];

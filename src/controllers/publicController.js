@@ -129,7 +129,14 @@ const contactRules = [
 
 async function renderContact(req, res, { values = {}, errors = {}, status = 200 } = {}) {
   const page = await content.getPage('contact');
-  res.status(status).render('public/contact', { title: page.title, metaDescription: page.summary, page, values, errors });
+  res.status(status).render('public/contact', {
+    title: page.title,
+    metaDescription: page.summary,
+    metaImage: '/images/pages/contact-1200.jpg',
+    page,
+    values,
+    errors,
+  });
 }
 
 async function showContact(req, res) {

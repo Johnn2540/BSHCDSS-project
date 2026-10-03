@@ -68,8 +68,16 @@ function rowToValues(config, row) {
   const sections = (row && row.sections) || {};
   const values = {};
   for (const field of config.fields) {
-    const saved = COLUMN_FIELDS.includes(field.name) ? row && row[field.name] : sections[field.name];
-    values[field.name] = row ? saved ?? (field.type === 'lines' ? [] : '') : field.default ?? '';
+    const empty = field.type === 'lines' ? [] : '';
+    if (!row) {
+      values[field.name] = field.default ?? empty;
+    } else if (COLUMN_FIELDS.includes(field.name)) {
+      values[field.name] = row[field.name] ?? empty;
+    } else {
+      // A field added to the page after it was last saved isn't in `sections` yet: use its default.
+      // (A field the admin deliberately cleared is saved as '' or [] and stays empty.)
+      values[field.name] = field.name in sections ? sections[field.name] ?? empty : field.default ?? empty;
+    }
   }
   return values;
 }

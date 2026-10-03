@@ -67,6 +67,9 @@ module.exports = {
     return new Date(date).toISOString().slice(0, 10);
   },
 
+  // Phone number for a tel: link, e.g. "+211 912 345 678" -> "+211912345678"
+  telHref: (phone) => String(phone || '').replace(/[^\d+]/g, ''),
+
   // "report.pdf" -> "PDF"
   fileExt: (name) => {
     const m = /\.([a-z0-9]{1,5})$/i.exec(String(name || ''));
