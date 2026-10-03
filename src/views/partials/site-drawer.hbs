@@ -1,0 +1,69 @@
+{{!-- Sidebar menu for phones and tablets (below the xl breakpoint).
+     Slides in from the right; closed by the X, the backdrop, Escape, or choosing a link.
+     Without JavaScript it renders as a plain list under the header. --}}
+<div class="drawer-backdrop xl:hidden" data-drawer-backdrop aria-hidden="true"></div>
+
+<div id="site-drawer" class="drawer xl:hidden" role="dialog" aria-modal="true" aria-labelledby="drawer-title" data-drawer>
+  {{!-- Drawer header: echoes the black identity band --}}
+  <div class="drawer-head">
+    <a href="/" class="flex min-w-0 items-center gap-3 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-yellow">
+      <img src="{{#if site.brand}}{{site.brand.emblem.webp128}}{{else}}{{site.logoUrl}}{{/if}}" alt="" width="44" height="44" class="h-11 w-11 shrink-0 object-contain">
+      <span class="min-w-0">
+        <span id="drawer-title" class="block text-base font-bold leading-tight tracking-wide">{{site.shortName}}</span>
+        <span class="block text-xs text-white/70">Main menu</span>
+      </span>
+    </a>
+    <button type="button" class="drawer-close" data-drawer-close>
+      <span class="sr-only">Close menu</span>
+      <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18"/>
+      </svg>
+    </button>
+  </div>
+  <div class="flex h-1 shrink-0" aria-hidden="true">
+    <span class="flex-[6] bg-brand-green"></span><span class="flex-1 bg-brand-red"></span><span class="flex-1 bg-brand-yellow"></span>
+  </div>
+
+  {{!-- Links --}}
+  <nav aria-label="Main" class="drawer-body">
+    <ul class="space-y-0.5">
+      {{#each navigation}}
+        {{#if children}}
+          <li>
+            <button type="button" class="drawer-link drawer-group {{#if (isParentActive ../currentPath children)}}is-active{{/if}}"
+                    data-drawer-group aria-controls="drawer-group-{{@index}}"
+                    aria-expanded="{{#if (isParentActive ../currentPath children)}}true{{else}}false{{/if}}">
+              <span>{{label}}</span>
+              <svg class="drawer-chevron h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+            </button>
+            {{!-- Rendered expanded; site.js collapses it on load unless it holds the current page,
+                  so without JavaScript every link stays visible. --}}
+            <ul id="drawer-group-{{@index}}" class="drawer-sub">
+              {{#each children}}
+                <li>
+                  <a href="{{href}}" class="drawer-sublink" {{#if (isActive ../../currentPath href)}}aria-current="page"{{/if}}>{{label}}</a>
+                </li>
+              {{/each}}
+            </ul>
+          </li>
+        {{else}}
+          <li>
+            <a href="{{href}}" class="drawer-link" {{#if (isActive ../currentPath href)}}aria-current="page"{{/if}}>{{label}}</a>
+          </li>
+        {{/if}}
+      {{/each}}
+    </ul>
+  </nav>
+
+  {{!-- Footer: account action and the ministry line (hidden in the header on phones) --}}
+  <div class="drawer-foot">
+    {{#if currentUser}}
+      <a href="{{currentUser.homePath}}" class="btn w-full bg-brand-yellow py-3 text-base text-black hover:bg-yellow-300 focus-visible:outline-brand-blue">Go to dashboard</a>
+    {{else}}
+      <a href="/login" class="btn w-full bg-brand-yellow py-3 text-base text-black hover:bg-yellow-300 focus-visible:outline-brand-blue">Login</a>
+    {{/if}}
+    <p class="mt-4 text-center text-xs leading-relaxed text-neutral-600">
+      <span class="font-semibold uppercase tracking-wider text-neutral-700">{{site.country}}</span><br>{{site.ministry}}
+    </p>
+  </div>
+</div>

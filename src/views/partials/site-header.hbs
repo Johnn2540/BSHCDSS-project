@@ -1,33 +1,28 @@
 <header class="relative z-40 bg-white">
   {{#if site.brand}}
     {{!-- Identity band. The logo artwork is drawn on pure black, so the band is black and the
-         logo sits on it exactly as designed (no cut-out that could damage the flag's black stripe). --}}
+         logo sits on it exactly as designed (no cut-out that could damage the flag's black stripe).
+         Phones: the logo is sized by width so it fills the band; larger screens size it by height. --}}
     <div class="bg-black text-white">
-      <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:py-2.5">
-        <a href="/" class="shrink-0 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-yellow">
+      <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-2.5">
+        <a href="/" class="block min-w-0 flex-1 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-yellow sm:flex-none">
           {{#with site.brand.lockup}}
             <picture>
               <source type="image/webp" srcset="{{webp640}} 640w, {{webp1280}} 1280w"
-                      sizes="(min-width: 1280px) 301px, (min-width: 1024px) 258px, (min-width: 640px) 172px, 150px">
+                      sizes="(min-width: 1280px) 301px, (min-width: 1024px) 258px, (min-width: 640px) 215px, 280px">
               <img src="{{jpg}}" width="{{width}}" height="{{height}}" fetchpriority="high"
                    alt="{{@root.site.shortName}}: {{@root.site.fullName}}. {{@root.site.ministry}}, {{@root.site.country}}. Home page"
-                   class="block h-14 w-auto sm:h-16 lg:h-24 xl:h-28">
+                   class="block h-auto w-full max-w-70 sm:h-20 sm:w-auto sm:max-w-none lg:h-24 xl:h-28">
             </picture>
           {{/with}}
         </a>
 
-        <div class="flex items-center gap-6">
+        <div class="flex shrink-0 items-center gap-6">
           <div class="hidden border-l-2 border-brand-yellow/70 pl-4 text-left md:block">
             <p class="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-brand-yellow">{{site.country}}</p>
             <p class="mt-1 max-w-64 text-sm font-medium leading-snug text-white/90">{{site.ministry}}</p>
           </div>
-
-          <button type="button" class="menu-toggle inline-flex shrink-0 items-center gap-2 rounded border border-white/40 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-yellow xl:hidden"
-                  data-menu-toggle aria-controls="mobile-menu" aria-expanded="false">
-            <svg class="icon-open h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-            <svg class="icon-close h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-            <span>Menu</span>
-          </button>
+          {{> menu-button dark=true}}
         </div>
       </div>
     </div>
@@ -46,12 +41,7 @@
           <span class="block text-xs leading-snug text-neutral-700 sm:text-sm">{{site.fullName}}</span>
         </span>
       </a>
-      <button type="button" class="menu-toggle inline-flex shrink-0 items-center gap-2 rounded border border-neutral-300 px-3 py-2 text-sm font-semibold text-brand-blue hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue xl:hidden"
-              data-menu-toggle aria-controls="mobile-menu" aria-expanded="false">
-        <svg class="icon-open h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-        <svg class="icon-close h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-        <span>Menu</span>
-      </button>
+      {{> menu-button}}
     </div>
   {{/if}}
 
@@ -100,34 +90,5 @@
     <span class="flex-1 bg-brand-yellow"></span>
   </div>
 
-  {{!-- Mobile navigation --}}
-  <nav id="mobile-menu" aria-label="Main" class="mobile-menu border-b border-neutral-200 bg-white shadow-md xl:hidden">
-    <ul class="mx-auto max-w-7xl divide-y divide-neutral-200 px-4 py-2 sm:px-6">
-      {{#each navigation}}
-        {{#if children}}
-          <li class="py-2">
-            <p class="px-2 py-1 text-xs font-semibold uppercase tracking-wider text-neutral-600">{{label}}</p>
-            <ul>
-              {{#each children}}
-                <li>
-                  <a href="{{href}}" {{#if (isActive ../../currentPath href)}}aria-current="page"{{/if}} class="mobile-link pl-5">{{label}}</a>
-                </li>
-              {{/each}}
-            </ul>
-          </li>
-        {{else}}
-          <li>
-            <a href="{{href}}" {{#if (isActive ../currentPath href)}}aria-current="page"{{/if}} class="mobile-link">{{label}}</a>
-          </li>
-        {{/if}}
-      {{/each}}
-      <li class="py-3">
-        {{#if currentUser}}
-          <a href="{{currentUser.homePath}}" class="block rounded bg-brand-yellow px-4 py-3 text-center font-semibold text-black hover:bg-yellow-300">Dashboard</a>
-        {{else}}
-          <a href="/login" class="block rounded bg-brand-yellow px-4 py-3 text-center font-semibold text-black hover:bg-yellow-300">Login</a>
-        {{/if}}
-      </li>
-    </ul>
-  </nav>
+  {{> site-drawer}}
 </header>

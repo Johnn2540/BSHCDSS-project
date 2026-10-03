@@ -23,6 +23,98 @@
     });
   }
 
+  // Sidebar menu (public site, phones and tablets)
+  var drawer = document.getElementById('site-drawer');
+  var drawerOpenBtn = document.querySelector('[data-drawer-open]');
+  var drawerBackdrop = document.querySelector('[data-drawer-backdrop]');
+
+  if (drawer && drawerOpenBtn && drawerBackdrop) {
+    var drawerCloseBtn = drawer.querySelector('[data-drawer-close]');
+    var lastFocused = null;
+
+    var isDrawerOpen = function () {
+      return drawer.classList.contains('is-open');
+    };
+    // Visible, focusable elements inside the drawer (collapsed sub-menus are skipped)
+    var drawerFocusables = function () {
+      return Array.prototype.filter.call(
+        drawer.querySelectorAll('a[href], button:not([disabled])'),
+        function (el) { return el.offsetParent !== null; }
+      );
+    };
+
+    var openDrawer = function () {
+      lastFocused = document.activeElement;
+      drawer.classList.add('is-open');
+      drawerBackdrop.classList.add('is-open');
+      drawerOpenBtn.setAttribute('aria-expanded', 'true');
+      document.documentElement.classList.add('drawer-locked');
+      // Focus the close button once the panel is visible
+      window.setTimeout(function () { drawerCloseBtn.focus(); }, 60);
+    };
+
+    var closeDrawer = function (restoreFocus) {
+      if (!isDrawerOpen()) return;
+      drawer.classList.remove('is-open');
+      drawerBackdrop.classList.remove('is-open');
+      drawerOpenBtn.setAttribute('aria-expanded', 'false');
+      document.documentElement.classList.remove('drawer-locked');
+      if (restoreFocus !== false && lastFocused && lastFocused.focus) lastFocused.focus();
+    };
+
+    drawerOpenBtn.addEventListener('click', openDrawer);
+    drawerCloseBtn.addEventListener('click', function () { closeDrawer(); });
+    drawerBackdrop.addEventListener('click', function () { closeDrawer(); });
+
+    // Choosing a link closes the menu (the page then navigates)
+    drawer.addEventListener('click', function (e) {
+      if (e.target.closest('a[href]')) closeDrawer(false);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (!isDrawerOpen()) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeDrawer();
+        return;
+      }
+      // Keep keyboard focus inside the open menu
+      if (e.key === 'Tab') {
+        var items = drawerFocusables();
+        if (!items.length) return;
+        var first = items[0];
+        var last = items[items.length - 1];
+        if (e.shiftKey && (document.activeElement === first || !drawer.contains(document.activeElement))) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && (document.activeElement === last || !drawer.contains(document.activeElement))) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    // The sidebar only exists below the desktop breakpoint; close it if the screen widens.
+    var desktop = window.matchMedia('(min-width: 80rem)');
+    var onBreakpoint = function () { if (desktop.matches) closeDrawer(false); };
+    if (desktop.addEventListener) desktop.addEventListener('change', onBreakpoint);
+    else if (desktop.addListener) desktop.addListener(onBreakpoint);
+
+    // Returning with the back button can restore a page with the menu open; reset it.
+    window.addEventListener('pageshow', function () { closeDrawer(false); });
+
+    // Expandable groups (Project Activities)
+    Array.prototype.forEach.call(drawer.querySelectorAll('[data-drawer-group]'), function (btn) {
+      var panel = document.getElementById(btn.getAttribute('aria-controls'));
+      panel.hidden = btn.getAttribute('aria-expanded') !== 'true'; // start collapsed unless it holds the current page
+      btn.addEventListener('click', function () {
+        var open = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!open));
+        panel.hidden = open;
+      });
+    });
+  }
+
   // Desktop dropdowns: click/keyboard to toggle, hover on devices that support it.
   var canHover = window.matchMedia('(hover: hover)').matches;
 
