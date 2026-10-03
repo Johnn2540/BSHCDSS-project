@@ -28,11 +28,32 @@ function clearCache() {
 }
 
 // ─── Logo ─────────────────────────────────────────────────────────────────────
+// Brand assets in public/images/brand/, generated from logo-original.jpg:
+//   logo-lockup-*   full horizontal logo (seal + wordmark + flag + tagline) on its black background
+//   logo-emblem-*   the seal alone, cut out as a transparent circle
+// If they're missing, the placeholder emblem is used and the header falls back to text.
 
-const IMAGES_DIR = path.join(__dirname, '..', '..', 'public', 'images');
-const LOGO_CANDIDATES = ['logo.svg', 'logo.png', 'logo.webp', 'logo.jpg'];
-const logoFile = LOGO_CANDIDATES.find((name) => fs.existsSync(path.join(IMAGES_DIR, name)));
-const logoUrl = logoFile ? `/images/${logoFile}` : '/images/logo-placeholder.svg';
+const BRAND_DIR = path.join(__dirname, '..', '..', 'public', 'images', 'brand');
+const hasBrand = fs.existsSync(path.join(BRAND_DIR, 'logo-lockup-1280.webp'));
+const B = '/images/brand';
+
+const brand = hasBrand
+  ? {
+      lockup: {
+        webp640: `${B}/logo-lockup-640.webp`,
+        webp1280: `${B}/logo-lockup-1280.webp`,
+        jpg: `${B}/logo-lockup-1280.jpg`,
+        width: 1280,
+        height: 477,
+      },
+      emblem: { webp128: `${B}/logo-emblem-128.webp`, webp256: `${B}/logo-emblem-256.webp`, webp512: `${B}/logo-emblem-512.webp`, png256: `${B}/logo-emblem-256.png` },
+      favicon32: `${B}/favicon-32.png`,
+      favicon48: `${B}/favicon-48.png`,
+      appleTouchIcon: `${B}/apple-touch-icon.png`,
+      ogImage: `${B}/og-image.jpg`,
+    }
+  : null;
+const logoUrl = brand ? brand.emblem.webp256 : '/images/logo-placeholder.svg';
 
 // ─── Pages ────────────────────────────────────────────────────────────────────
 
@@ -85,6 +106,7 @@ async function getSite() {
     tagline: page.summary,
     contact: { address: page.address || [], phone: page.phone, email: page.email, hours: page.hours },
     logoUrl,
+    brand,
   };
 }
 

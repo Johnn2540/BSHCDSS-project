@@ -28,7 +28,7 @@
       {{!-- About --}}
       <div>
         <div class="flex items-center gap-3">
-          <img src="{{site.logoUrl}}" alt="" width="48" height="48" loading="lazy" class="h-12 w-12 rounded-full bg-white object-contain p-0.5">
+          <img src="{{#if site.brand}}{{site.brand.emblem.webp128}}{{else}}{{site.logoUrl}}{{/if}}" alt="" width="56" height="56" loading="lazy" class="h-14 w-14 shrink-0 object-contain">
           <p class="text-lg font-bold tracking-wide text-white">{{site.shortName}}</p>
         </div>
         <p class="mt-4 text-sm leading-relaxed">{{site.fullName}}.</p>

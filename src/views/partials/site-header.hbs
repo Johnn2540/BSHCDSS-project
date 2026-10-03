@@ -1,31 +1,59 @@
 <header class="relative z-40 bg-white">
-  {{!-- Government bar --}}
-  <div class="bg-neutral-900 text-xs text-white">
-    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-1.5 sm:px-6">
-      <p>{{site.country}} <span class="hidden sm:inline">&middot; {{site.ministry}}</span></p>
-      {{#if site.contact.email}}
-        <a href="mailto:{{site.contact.email}}" class="hidden underline-offset-2 hover:underline md:inline">{{site.contact.email}}</a>
-      {{/if}}
+  {{#if site.brand}}
+    {{!-- Identity band. The logo artwork is drawn on pure black, so the band is black and the
+         logo sits on it exactly as designed (no cut-out that could damage the flag's black stripe). --}}
+    <div class="bg-black text-white">
+      <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:py-2.5">
+        <a href="/" class="shrink-0 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-yellow">
+          {{#with site.brand.lockup}}
+            <picture>
+              <source type="image/webp" srcset="{{webp640}} 640w, {{webp1280}} 1280w"
+                      sizes="(min-width: 1280px) 301px, (min-width: 1024px) 258px, (min-width: 640px) 172px, 150px">
+              <img src="{{jpg}}" width="{{width}}" height="{{height}}" fetchpriority="high"
+                   alt="{{@root.site.shortName}}: {{@root.site.fullName}}. {{@root.site.ministry}}, {{@root.site.country}}. Home page"
+                   class="block h-14 w-auto sm:h-16 lg:h-24 xl:h-28">
+            </picture>
+          {{/with}}
+        </a>
+
+        <div class="flex items-center gap-6">
+          <div class="hidden border-l-2 border-brand-yellow/70 pl-4 text-left md:block">
+            <p class="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-brand-yellow">{{site.country}}</p>
+            <p class="mt-1 max-w-64 text-sm font-medium leading-snug text-white/90">{{site.ministry}}</p>
+          </div>
+
+          <button type="button" class="menu-toggle inline-flex shrink-0 items-center gap-2 rounded border border-white/40 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-yellow xl:hidden"
+                  data-menu-toggle aria-controls="mobile-menu" aria-expanded="false">
+            <svg class="icon-open h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <svg class="icon-close h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <span>Menu</span>
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
-
-  {{!-- Identity --}}
-  <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-    <a href="/" class="flex min-w-0 items-center gap-3 rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue">
-      <img src="{{site.logoUrl}}" alt="" width="64" height="64" class="h-12 w-12 shrink-0 object-contain sm:h-16 sm:w-16">
-      <span class="min-w-0">
-        <span class="block text-lg font-bold leading-tight tracking-wide text-brand-blue sm:text-2xl">{{site.shortName}}</span>
-        <span class="block text-xs leading-snug text-neutral-700 sm:text-sm">{{site.fullName}}</span>
-      </span>
-    </a>
-
-    <button type="button" class="menu-toggle inline-flex shrink-0 items-center gap-2 rounded border border-neutral-300 px-3 py-2 text-sm font-semibold text-brand-blue hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue xl:hidden"
-            data-menu-toggle aria-controls="mobile-menu" aria-expanded="false">
-      <svg class="icon-open h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-      <svg class="icon-close h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      <span>Menu</span>
-    </button>
-  </div>
+  {{else}}
+    {{!-- Fallback when brand assets are missing: emblem + text --}}
+    <div class="bg-neutral-900 text-xs text-white">
+      <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-1.5 sm:px-6">
+        <p>{{site.country}} <span class="hidden sm:inline">&middot; {{site.ministry}}</span></p>
+      </div>
+    </div>
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+      <a href="/" class="flex min-w-0 items-center gap-3 rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue">
+        <img src="{{site.logoUrl}}" alt="" width="64" height="64" class="h-12 w-12 shrink-0 object-contain sm:h-16 sm:w-16">
+        <span class="min-w-0">
+          <span class="block text-lg font-bold leading-tight tracking-wide text-brand-blue sm:text-2xl">{{site.shortName}}</span>
+          <span class="block text-xs leading-snug text-neutral-700 sm:text-sm">{{site.fullName}}</span>
+        </span>
+      </a>
+      <button type="button" class="menu-toggle inline-flex shrink-0 items-center gap-2 rounded border border-neutral-300 px-3 py-2 text-sm font-semibold text-brand-blue hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue xl:hidden"
+              data-menu-toggle aria-controls="mobile-menu" aria-expanded="false">
+        <svg class="icon-open h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg class="icon-close h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        <span>Menu</span>
+      </button>
+    </div>
+  {{/if}}
 
   {{!-- Desktop navigation --}}
   <nav aria-label="Main" class="hidden bg-brand-blue xl:block">

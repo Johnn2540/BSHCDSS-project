@@ -12,9 +12,9 @@
       </div>
     </div>
     <div class="hidden lg:block">
-      <div class="rounded-full bg-white p-4 shadow-xl ring-8 ring-white/15">
-        <img src="{{site.logoUrl}}" alt="" width="240" height="240" class="h-60 w-60 object-contain">
-      </div>
+      {{!-- The seal already has its own white and gold ring, so it needs no extra frame. --}}
+      <img src="{{#if site.brand}}{{site.brand.emblem.webp512}}{{else}}{{site.logoUrl}}{{/if}}" alt="" width="256" height="256"
+           class="h-64 w-64 rounded-full object-contain shadow-2xl ring-8 ring-white/10">
     </div>
   </div>
 </section>

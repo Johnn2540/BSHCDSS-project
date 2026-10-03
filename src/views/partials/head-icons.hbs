@@ -1,0 +1,8 @@
+{{!-- Browser tab and home-screen icons --}}
+{{#if site.brand}}
+  <link rel="icon" type="image/png" sizes="32x32" href="{{site.brand.favicon32}}">
+  <link rel="icon" type="image/png" sizes="48x48" href="{{site.brand.favicon48}}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{site.brand.appleTouchIcon}}">
+{{else}}
+  <link rel="icon" href="{{site.logoUrl}}">
+{{/if}}

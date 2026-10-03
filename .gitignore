@@ -20,3 +20,6 @@ Thumbs.db
 .idea/
 public/uploads/
 /uploads/
+
+.vercel
+.env*

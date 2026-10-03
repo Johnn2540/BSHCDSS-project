@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>{{#if title}}{{title}} | {{/if}}Admin | {{site.shortName}}</title>
-  <link rel="icon" href="{{site.logoUrl}}">
+  {{> head-icons}}
   <script nonce="{{cspNonce}}">document.documentElement.className = document.documentElement.className.replace('no-js', 'js');</script>
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/site.js" defer></script>
@@ -18,7 +18,7 @@
     <aside class="bg-brand-blue-dark text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-64 lg:shrink-0 lg:flex-col">
       <div class="flex items-center justify-between gap-3 px-4 py-3 lg:py-5">
         <a href="/admin" class="flex min-w-0 items-center gap-3">
-          <img src="{{site.logoUrl}}" alt="" width="40" height="40" class="h-10 w-10 shrink-0 rounded-full bg-white object-contain p-0.5">
+          <img src="{{#if site.brand}}{{site.brand.emblem.webp128}}{{else}}{{site.logoUrl}}{{/if}}" alt="" width="40" height="40" class="h-10 w-10 shrink-0 object-contain">
           <span class="min-w-0">
             <span class="block font-bold tracking-wide">{{site.shortName}}</span>
             <span class="block text-xs text-white/70">Administration</span>

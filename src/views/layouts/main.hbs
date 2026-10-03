@@ -19,12 +19,25 @@
   {{#if metaImage}}
     <meta property="og:image" content="{{absoluteUrl (img metaImage "w_1200,h_630,c_fill") baseUrl}}">
     <meta name="twitter:card" content="summary_large_image">
+  {{else if site.brand}}
+    {{!-- Default share image: the full logo on black at the 1200x630 size social apps expect --}}
+    <meta property="og:image" content="{{absoluteUrl site.brand.ogImage baseUrl}}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{site.shortName}}: {{site.fullName}}">
+    <meta name="twitter:card" content="summary_large_image">
   {{else}}
     <meta property="og:image" content="{{absoluteUrl site.logoUrl baseUrl}}">
     <meta name="twitter:card" content="summary">
   {{/if}}
-  <meta name="theme-color" content="#0F47AF">
-  <link rel="icon" href="{{site.logoUrl}}">
+  <meta name="theme-color" content="#000000">
+  {{> head-icons}}
+  {{#if isHome}}{{#if site.brand}}
+    {{!-- Start fetching the header logo immediately on the home page --}}
+    <link rel="preload" as="image" type="image/webp" href="{{site.brand.lockup.webp640}}"
+          imagesrcset="{{site.brand.lockup.webp640}} 640w, {{site.brand.lockup.webp1280}} 1280w"
+          imagesizes="(min-width: 1280px) 301px, (min-width: 1024px) 258px, (min-width: 640px) 172px, 150px">
+  {{/if}}{{/if}}
   {{!-- Swap no-js for js before first paint. The nonce lets it pass the CSP. --}}
   <script nonce="{{cspNonce}}">document.documentElement.className = document.documentElement.className.replace('no-js', 'js');</script>
   <link rel="stylesheet" href="/css/style.css">
