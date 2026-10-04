@@ -6,6 +6,7 @@ const { parseVideoUrl } = require('../services/video');
 const { sendMail } = require('../services/mailer');
 const { collectErrors } = require('../admin/fields');
 const pageImages = require('../config/pageImages');
+const { buildDocumentLibrary } = require('../services/documentLibrary');
 
 // Icon shown on each home page activity card, by activity slug.
 const ACTIVITY_ICONS = { 'in-service-training': 'users', cpd: 'growth', lms: 'screen' };
@@ -113,18 +114,24 @@ async function team(req, res) {
 
 async function curriculum(req, res) {
   const [page, documentGroups] = await Promise.all([content.getPage('curriculum'), content.getDocuments(['PUBLIC'])]);
-  res.render('public/curriculum', { title: page.title, metaDescription: page.summary, page, documentGroups });
+  res.render('public/curriculum', {
+    title: page.title, metaDescription: page.summary, page,
+    library: buildDocumentLibrary(documentGroups, req.query),
+  });
 }
 
 async function activity(req, res) {
   const item = await content.getActivity(req.params.slug);
   if (!item) throw notFound();
-  const activities = await content.getActivities();
+  const [activities, resourceDocuments] = await Promise.all([
+    content.getActivities(), content.getActivityDocuments(item.slug),
+  ]);
   res.render('public/activity', {
     title: item.title,
     metaDescription: item.summary,
     metaImage: item.coverImageUrl,
     activity: item,
+    resourceDocuments,
     albums: albumCards(item.albums),
     videos: withVideoLinks(item.videos),
     otherActivities: activities.filter((a) => a.slug !== item.slug),

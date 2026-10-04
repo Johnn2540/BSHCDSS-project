@@ -1,0 +1,80 @@
+<section id="document-library" aria-labelledby="library-heading" class="scroll-mt-6">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <h2 id="library-heading" class="section-heading">{{page.libraryHeading}}</h2>
+      {{#if page.libraryIntro}}<p class="mt-4 max-w-2xl text-base leading-relaxed text-neutral-600">{{page.libraryIntro}}</p>{{/if}}
+    </div>
+    {{#if library.total}}<span class="library-total">{{library.total}} document{{#unless (eq library.total 1)}}s{{/unless}}</span>{{/if}}
+  </div>
+
+  {{#if library.total}}
+    <form method="get" action="{{action}}#document-library" role="search" aria-label="Search curriculum documents" class="library-search mt-7">
+      <div class="min-w-0 flex-1">
+        <label for="document-search" class="form-label">Search documents</label>
+        <div class="relative">
+          <span class="pointer-events-none absolute left-3 top-3.5 text-neutral-500">{{> icon name="search" class="h-5 w-5"}}</span>
+          <input id="document-search" name="q" type="search" value="{{library.q}}" maxlength="150" placeholder="Search by subject or keyword" class="form-input pl-10">
+        </div>
+      </div>
+      <div class="sm:min-w-64">
+        <label for="document-category" class="form-label">Subject area</label>
+        <select id="document-category" name="category" class="form-input">
+          <option value="">All subject areas</option>
+          {{#each library.categories}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}} ({{count}})</option>{{/each}}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary min-h-11 shrink-0">Search</button>
+    </form>
+
+    <div class="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
+      <p role="status">{{library.resultCount}} document{{#unless (eq library.resultCount 1)}}s{{/unless}}{{#if library.isFiltered}} found{{else}} available{{/if}}{{#if library.q}} for <strong class="text-neutral-900">“{{library.q}}”</strong>{{/if}}{{#if library.category}} in <strong class="text-neutral-900">{{library.category}}</strong>{{/if}}.</p>
+      {{#if library.isFiltered}}<a href="{{action}}#document-library" class="action-link">Clear filters</a>{{/if}}
+    </div>
+
+    {{#if library.resultCount}}
+      <div class="mt-7 grid gap-8 lg:grid-cols-[15rem_minmax(0,1fr)]">
+        <aside class="self-start lg:sticky lg:top-6">
+          <details class="rounded-xl border border-neutral-200 bg-neutral-50 lg:hidden">
+            <summary class="min-h-11 cursor-pointer px-4 py-3.5 text-sm font-semibold text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">Jump to a subject area</summary>
+            <nav aria-label="Document subject areas on mobile" class="px-3 pb-3">
+              <ul class="space-y-1">
+                {{#each library.groups}}
+                  <li><a href="#{{anchor}}" class="library-subject-link"><span>{{category}}</span><span class="library-subject-count">{{documents.length}}</span></a></li>
+                {{/each}}
+              </ul>
+            </nav>
+          </details>
+          <nav aria-label="Document subject areas" class="library-subject-nav hidden lg:block">
+            <p class="text-xs font-semibold uppercase tracking-wider text-neutral-500">Browse this collection</p>
+            <ul class="mt-3 space-y-1">
+              {{#each library.groups}}
+                <li><a href="#{{anchor}}" class="library-subject-link"><span>{{category}}</span><span class="library-subject-count">{{documents.length}}</span></a></li>
+              {{/each}}
+            </ul>
+          </nav>
+        </aside>
+        <div class="min-w-0 space-y-8">
+          {{#each library.groups}}
+            <section id="{{anchor}}" aria-labelledby="{{anchor}}-heading" class="scroll-mt-6">
+              <div class="mb-3 flex items-center gap-3">
+                <span class="h-5 w-1 rounded-full bg-brand-green" aria-hidden="true"></span>
+                <h3 id="{{anchor}}-heading" class="text-lg font-semibold text-brand-blue">{{category}}</h3>
+                <span class="text-xs text-neutral-500">{{documents.length}}</span>
+              </div>
+              {{> document-list documents=documents headingLevel="4" showAudience=../showAudience}}
+            </section>
+          {{/each}}
+        </div>
+      </div>
+    {{else}}
+      <div class="library-empty mt-7">
+        {{> icon name="search" class="mx-auto h-9 w-9 text-brand-blue"}}
+        <h3 class="mt-4 text-lg font-semibold text-neutral-900">No matching documents</h3>
+        <p class="mt-2 text-sm text-neutral-600">Try another keyword or choose a different subject area.</p>
+        <a href="{{action}}#document-library" class="btn btn-primary mt-5">View all documents</a>
+      </div>
+    {{/if}}
+  {{else}}
+    <p class="library-empty mt-6">{{page.libraryEmpty}}</p>
+  {{/if}}
+</section>

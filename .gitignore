@@ -21,5 +21,8 @@ Thumbs.db
 public/uploads/
 /uploads/
 
+# Local browser verification artifacts
+.artifacts/
+
 .vercel
 .env*

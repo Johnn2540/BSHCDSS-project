@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const { prisma } = require('../lib/db');
 const pageConfigs = require('../config/pages');
+const curriculumCatalogue = require('../data/curriculumDocuments');
 
 // On Vercel several function instances run at once and each has its own cache; an admin save
 // only clears the instance that handled it, so others could show old content until expiry.
@@ -188,6 +189,17 @@ async function getDocuments(audiences) {
   });
 }
 
+// Placement follows the source catalogue; admin edits and file replacements retain
+// the same document ID. Existing imports with the original filename also match.
+async function getActivityDocuments(slug) {
+  const sources = curriculumCatalogue.filter((entry) => (entry.activitySlugs || []).includes(slug));
+  if (!sources.length) return [];
+  const groups = await getDocuments(['PUBLIC']);
+  return groups.flatMap((group) => group.documents).filter((doc) =>
+    sources.some((entry) => entry.id === doc.id || entry.fileName === doc.fileName)
+  );
+}
+
 const ALBUM_CARD = {
   id: true,
   title: true,
@@ -270,6 +282,7 @@ module.exports = {
   getPublicAnnouncements,
   getTeam,
   getDocuments,
+  getActivityDocuments,
   getActivity,
   getGallery,
   getAlbum,

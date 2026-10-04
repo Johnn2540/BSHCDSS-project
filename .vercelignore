@@ -5,6 +5,10 @@
 node_modules
 uploads
 public/uploads
+.artifacts
+
+# Original curriculum source files are imported into authenticated document storage.
+documents
 
 # Original full-size photos (the site uses the optimised copies in public/images/pages/)
 public/images/contact.jpg

@@ -17,6 +17,14 @@
       </div>
     {{/if}}
 
+    {{#if resourceDocuments.length}}
+      <section aria-labelledby="training-resources-heading" class="mt-10">
+        <h2 id="training-resources-heading" class="section-heading">Training resources</h2>
+        <div class="mt-5">{{> document-list documents=resourceDocuments headingLevel="3"}}</div>
+        <a href="/curriculum#document-library" class="action-link mt-4 inline-flex min-h-11 items-center gap-2">Browse all curriculum documents {{> icon name="arrow" class="h-4 w-4"}}</a>
+      </section>
+    {{/if}}
+
     {{#if albums.length}}
       <section aria-labelledby="albums-heading" class="mt-12">
         <h2 id="albums-heading" class="section-heading">Photos</h2>

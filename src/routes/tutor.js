@@ -1,5 +1,7 @@
 const express = require('express');
 const { requireLogin, requireRole } = require('../middleware/auth');
+const content = require('../services/content');
+const { buildDocumentLibrary } = require('../services/documentLibrary');
 
 const router = express.Router();
 
@@ -9,8 +11,13 @@ router.use(requireLogin, requireRole('TUTOR', 'ADMIN'), (req, res, next) => {
   next();
 });
 
-router.get('/', (req, res) => {
-  res.render('tutor/dashboard', { title: 'Tutor dashboard' });
+router.get('/', async (req, res) => {
+  const [page, groups] = await Promise.all([
+    content.getPage('curriculum'), content.getDocuments(['PUBLIC', 'TUTORS']),
+  ]);
+  res.render('tutor/dashboard', {
+    title: 'Tutor dashboard', page, library: buildDocumentLibrary(groups, req.query),
+  });
 });
 
 module.exports = router;

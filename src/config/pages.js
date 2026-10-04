@@ -46,7 +46,7 @@ module.exports = [
         default: ['Ministry of General Education and Instruction', 'Juba, Republic of South Sudan'],
       },
       { name: 'phone', label: 'Phone number', type: 'text', max: 40, default: '+211 000 000 000' },
-      { name: 'email', label: 'Contact email', type: 'email', default: 'info@bshcdss.example' },
+      { name: 'email', label: 'Contact email', type: 'email', default: 'kussdproject@gmail.com' },
       { name: 'hours', label: 'Office hours', type: 'text', default: 'Monday to Friday, 8:00 am to 5:00 pm' },
     ],
   },
@@ -253,7 +253,7 @@ module.exports = [
   {
     slug: 'curriculum',
     label: 'Curriculum Design and Development',
-    description: 'The Curriculum page (/curriculum). The introduction also appears on the home page card.',
+    description: 'The Curriculum page (/curriculum), including the document library and tutor resource introduction. The introduction also appears on the home page card.',
     fields: [
       { name: 'title', label: 'Page heading', type: 'text', required: true, default: 'Curriculum Design and Development' },
       {
@@ -261,7 +261,7 @@ module.exports = [
         label: 'Introduction',
         type: 'textarea',
         rows: 3,
-        default: 'Developing a comprehensive teacher training package to strengthen pre-service and in-service teacher training.',
+        default: 'Curriculum designs and practical training resources supporting pre-service and in-service teacher education in South Sudan.',
       },
       {
         name: 'body',
@@ -269,9 +269,23 @@ module.exports = [
         type: 'textarea',
         rows: 12,
         default:
-          'Teachers’ content knowledge and teaching skills significantly affect student learning. For teachers to perform effectively, they must be well prepared and equipped with traditional competencies, such as content knowledge and pedagogy skills, and non-traditional competencies such as socioemotional skills.\n\n' +
-          'Most teacher training currently offered in South Sudan focuses on subject matter content, with little time devoted to learner-centred pedagogical approaches. Teachers received only two days of training on content and pedagogies appropriate for the newly introduced competency-based curriculum, and training delivered through many separate accredited and non-accredited programmes has led to fragmentation, with programmes of varying quality distributed unevenly across states.\n\n' +
-          'BSHCDSS is developing a comprehensive teacher training package to strengthen both pre-service and in-service teacher training at 10 National Teacher Training Institutions, as part of Component 1 of the Building Skills for Human Capital Development in South Sudan project.',
+          'The teacher education curriculum supports certificate and diploma programmes for pre-primary and primary education. The subject designs bring together learning outcomes, teaching activities and guidance for preparing student teachers for classroom practice.\n\n' +
+          'The Master Trainers manual supports the implementation of competency-based education through facilitation, lesson planning, assessment, live teaching and reflective practice. Together, these resources form part of the comprehensive package for strengthening pre-service and in-service teacher education in South Sudan.',
+      },
+      { name: 'eyebrow', label: 'Banner label', type: 'text', default: 'Teacher education resources' },
+      { name: 'browseLabel', label: 'Browse button label', type: 'text', default: 'Browse the document library' },
+      { name: 'libraryHeading', label: 'Document library heading', type: 'text', default: 'Curriculum document library' },
+      {
+        name: 'libraryIntro', label: 'Document library introduction', type: 'textarea', rows: 3,
+        default: 'Find subject curriculum designs and training materials. Search by keyword or browse a subject area, then download the original Word document.',
+      },
+      { name: 'libraryEmpty', label: 'Empty library message', type: 'text', default: 'Curriculum documents will be published here soon.' },
+      { name: 'overviewEyebrow', label: 'Overview label', type: 'text', default: 'About the curriculum' },
+      { name: 'overviewHeading', label: 'Overview heading', type: 'text', default: 'A shared foundation for teacher education' },
+      { name: 'tutorHeading', label: 'Tutor information heading', type: 'text', default: 'Resources for registered tutors' },
+      {
+        name: 'tutorIntro', label: 'Tutor information text', type: 'textarea', rows: 3,
+        default: 'Sign in to your tutor area to access public curriculum documents and any additional materials shared with tutors.',
       },
     ],
   },
