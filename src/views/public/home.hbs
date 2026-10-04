@@ -141,7 +141,8 @@
   <section aria-labelledby="news-heading" class="bg-neutral-50">
     <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
       <h2 id="news-heading" class="section-heading">{{page.newsHeading}}</h2>
-      <ul class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {{!-- Columns adapt to how many announcements there are: 1 = one wide card, 2 = two, 3 = three --}}
+      <ul class="mt-10 grid gap-6 {{#if (eq announcements.length 1)}}max-w-3xl{{else if (eq announcements.length 2)}}md:grid-cols-2{{else}}md:grid-cols-2 lg:grid-cols-3{{/if}}">
         {{#each announcements}}
           <li>
             <article class="flex h-full flex-col rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
