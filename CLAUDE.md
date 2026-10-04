@@ -93,6 +93,7 @@ Enforce roles server-side with route middleware; never rely on hiding links in t
 
 - Public views get all editable content through `src/services/content.js` (reads the DB, cached 5 min; any admin POST clears the cache). Never put page copy in `.hbs` files.
 - Page text: each page is a `PageContent` row by slug, with its editable fields defined (with defaults) in `src/config/pages.js`. Fields `title`/`summary`/`body` map to columns, everything else to `sections` JSON. Pages are edit-only in the admin (they match fixed routes). Text is plain; blank lines = paragraphs (`{{#each (paragraphs text)}}`).
+- Page fields can be `type: 'image'` (e.g. Home → Banner photo), stored in `sections` as `{ url, publicId, width, height }`; `null` means "use the built-in default" (`pageImages.homeDefault`). `pagesController` keeps a saved photo when only text is edited and deletes the old file on replace/remove. The home page also shows the latest public announcements and albums automatically (sections hide when empty).
 - Starter partners and activities are in `src/data/defaults.js`, inserted by `npm run db:seed` only when those tables are empty.
 - Site-wide data (`site`, `partners`, `navigation`, `currentPath`) is set on `res.locals` by `src/middleware/siteLocals.js`.
 - Navigation lives in `src/config/navigation.js` (single source for header, mobile menu and footer). The Project Activities dropdown is filled from published activities in the DB.

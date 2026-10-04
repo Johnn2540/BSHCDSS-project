@@ -51,13 +51,40 @@ function buildFocusItems(curriculum, activities) {
   ];
 }
 
+// Responsive versions of an uploaded Cloudinary photo (Cloudinary resizes on the fly).
+function cloudinarySrcset(url, widths) {
+  return widths.map((w) => `${url.replace('/image/upload/', `/image/upload/f_auto,q_auto,c_limit,w_${w}/`)} ${w}w`).join(', ');
+}
+
+// Home banner: the uploaded photo if there is one, otherwise the built-in workshop photo.
+function homeHeroImage(page) {
+  const uploaded = page.heroImage && page.heroImage.url ? page.heroImage : null;
+  const alt = page.heroImageAlt || '';
+  if (!uploaded) return { ...pageImages.homeDefault, alt };
+  const isCloudinary = uploaded.url.includes('/image/upload/');
+  return {
+    srcset: isCloudinary ? cloudinarySrcset(uploaded.url, [480, 800, 1200, 1600]) : `${uploaded.url} ${uploaded.width || 1200}w`,
+    fallback: isCloudinary ? uploaded.url.replace('/image/upload/', '/image/upload/f_auto,q_auto,c_limit,w_1200/') : uploaded.url,
+    width: uploaded.width || 1200,
+    height: uploaded.height || 1500,
+    alt,
+    position: '50% 40%',
+    positionLg: '50% 40%',
+  };
+}
+
 async function home(req, res) {
-  const { page, curriculum, activities } = await content.getHomePage();
+  const { page, curriculum, activities, announcements, albums, videoCount } = await content.getHomePage();
   const firstActivity = activities[0];
+  const heroImage = homeHeroImage(page);
   res.render('public/home', {
     isHome: true,
     page,
+    heroImage, // the share preview for Home stays the branded logo image (og-image.jpg)
     focusItems: buildFocusItems(curriculum, activities),
+    announcements,
+    albums: albumCards(albums),
+    videoCount,
     activitiesHref: firstActivity ? `/activities/${firstActivity.slug}` : '/curriculum',
   });
 }

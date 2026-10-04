@@ -68,7 +68,7 @@ function rowToValues(config, row) {
   const sections = (row && row.sections) || {};
   const values = {};
   for (const field of config.fields) {
-    const empty = field.type === 'lines' ? [] : '';
+    const empty = field.type === 'lines' ? [] : field.type === 'image' ? null : '';
     if (!row) {
       values[field.name] = field.default ?? empty;
     } else if (COLUMN_FIELDS.includes(field.name)) {
@@ -137,9 +137,27 @@ async function getActivities() {
   );
 }
 
+// Latest published announcements for everyone (tutor-only ones never appear on the public site).
+async function getPublicAnnouncements(limit = 3) {
+  return cached(`announcements:public:${limit}`, () =>
+    prisma.announcement.findMany({
+      where: { audience: 'PUBLIC', isPublished: true, publishedAt: { lte: new Date() } },
+      orderBy: { publishedAt: 'desc' },
+      take: limit,
+      select: { id: true, title: true, body: true, publishedAt: true },
+    })
+  );
+}
+
 async function getHomePage() {
-  const [page, curriculum, activities] = await Promise.all([getPage('home'), getPage('curriculum'), getActivities()]);
-  return { page, curriculum, activities };
+  const [page, curriculum, activities, announcements, gallery] = await Promise.all([
+    getPage('home'),
+    getPage('curriculum'),
+    getActivities(),
+    getPublicAnnouncements(3),
+    getGallery(),
+  ]);
+  return { page, curriculum, activities, announcements, albums: gallery.albums.slice(0, 3), videoCount: gallery.videos.length };
 }
 
 // ─── Public pages ─────────────────────────────────────────────────────────────
@@ -249,6 +267,7 @@ module.exports = {
   getPartners,
   getActivities,
   getHomePage,
+  getPublicAnnouncements,
   getTeam,
   getDocuments,
   getActivity,

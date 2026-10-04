@@ -6,7 +6,9 @@
   </div>
 {{/if}}{{/each}}{{/if}}
 
-<form method="post" action="{{action}}" novalidate class="admin-card space-y-6 p-5 sm:p-8">
+<form method="post" novalidate class="admin-card space-y-6 p-5 sm:p-8"
+      action="{{action}}{{#if hasUploads}}?_csrf={{csrfToken}}{{/if}}"
+      {{#if hasUploads}}enctype="multipart/form-data"{{#if maxUploadBytes}} data-max-upload-bytes="{{maxUploadBytes}}"{{/if}}{{/if}}>
   <input type="hidden" name="_csrf" value="{{csrfToken}}">
   {{#each fields}}
     {{> admin/field}}

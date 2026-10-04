@@ -7,6 +7,7 @@
 //   textarea  multi-line; blank lines separate paragraphs on the website
 //   lines     one item per line, stored as an array (lists, address lines)
 //   email / url
+//   image     uploaded photo, stored as { url, publicId, width, height } (null = use the built-in default)
 //
 // `default` is shown until an admin saves the page for the first time.
 
@@ -64,6 +65,22 @@ module.exports = [
         default:
           'BSHCDSS supports teachers, tutors and education institutions with a modern curriculum, structured training and lifelong professional development.',
       },
+      {
+        name: 'heroImage',
+        label: 'Banner photo',
+        type: 'image',
+        folder: 'pages',
+        help: 'A photo of the project at work, at least 1200 pixels wide (portrait or square works best). If empty, the workshop photo is used.',
+        default: null,
+      },
+      {
+        name: 'heroImageAlt',
+        label: 'Banner photo description',
+        help: 'Describe the photo in a sentence for people who cannot see it. Update this when you change the photo.',
+        type: 'text',
+        max: 200,
+        default: 'Participants working together at laptops around tables during a workshop',
+      },
       { name: 'primaryCtaLabel', label: 'First button label (links to About)', type: 'text', max: 40, default: 'About the project' },
       { name: 'secondaryCtaLabel', label: 'Second button label (links to Project Activities)', type: 'text', max: 40, default: 'Project activities' },
       { name: 'introHeading', label: 'Introduction heading', type: 'text', default: 'About BSHCDSS' },
@@ -91,17 +108,18 @@ module.exports = [
         ],
       },
       { name: 'focusHeading', label: 'Activities section heading', type: 'text', default: 'What the project does' },
-      { name: 'focusLead', label: 'Activities section introduction', type: 'text', default: 'Four connected areas of work make up the BSHCDSS programme.' },
-      { name: 'galleryHeading', label: 'Gallery box heading', type: 'text', default: 'Project in Pictures and Videos' },
+      { name: 'focusLead', label: 'Activities section introduction', type: 'text', default: "The project's main areas of work, from curriculum design to digital learning." },
+      { name: 'newsHeading', label: 'News section heading', type: 'text', max: 80, default: 'News and announcements', help: 'Shown when there are published public announcements.' },
+      { name: 'galleryHeading', label: 'Gallery section heading', type: 'text', default: 'Project in Pictures and Videos' },
       {
         name: 'galleryLead',
-        label: 'Gallery box text',
+        label: 'Gallery section text',
         type: 'textarea',
         rows: 2,
         default: 'See the project at work through photographs and videos from training sessions, workshops and events.',
       },
-      { name: 'contactHeading', label: 'Contact box heading', type: 'text', default: 'Get in touch' },
-      { name: 'contactLead', label: 'Contact box text', type: 'textarea', rows: 2, default: 'For enquiries about the project, please contact the BSHCDSS team.' },
+      { name: 'contactHeading', label: 'Closing section heading', type: 'text', default: 'Get in touch' },
+      { name: 'contactLead', label: 'Closing section text', type: 'textarea', rows: 2, default: 'For enquiries about the project, please contact the BSHCDSS team.' },
     ],
   },
   {

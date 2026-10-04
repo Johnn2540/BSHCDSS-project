@@ -14,6 +14,15 @@ module.exports = {
     position: '62% 18%',
     positionLg: '58% 22%',
   },
+  // Home banner when no photo has been uploaded (Admin -> Page content -> Home -> Banner photo).
+  homeDefault: {
+    srcset: '/images/pages/about-480.webp 480w, /images/pages/about-800.webp 800w, /images/pages/about-960.webp 960w',
+    fallback: '/images/pages/about-960.jpg',
+    width: 960,
+    height: 1280,
+    position: '45% 42%',
+    positionLg: '42% 50%',
+  },
   about: {
     // Original is 960px wide, so no larger versions are made (they would only be blurrier).
     srcset: '/images/pages/about-480.webp 480w, /images/pages/about-800.webp 800w, /images/pages/about-960.webp 960w',

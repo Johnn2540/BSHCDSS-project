@@ -33,7 +33,7 @@ router.post('/password', changePasswordLimiter, account.changePasswordRules, acc
 // Page content (edit only)
 router.get('/pages', pages.list);
 router.get('/pages/:slug/edit', pages.editForm);
-router.post('/pages/:slug', pages.validate, pages.update);
+router.post('/pages/:slug', pages.upload, pages.validate, pages.update);
 
 // Tutors
 router.get('/tutors', tutors.list);

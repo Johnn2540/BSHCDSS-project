@@ -348,6 +348,19 @@
   }
 }
 
+/* Home banner on phones/tablets: a deeper navy fade than the inner pages, because the home
+   banner carries more text (eyebrow, headline, introduction, two buttons). */
+.home-shade-bottom {
+  background: linear-gradient(
+    to top,
+    var(--color-brand-blue-dark) 0%,
+    rgb(10 47 117 / 0.97) 40%,
+    rgb(10 47 117 / 0.85) 62%,
+    rgb(10 47 117 / 0.35) 80%,
+    rgb(10 47 117 / 0) 94%
+  );
+}
+
 /* Sidebar menu: off-canvas panel from the right with a dimmed backdrop.
    `visibility` keeps the closed panel out of the tab order and away from screen readers. */
 .drawer {
