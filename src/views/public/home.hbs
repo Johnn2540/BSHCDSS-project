@@ -79,8 +79,29 @@
   </section>
 {{/if}}
 
-{{!-- ══ 3. About the project + objectives ═════════════════════════════════════ --}}
-<section aria-labelledby="intro-heading" class="bg-neutral-50">
+{{!-- ══ 3. Why teacher training matters: sourced statistics (hidden when the list is empty) ══ --}}
+{{#with (pairs page.stats) as |stats|}}{{#if stats.length}}
+  <section aria-labelledby="stats-heading" class="bg-neutral-50">
+    <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
+      <div class="max-w-3xl">
+        <h2 id="stats-heading" class="section-heading">{{@root.page.statsHeading}}</h2>
+        {{#if @root.page.statsLead}}<p class="mt-4 text-neutral-700 sm:text-lg">{{@root.page.statsLead}}</p>{{/if}}
+      </div>
+      <dl class="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-6">
+        {{#each stats}}
+          <div class="stat-card">
+            {{#if label}}<dt class="text-3xl font-bold tracking-tight text-brand-blue sm:text-5xl">{{label}}</dt>{{/if}}
+            <dd class="{{#if label}}mt-3 {{/if}}text-sm leading-snug text-neutral-700 sm:text-base">{{value}}</dd>
+          </div>
+        {{/each}}
+      </dl>
+      {{#if @root.page.statsSource}}<p class="mt-6 text-xs text-neutral-600">{{@root.page.statsSource}}</p>{{/if}}
+    </div>
+  </section>
+{{/if}}{{/with}}
+
+{{!-- ══ 4. About the project + objectives ═════════════════════════════════════ --}}
+<section aria-labelledby="intro-heading">
   <div class="mx-auto grid max-w-7xl items-start gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-12 lg:gap-14">
     <div class="lg:col-span-7">
       <h2 id="intro-heading" class="section-heading">{{page.introHeading}}</h2>
@@ -115,9 +136,9 @@
   </div>
 </section>
 
-{{!-- ══ 4. News and announcements (only when there are public announcements) ═══ --}}
+{{!-- ══ 5. News and announcements (only when there are public announcements) ═══ --}}
 {{#if announcements.length}}
-  <section aria-labelledby="news-heading">
+  <section aria-labelledby="news-heading" class="bg-neutral-50">
     <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
       <h2 id="news-heading" class="section-heading">{{page.newsHeading}}</h2>
       <ul class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -139,8 +160,8 @@
   </section>
 {{/if}}
 
-{{!-- ══ 5. From the gallery ════════════════════════════════════════════════════ --}}
-<section aria-labelledby="gallery-heading" class="{{#if announcements.length}}bg-neutral-50{{/if}}">
+{{!-- ══ 6. From the gallery ════════════════════════════════════════════════════ --}}
+<section aria-labelledby="gallery-heading" class="{{#unless announcements.length}}bg-neutral-50{{/unless}}">
   <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
     {{#if albums.length}}
       <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
@@ -169,7 +190,7 @@
   </div>
 </section>
 
-{{!-- ══ 6. Get in touch ══════════════════════════════════════════════════════════ --}}
+{{!-- ══ 7. Get in touch ══════════════════════════════════════════════════════════ --}}
 <section aria-labelledby="contact-heading" class="relative overflow-hidden bg-brand-blue-dark text-white">
   <div class="hero-pattern pointer-events-none absolute inset-0 opacity-[0.07]" aria-hidden="true"></div>
   <div class="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-14 sm:px-6 sm:py-16 lg:flex-row lg:items-center lg:justify-between">

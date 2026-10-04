@@ -52,6 +52,18 @@ module.exports = {
     { id: 'confirm-password', name: 'confirmPassword', label: 'Confirm new password', autocomplete: 'new-password' },
   ],
 
+  // "label | value" lines (admin 'lines' fields) -> [{ label, value }]. Lines without a "|"
+  // become { label: '', value: line }; blank lines are skipped.
+  pairs: (lines) =>
+    (Array.isArray(lines) ? lines : [])
+      .map((line) => {
+        const i = String(line).indexOf('|');
+        return i === -1
+          ? { label: '', value: String(line).trim() }
+          : { label: String(line).slice(0, i).trim(), value: String(line).slice(i + 1).trim() };
+      })
+      .filter((p) => p.label || p.value),
+
   // Value lookup on an object by key, e.g. {{get values field.name}}.
   get: (obj, key) => (obj && key != null ? obj[key] : undefined),
 

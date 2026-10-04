@@ -63,7 +63,7 @@ module.exports = [
         type: 'textarea',
         rows: 3,
         default:
-          'BSHCDSS supports teachers, tutors and education institutions with a modern curriculum, structured training and lifelong professional development.',
+          "Strengthening pre-service and in-service teacher training in South Sudan through a comprehensive teacher training package for the country's National Teacher Training Institutions.",
       },
       {
         name: 'heroImage',
@@ -83,29 +83,61 @@ module.exports = [
       },
       { name: 'primaryCtaLabel', label: 'First button label (links to About)', type: 'text', max: 40, default: 'About the project' },
       { name: 'secondaryCtaLabel', label: 'Second button label (links to Project Activities)', type: 'text', max: 40, default: 'Project activities' },
-      { name: 'introHeading', label: 'Introduction heading', type: 'text', default: 'About BSHCDSS' },
+      { name: 'introHeading', label: 'Introduction heading', type: 'text', default: 'About the project' },
       {
         name: 'body',
         label: 'Introduction text',
+        help: 'The first paragraph is shown larger. Separate paragraphs with a blank line.',
         type: 'textarea',
         rows: 8,
         default:
-          'Building Skills for Human Capacity Development in South Sudan (BSHCDSS) is a project of the Ministry of General Education and Instruction, implemented with Kenyatta University and supported by the World Bank Group.\n\n' +
-          'The project focuses on strengthening the quality of teaching and learning by developing curriculum materials, training serving teachers and building systems for continuous professional growth.',
+          'The Government of South Sudan, through the Ministry of Finance and Planning in collaboration with the Ministry of General Education and Instruction and the Ministry of Higher Education, Science and Technology, is implementing a five-year, World Bank-funded project: Building Skills for Human Capital Development in South Sudan.\n\n' +
+          'BSHCDSS supports Component 1 of the project, Teaching Skills to Strengthen Education Delivery, by developing a comprehensive teacher training package to strengthen pre-service and in-service teacher training at 10 National Teacher Training Institutions (NTTIs).',
       },
-      { name: 'objectivesHeading', label: 'Objectives box heading', type: 'text', default: 'Project objectives' },
+      { name: 'objectivesHeading', label: 'Objectives box heading', type: 'text', default: 'What Component 1 will do' },
       {
         name: 'objectives',
         label: 'Objectives',
         help: 'One objective per line.',
         type: 'lines',
+        rows: 6,
+        default: [
+          'Prepare new teachers to meet future needs through formal pre-service teacher training',
+          'Train in-service teachers, particularly volunteer teachers, to improve their teaching practices',
+          'Provide accelerated secondary education so that existing teachers can become qualified',
+          'Support teachers in refugee-hosting areas with language training and socioemotional well-being',
+          'Prioritise training for female teachers',
+        ],
+      },
+      { name: 'statsHeading', label: 'Statistics section heading', type: 'text', max: 80, default: 'Why teacher training matters' },
+      {
+        name: 'statsLead',
+        label: 'Statistics section introduction',
+        type: 'textarea',
+        rows: 2,
+        max: 300,
+        default:
+          'The lack of qualified teachers is one of the biggest barriers to quality education in South Sudan. More than 30,000 volunteer teachers need training.',
+      },
+      {
+        name: 'stats',
+        label: 'Statistics',
+        help: 'One per line, written as: figure | what it means. Example: 86:1 | pupils per qualified teacher in primary schools. Leave empty to hide the section.',
+        type: 'lines',
         rows: 5,
         default: [
-          'Design and develop relevant curriculum materials',
-          'Train serving teachers through in-service programmes',
-          'Establish continuous professional development pathways',
-          'Expand access to learning through a digital platform',
+          '60,711 | teachers in South Sudan, of whom only about 18% are female',
+          '86:1 | pupils per qualified teacher in primary schools',
+          '46% | of primary teachers are volunteers without training',
+          '26% | of schools are non-operational due to a lack of teachers',
         ],
+      },
+      {
+        name: 'statsSource',
+        label: 'Statistics source',
+        type: 'text',
+        max: 200,
+        default: 'Source: 2021 Education Census Report, as cited in the project Terms of Reference.',
       },
       { name: 'focusHeading', label: 'Activities section heading', type: 'text', default: 'What the project does' },
       { name: 'focusLead', label: 'Activities section introduction', type: 'text', default: "The project's main areas of work, from curriculum design to digital learning." },
@@ -133,7 +165,8 @@ module.exports = [
         label: 'Introduction',
         type: 'textarea',
         rows: 3,
-        default: 'Building Skills for Human Capacity Development in South Sudan is a project of the Ministry of General Education and Instruction.',
+        default:
+          'Supporting the Ministry of General Education and Instruction to strengthen pre-service and in-service teacher training in South Sudan.',
       },
       { name: 'bodyHeading', label: 'Main text heading', type: 'text', max: 80, default: 'About the project' },
       {
@@ -141,10 +174,43 @@ module.exports = [
         label: 'Main text',
         help: 'The first paragraph is shown larger, as an introduction. Separate paragraphs with a blank line.',
         type: 'textarea',
-        rows: 12,
+        rows: 14,
         default:
-          'This is placeholder text for the About page. Replace it with the project background, goals and approach.\n\n' +
-          'Separate paragraphs with a blank line.',
+          'The Government of South Sudan, through the Ministry of Finance and Planning in collaboration with the Ministry of General Education and Instruction (MoGEI) and the Ministry of Higher Education, Science and Technology (MoHEST), is implementing a five-year, World Bank-funded project: Building Skills for Human Capital Development in South Sudan.\n\n' +
+          "The project's development objective is to increase skills development opportunities in teaching and digital agriculture and to strengthen capacity for management of the education system. It was approved by the World Bank Board of Directors on 15 May 2023.\n\n" +
+          'BSHCDSS supports Component 1, Teaching Skills to Strengthen Education Delivery. This component supports the development of a scalable and effective teacher professional development system that prepares new teachers to meet future needs, supports in-service teachers to improve their teaching practices, and provides accelerated secondary education to existing uncertified teachers so they may become qualified to teach. Teachers in refugee-hosting areas receive additional support for language training and socioemotional well-being, and the project prioritises training for female teachers.\n\n' +
+          'The technical assistance develops a comprehensive teacher training package to strengthen pre-service and in-service teacher training. It runs for 24 months across 10 National Teacher Training Institutions (NTTIs) and reports to the Project Director of the Project Implementation Unit (PIU) at the Ministry of General Education and Instruction.\n\n' +
+          'The need is urgent. As of March 2023, only 3 public National Teacher Training Institutions, 3 private teacher training institutions and 6 County Education Centers were in operation, while more than 30,000 volunteers teaching in South Sudanese schools need to be trained.',
+      },
+      {
+        name: 'facts',
+        label: 'At a glance: key facts',
+        help: 'One per line, written as: label | value. Shown in the "At a glance" panel.',
+        type: 'lines',
+        rows: 6,
+        default: [
+          'Project | Building Skills for Human Capital Development in South Sudan',
+          'World Bank project number | P178654',
+          'Approved | 15 May 2023',
+          'Project duration | Five years',
+          'Technical assistance | 24 months, across 10 National Teacher Training Institutions',
+          'Reports to | Project Director, Project Implementation Unit (PIU), MoGEI',
+        ],
+      },
+      { name: 'componentsHeading', label: 'Project components heading', type: 'text', max: 80, default: 'The five project components' },
+      {
+        name: 'components',
+        label: 'Project components',
+        help: 'One per line, written as: name | description. The first one is highlighted as the focus of BSHCDSS. Leave empty to hide the section.',
+        type: 'lines',
+        rows: 6,
+        default: [
+          'Teaching skills to strengthen education delivery | A scalable and effective teacher professional development system: preparing new teachers, supporting in-service teachers and providing accelerated secondary education to uncertified teachers.',
+          'Digital skills for agriculture | A digital agriculture skills programme offered through existing higher education institutions across the country.',
+          'Inclusion of refugee and host communities | Re-operationalising 200 schools in refugee-hosting areas to offer quality education to both refugee and host community students.',
+          'System building | Support for basic functionality to monitor and manage the education system of the country.',
+          'Contingent emergency response | A zero-allocation component to finance an emergency response if needed.',
+        ],
       },
       {
         name: 'imageCaption',
@@ -187,14 +253,17 @@ module.exports = [
         label: 'Introduction',
         type: 'textarea',
         rows: 3,
-        default: 'Developing curriculum frameworks and learning materials for teacher education.',
+        default: 'Developing a comprehensive teacher training package to strengthen pre-service and in-service teacher training.',
       },
       {
         name: 'body',
         label: 'Main text',
         type: 'textarea',
         rows: 12,
-        default: 'This is placeholder text for the Curriculum Design and Development page.',
+        default:
+          'Teachers’ content knowledge and teaching skills significantly affect student learning. For teachers to perform effectively, they must be well prepared and equipped with traditional competencies, such as content knowledge and pedagogy skills, and non-traditional competencies such as socioemotional skills.\n\n' +
+          'Most teacher training currently offered in South Sudan focuses on subject matter content, with little time devoted to learner-centred pedagogical approaches. Teachers received only two days of training on content and pedagogies appropriate for the newly introduced competency-based curriculum, and training delivered through many separate accredited and non-accredited programmes has led to fragmentation, with programmes of varying quality distributed unevenly across states.\n\n' +
+          'BSHCDSS is developing a comprehensive teacher training package to strengthen both pre-service and in-service teacher training at 10 National Teacher Training Institutions, as part of Component 1 of the Building Skills for Human Capital Development in South Sudan project.',
       },
     ],
   },

@@ -29,6 +29,12 @@
         <h2 id="glance-heading" class="text-sm font-semibold uppercase tracking-[0.16em] text-brand-yellow">At a glance</h2>
       </div>
       <dl class="divide-y divide-neutral-200 px-6">
+        {{#each (pairs page.facts)}}
+          <div class="py-4">
+            {{#if label}}<dt class="glance-label">{{label}}</dt>{{/if}}
+            <dd class="mt-1 font-medium text-neutral-900">{{value}}</dd>
+          </div>
+        {{/each}}
         <div class="py-4">
           <dt class="glance-label">Lead ministry</dt>
           <dd class="mt-1 font-medium text-neutral-900">{{site.ministry}}</dd>
@@ -68,6 +74,27 @@
     </div>
   </aside>
 </div>
+
+{{!-- ── Project components (first one = focus of BSHCDSS) ──────────────────────── --}}
+{{#with (pairs page.components) as |components|}}{{#if components.length}}
+  <section aria-labelledby="components-heading" class="border-t border-neutral-200">
+    <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
+      <h2 id="components-heading" class="section-heading">{{@root.page.componentsHeading}}</h2>
+      <ol class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {{#each components}}
+          <li class="component-card{{#if @first}} is-focus{{/if}}">
+            <div class="flex items-center justify-between gap-3">
+              <span class="inline-flex h-10 w-10 items-center justify-center rounded-full {{#if @first}}bg-brand-blue text-white{{else}}bg-brand-blue/10 text-brand-blue{{/if}} font-bold" aria-hidden="true">{{add @index 1}}</span>
+              {{#if @first}}<span class="badge badge-green">Focus of BSHCDSS</span>{{/if}}
+            </div>
+            <h3 class="mt-4 text-lg font-semibold leading-snug text-neutral-900"><span class="sr-only">Component {{add @index 1}}: </span>{{#if label}}{{label}}{{else}}{{value}}{{/if}}</h3>
+            {{#if label}}<p class="mt-2 text-sm leading-relaxed text-neutral-700">{{value}}</p>{{/if}}
+          </li>
+        {{/each}}
+      </ol>
+    </div>
+  </section>
+{{/if}}{{/with}}
 
 {{!-- ── Areas of work ─────────────────────────────────────────────────────────── --}}
 {{#if focusItems.length}}

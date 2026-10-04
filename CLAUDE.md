@@ -44,6 +44,13 @@ Colours from the logo:
 
 Blue and green carry the design. Red and yellow are used sparingly (thin rules, highlights, badges), never as large fills. All text/background pairings must meet WCAG AA contrast (note: yellow on white fails; don't use it for text).
 
+## Project facts (source: project Terms of Reference)
+
+- Site brand stays "Building Skills for Human **Capacity** Development in South Sudan" (BSHCDSS), as on the logo (client decision). The World Bank project's official name is "Building Skills for Human **Capital** Development in South Sudan" (BSHCD, **P178654**, approved 15 May 2023, five years); use the official name only when describing the World Bank project itself.
+- BSHCDSS = technical assistance for Component 1 (Teaching Skills to Strengthen Education Delivery): a comprehensive teacher training package for pre-service and in-service training; 24 months; 10 NTTIs; reports to the Project Director, PIU, MoGEI.
+- Only publish figures with their source (2021 Education Census Report via the ToR). Don't invent statistics or claims; the "94% can't read by age 10" figure has no source in the ToR and is deliberately not used.
+- Admin "lines" fields written as `label | value` (home statistics, About facts and components) are parsed by the `pairs` helper.
+
 ## Partners
 
 - **MoGEI** (main partner)
