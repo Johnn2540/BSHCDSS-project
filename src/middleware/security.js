@@ -15,6 +15,7 @@ const helmetMiddleware = helmet({
     directives: {
       'script-src': ["'self'", (req, res) => `'nonce-${res.locals.cspNonce}'`],
       'img-src': ["'self'", 'data:', 'https://res.cloudinary.com', 'https://img.youtube.com'],
+      'media-src': ["'self'", 'https://res.cloudinary.com'],
       'frame-src': ['https://www.youtube-nocookie.com', 'https://www.youtube.com', 'https://player.vimeo.com'],
       'upgrade-insecure-requests': isProd ? [] : null,
     },

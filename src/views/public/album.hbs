@@ -7,20 +7,41 @@
   </p>
 
   {{#if album.photos.length}}
-    <ul class="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+    {{#if (eq album.photos.length 1)}}
       {{#each album.photos}}
-        <li>
-          <figure>
-            <a href="{{img imageUrl "w_1600,c_limit"}}" class="block overflow-hidden rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
-              <img src="{{img imageUrl "w_480,h_480,c_fill"}}" alt="{{#if caption}}{{caption}}{{else}}Photo {{add @index 1}} from {{../album.title}}{{/if}}"
-                   width="480" height="480" loading="lazy" class="aspect-square w-full bg-neutral-100 object-cover transition hover:opacity-90">
+        <figure class="mx-auto mt-8 max-w-3xl overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <a href="{{img imageUrl "w_1600,c_limit"}}" class="block bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
+            <img src="{{img imageUrl "w_960,c_limit"}}"
+                 srcset="{{img imageUrl "w_480,c_limit"}} 480w, {{img imageUrl "w_768,c_limit"}} 768w, {{img imageUrl "w_1080,c_limit"}} 1080w"
+                 sizes="(min-width: 832px) 768px, calc(100vw - 48px)"
+                 alt="{{#if caption}}{{caption}}{{else}}Photo from {{../album.title}}{{/if}}"
+                 {{#if width}}width="{{width}}"{{/if}} {{#if height}}height="{{height}}"{{/if}}
+                 decoding="async" class="h-auto w-full" data-gallery-photo>
+            <span class="sr-only"> (open full size)</span>
+          </a>
+          {{#if caption}}<figcaption class="border-t border-neutral-200 px-5 py-4 text-sm leading-relaxed text-neutral-700">{{caption}}</figcaption>{{/if}}
+        </figure>
+      {{/each}}
+    {{else}}
+    <ul class="mt-8 grid gap-6 sm:grid-cols-2">
+      {{#each album.photos}}
+        <li class="min-w-0{{#if isWide}} sm:col-span-2{{/if}}">
+          <figure class="flex h-full flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+            <a href="{{img imageUrl "w_1600,c_limit"}}" class="flex {{#if isWide}}aspect-video{{else}}aspect-[4/3]{{/if}} items-center justify-center overflow-hidden bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
+              <img src="{{#if isWide}}{{img imageUrl "w_1280,c_limit"}}{{else}}{{img imageUrl "w_768,c_limit"}}{{/if}}"
+                   srcset="{{#if isWide}}{{img imageUrl "w_480,c_limit"}} 480w, {{img imageUrl "w_960,c_limit"}} 960w, {{img imageUrl "w_1280,c_limit"}} 1280w, {{img imageUrl "w_1600,c_limit"}} 1600w{{else}}{{img imageUrl "w_480,c_limit"}} 480w, {{img imageUrl "w_768,c_limit"}} 768w, {{img imageUrl "w_1080,c_limit"}} 1080w{{/if}}"
+                   sizes="{{#if isWide}}(min-width: 1280px) 1230px, calc(100vw - 48px){{else}}(min-width: 1280px) 604px, (min-width: 640px) calc((100vw - 72px) / 2), calc(100vw - 32px){{/if}}"
+                   alt="{{#if caption}}{{caption}}{{else}}Photo {{add @index 1}} from {{../album.title}}{{/if}}"
+                   {{#if width}}width="{{width}}"{{/if}} {{#if height}}height="{{height}}"{{/if}}
+                   loading="lazy" decoding="async" class="h-full w-full object-contain" data-gallery-photo>
               <span class="sr-only"> (open full size)</span>
             </a>
-            {{#if caption}}<figcaption class="mt-1.5 text-sm text-neutral-700">{{caption}}</figcaption>{{/if}}
+            {{#if caption}}<figcaption class="border-t border-neutral-200 px-5 py-4 text-sm leading-relaxed text-neutral-700">{{caption}}</figcaption>{{/if}}
           </figure>
         </li>
       {{/each}}
     </ul>
+    {{/if}}
   {{else}}
     <p class="mt-6 text-neutral-700">Photos will be added to this album soon.</p>
   {{/if}}

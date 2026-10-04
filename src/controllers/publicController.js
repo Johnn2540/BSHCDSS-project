@@ -2,11 +2,12 @@ const createError = require('http-errors');
 const { body } = require('express-validator');
 
 const content = require('../services/content');
-const { parseVideoUrl } = require('../services/video');
+const { presentVideo } = require('../services/video');
 const { sendMail } = require('../services/mailer');
 const { collectErrors } = require('../admin/fields');
 const pageImages = require('../config/pageImages');
 const { buildDocumentLibrary } = require('../services/documentLibrary');
+const { buildTeamPresentation } = require('../services/team');
 
 // Icon shown on each home page activity card, by activity slug.
 const ACTIVITY_ICONS = { 'in-service-training': 'users', cpd: 'growth', lms: 'screen' };
@@ -15,16 +16,7 @@ const notFound = () => createError(404, 'Page not found');
 
 // Adds watch/thumbnail URLs for the click-to-play video previews.
 function withVideoLinks(videos) {
-  return videos.map((v) => {
-    const parsed = parseVideoUrl(v.embedUrl) || {};
-    const watchUrl =
-      parsed.provider === 'YOUTUBE'
-        ? `https://www.youtube.com/watch?v=${parsed.id}`
-        : parsed.provider === 'VIMEO'
-          ? `https://vimeo.com/${parsed.id}`
-          : v.embedUrl;
-    return { ...v, watchUrl, thumbnailUrl: parsed.thumbnailUrl || null };
-  });
+  return videos.map(presentVideo).filter(Boolean);
 }
 
 function albumCards(albums) {
@@ -109,7 +101,7 @@ async function about(req, res) {
 
 async function team(req, res) {
   const [page, members] = await Promise.all([content.getPage('team'), content.getTeam()]);
-  res.render('public/team', { title: page.title, metaDescription: page.summary, page, members });
+  res.render('public/team', { title: page.title, metaDescription: page.summary, page, team: buildTeamPresentation(members) });
 }
 
 async function curriculum(req, res) {
@@ -158,7 +150,11 @@ async function album(req, res) {
     title: item.title,
     metaDescription: item.description || `Photos: ${item.title}`,
     metaImage: item.photos[0] && item.photos[0].imageUrl,
-    album: item,
+    album: {
+      ...item,
+      // Feature the cover above the remaining images in a larger photo collection.
+      photos: item.photos.map((photo, index) => ({ ...photo, isWide: item.photos.length > 2 && index === 0 })),
+    },
   });
 }
 

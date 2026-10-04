@@ -32,6 +32,7 @@ enum Audience {
 enum VideoProvider {
   YOUTUBE
   VIMEO
+  CLOUDINARY
 }
 
 // ─── Accounts ─────────────────────────────────────────────────────────────────
@@ -96,9 +97,12 @@ model PageContent {
 
 model TeamMember {
   id            String   @id @default(cuid())
+  referenceCode String?  @unique
   name          String
   title         String
   institution   String?
+  email         String?
+  phone         String?
   bio           String?
   photoUrl      String?
   photoPublicId String? // Cloudinary public_id, used to delete/replace the image
@@ -166,8 +170,12 @@ model Video {
   id           String        @id @default(cuid())
   title        String
   description  String?
-  embedUrl     String // YouTube or Vimeo URL; never an uploaded file
+  embedUrl     String // YouTube/Vimeo embed or public Cloudinary video URL
   provider     VideoProvider
+  videoPublicId String? // Managed Cloudinary asset; external links have no owned asset
+  width        Int?
+  height       Int?
+  duration     Float?
   activityId   String?
   date         DateTime?
   displayOrder Int           @default(0)

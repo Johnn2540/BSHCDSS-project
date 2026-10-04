@@ -151,14 +151,14 @@ async function getPublicAnnouncements(limit = 3) {
 }
 
 async function getHomePage() {
-  const [page, curriculum, activities, announcements, gallery] = await Promise.all([
+  const [page, curriculum, activities, announcements, media] = await Promise.all([
     getPage('home'),
     getPage('curriculum'),
     getActivities(),
     getPublicAnnouncements(3),
-    getGallery(),
+    getHomeMedia(),
   ]);
-  return { page, curriculum, activities, announcements, albums: gallery.albums.slice(0, 3), videoCount: gallery.videos.length };
+  return { page, curriculum, activities, announcements, ...media };
 }
 
 // ─── Public pages ─────────────────────────────────────────────────────────────
@@ -208,6 +208,24 @@ const ALBUM_CARD = {
   photos: { orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }], take: 1, select: { imageUrl: true } },
   _count: { select: { photos: true } },
 };
+
+// Home needs three album previews and a count, not video records. Counting in the
+// database keeps video-provider decoding out of the home page and avoids loading
+// the entire gallery for every home-page cache refresh.
+async function getHomeMedia() {
+  return cached('home:media', async () => {
+    const [albums, videoCount] = await Promise.all([
+      prisma.album.findMany({
+        where: { isPublished: true },
+        orderBy: [{ date: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }],
+        take: 3,
+        select: ALBUM_CARD,
+      }),
+      prisma.video.count({ where: { isPublished: true } }),
+    ]);
+    return { albums, videoCount };
+  });
+}
 
 // Published activity by slug with its published albums and videos, or null.
 async function getActivity(slug) {

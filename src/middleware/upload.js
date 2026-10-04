@@ -15,6 +15,13 @@ const DOCUMENT_MAX_MB = ON_VERCEL ? 4 : 20;
 // Total size of one upload form submission; checked in the browser before sending (site.js).
 const MAX_REQUEST_BYTES = ON_VERCEL ? Math.floor(4.4 * MB) : null;
 
+function validImageSignature(buffer) {
+  if (!Buffer.isBuffer(buffer)) return false;
+  return buffer.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff])) ||
+    buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) ||
+    (buffer.subarray(0, 4).toString('ascii') === 'RIFF' && buffer.subarray(8, 12).toString('ascii') === 'WEBP');
+}
+
 const FILE_KINDS = {
   image: {
     maxBytes: IMAGE_MAX_MB * MB,
@@ -83,6 +90,9 @@ function upload(fields) {
         if (files.some((f) => f.size > kind.maxBytes)) {
           req.uploadErrors[name] = `File is too large. Please choose a ${kind.description}.`;
           req.files[name] = [];
+        } else if (fields.find((field) => field.name === name).kind === 'image' && files.some((file) => !validImageSignature(file.buffer))) {
+          req.uploadErrors[name] = 'The selected file is not a valid JPG, PNG or WebP image. Please choose another portrait or image.';
+          req.files[name] = [];
         }
       }
       next();
@@ -90,4 +100,4 @@ function upload(fields) {
   };
 }
 
-module.exports = { upload, FILE_KINDS, MAX_REQUEST_BYTES };
+module.exports = { upload, FILE_KINDS, MAX_REQUEST_BYTES, validImageSignature };

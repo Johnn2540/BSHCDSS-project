@@ -34,7 +34,7 @@ function checkEnv() {
       errors.push('SESSION_SECRET must be at least 32 characters in production.');
     }
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-      warnings.push('Cloudinary is not configured: image and document uploads will fail.');
+      warnings.push('Cloudinary is not configured: image, video and document uploads will fail.');
     }
     if (!process.env.SMTP_HOST || !process.env.MAIL_FROM) {
       warnings.push('SMTP_HOST / MAIL_FROM not set: password reset, invitations and the contact form cannot send email.');

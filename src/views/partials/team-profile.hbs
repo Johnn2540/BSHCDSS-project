@@ -1,0 +1,55 @@
+<article class="team-profile{{#if featured}} team-profile-featured{{/if}}{{#if support}} team-profile-support{{/if}}" aria-labelledby="team-name-{{id}}" data-team-profile>
+  {{#if referenceCode}}<span class="team-reference">{{referenceCode}}</span>{{/if}}
+  <div class="team-profile-content">
+    <div class="team-profile-identity">
+      {{#if photoUrl}}
+        <img src="{{img photoUrl "w_320,h_320,c_fill,g_face"}}"
+             srcset="{{img photoUrl "w_160,h_160,c_fill,g_face"}} 160w, {{img photoUrl "w_320,h_320,c_fill,g_face"}} 320w, {{img photoUrl "w_480,h_480,c_fill,g_face"}} 480w"
+             sizes="{{#if featured}}(min-width: 640px) 112px, 96px{{else}}80px{{/if}}"
+             alt="{{name}}" width="{{#if featured}}112{{else}}80{{/if}}" height="{{#if featured}}112{{else}}80{{/if}}"
+             loading="lazy" decoding="async" class="team-portrait">
+      {{else}}
+        <span class="team-portrait team-initials" aria-hidden="true">{{initials}}</span>
+      {{/if}}
+      <div class="min-w-0">
+        <h3 id="team-name-{{id}}" class="team-member-name">{{name}}</h3>
+        <p class="team-member-role">{{title}}</p>
+        {{#if institution}}<p class="mt-2 text-sm leading-relaxed text-neutral-600">{{institution}}</p>{{/if}}
+      </div>
+    </div>
+    {{#if (or email phone bio)}}
+      <div class="team-profile-details">
+        {{#if (or email phone)}}
+          <dl class="space-y-1 text-sm">
+            {{#if email}}
+              <div class="flex items-start gap-3">
+                <dt class="flex h-11 shrink-0 items-center text-brand-blue">{{> icon name="mail" class="h-4 w-4"}}<span class="sr-only">Email address</span></dt>
+                <dd class="min-w-0 flex-1"><a href="mailto:{{email}}" class="team-contact-link"><span>{{email}}</span><span class="sr-only">, email {{name}}</span></a></dd>
+              </div>
+            {{/if}}
+            {{#if phone}}
+              <div class="flex items-start gap-3">
+                <dt class="flex h-11 shrink-0 items-center text-brand-blue">{{> icon name="phone" class="h-4 w-4"}}<span class="sr-only">Mobile number</span></dt>
+                <dd class="min-w-0 flex-1"><a href="tel:{{telHref phone}}" class="team-contact-link"><span>{{phone}}</span><span class="sr-only">, call {{name}}</span></a></dd>
+              </div>
+            {{/if}}
+          </dl>
+        {{/if}}
+        {{#if bio}}
+          <div class="{{#if (or email phone)}}mt-4{{/if}}">
+            {{#if (lt bio.length 240)}}
+              <div class="space-y-2 text-sm leading-relaxed text-neutral-700">{{#each (paragraphs bio)}}<p>{{this}}</p>{{/each}}</div>
+            {{else}}
+              <details class="group">
+                <summary class="min-h-11 cursor-pointer py-2.5 text-sm font-semibold text-brand-blue underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
+                  <span class="group-open:hidden">Read biography</span><span class="hidden group-open:inline">Hide biography</span><span class="sr-only"> of {{name}}</span>
+                </summary>
+                <div class="mt-3 space-y-3 text-sm leading-relaxed text-neutral-700">{{#each (paragraphs bio)}}<p>{{this}}</p>{{/each}}</div>
+              </details>
+            {{/if}}
+          </div>
+        {{/if}}
+      </div>
+    {{/if}}
+  </div>
+</article>

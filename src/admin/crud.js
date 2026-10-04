@@ -125,7 +125,14 @@ function crudRouter(resource) {
         const file = req.files && req.files[f.name] && req.files[f.name][0];
         const oldPublicId = item ? item[f.publicIdField] : null;
         if (file) {
-          const stored = await uploadFile(file, { folder: f.folder, kind: fileKind(f) });
+          let stored;
+          try {
+            stored = await uploadFile(file, { folder: f.folder, kind: fileKind(f) });
+          } catch (cause) {
+            const failure = new Error('File upload failed.', { cause });
+            failure.uploadField = f.name;
+            throw failure;
+          }
           uploaded.push({ publicId: stored.publicId, kind: fileKind(f) });
           data[f.urlField] = stored.url;
           data[f.publicIdField] = stored.publicId;
@@ -135,11 +142,11 @@ function crudRouter(resource) {
             if (f.meta.fileSize) data[f.meta.fileSize] = stored.bytes || file.size;
           }
           if (oldPublicId) replaced.push({ publicId: oldPublicId, kind: fileKind(f) });
-        } else if (item && !f.required && req.body[`remove_${f.name}`] === 'on' && oldPublicId) {
+        } else if (item && !f.required && req.body[`remove_${f.name}`] === 'on' && item[f.urlField]) {
           data[f.urlField] = null;
           data[f.publicIdField] = null;
           if (f.meta) Object.values(f.meta).forEach((col) => (data[col] = null));
-          replaced.push({ publicId: oldPublicId, kind: fileKind(f) });
+          if (oldPublicId) replaced.push({ publicId: oldPublicId, kind: fileKind(f) });
         }
       }
     } catch (err) {
@@ -147,6 +154,21 @@ function crudRouter(resource) {
       throw err;
     }
     return { data, uploaded, replaced };
+  }
+
+  async function uploadsOrRender(req, res, item) {
+    try {
+      return await applyUploads(req, item);
+    } catch (error) {
+      if (!error.uploadField) throw error;
+      const field = resource.fields.find((f) => f.name === error.uploadField);
+      const kept = item && item[field.urlField] ? ' Your current file has been kept.' : '';
+      await renderForm(req, res, {
+        item, values: req.body, status: 422,
+        errors: { [error.uploadField]: `We could not upload this file. Please choose a valid file and try again.${kept}` },
+      });
+      return null;
+    }
   }
 
   // Resource-specific extra routes (e.g. album photos) go first.
@@ -193,7 +215,9 @@ function crudRouter(resource) {
     if (Object.keys(errors).length) {
       return renderForm(req, res, { values: req.body, errors, status: 422 });
     }
-    const { data: fileData, uploaded } = await applyUploads(req, null);
+    const uploads = await uploadsOrRender(req, res, null);
+    if (!uploads) return;
+    const { data: fileData, uploaded } = uploads;
     const extra = resource.beforeCreate ? resource.beforeCreate(req) : {};
     let created;
     try {
@@ -217,7 +241,9 @@ function crudRouter(resource) {
     if (Object.keys(errors).length) {
       return renderForm(req, res, { item, values: req.body, errors, status: 422 });
     }
-    const { data: fileData, uploaded, replaced } = await applyUploads(req, item);
+    const uploads = await uploadsOrRender(req, res, item);
+    if (!uploads) return;
+    const { data: fileData, uploaded, replaced } = uploads;
     try {
       await model.update({ where: { id: item.id }, data: { ...data, ...fileData } });
     } catch (err) {
@@ -225,6 +251,7 @@ function crudRouter(resource) {
       throw err;
     }
     await Promise.all(replaced.map((r) => destroyFile(r.publicId, r.kind)));
+    if (resource.afterUpdate) await resource.afterUpdate(item, data, req);
     req.flash('success', `${capitalise(singular)} "${data[titleField] || item[titleField]}" saved.`);
     res.redirect(base);
   });

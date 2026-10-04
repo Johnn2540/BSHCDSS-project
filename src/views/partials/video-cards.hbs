@@ -1,9 +1,16 @@
-{{!-- Grid of videos. Each shows a thumbnail; the player only loads when clicked (saves data on slow
-     connections). Without JavaScript the link opens the video on YouTube/Vimeo. Param: videos --}}
+{{!-- Native files use standard browser controls; external players load only when clicked. --}}
 <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
   {{#each videos}}
-    <li class="overflow-hidden rounded border border-neutral-200 bg-white shadow-sm">
-      <div class="relative aspect-video bg-neutral-900">
+    <li class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm" data-video-card>
+      <div class="relative w-full {{#if isPortrait}}aspect-[9/16] max-h-[32rem]{{else}}aspect-video{{/if}} bg-neutral-900">
+        {{#if isNative}}
+          <video controls playsinline preload="none" poster="{{thumbnailUrl}}" aria-label="{{title}}"
+                 {{#if width}}width="{{width}}"{{/if}} {{#if height}}height="{{height}}"{{/if}}
+                 class="absolute inset-0 h-full w-full object-contain" data-project-video>
+            <source src="{{videoUrl}}" type="video/mp4">
+            Your browser does not support this video. <a href="{{watchUrl}}">Open {{title}}</a>.
+          </video>
+        {{else}}
         <a href="{{watchUrl}}" target="_blank" rel="noopener" data-video-embed="{{embedUrl}}" data-video-title="{{title}}"
            class="group absolute inset-0 flex items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-brand-yellow">
           {{#if thumbnailUrl}}<img src="{{thumbnailUrl}}" alt="" loading="lazy" class="absolute inset-0 h-full w-full object-cover opacity-90 group-hover:opacity-100">{{/if}}
@@ -12,10 +19,12 @@
           </span>
           <span class="sr-only">Play video: {{title}}</span>
         </a>
+        {{/if}}
       </div>
       <div class="p-4">
         <h3 class="font-semibold text-neutral-900">{{title}}</h3>
         {{#if date}}<p class="mt-1 text-sm text-neutral-600">{{formatDate date}}</p>{{/if}}
+        {{#if durationLabel}}<p class="mt-1 text-sm text-neutral-600"><span class="sr-only">Duration: </span>{{durationLabel}}</p>{{/if}}
         {{#if description}}<p class="mt-2 text-sm text-neutral-700">{{description}}</p>{{/if}}
       </div>
     </li>

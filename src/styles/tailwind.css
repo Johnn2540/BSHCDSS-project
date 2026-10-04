@@ -213,6 +213,68 @@
     @apply grid gap-6 rounded-xl border border-neutral-200 bg-neutral-50 p-6 sm:p-8 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-12;
   }
 
+  /* Project team: consistent portraits, a prominent lead and compact role cards. */
+  .team-count {
+    @apply inline-flex rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-brand-blue;
+  }
+  .team-profile {
+    @apply h-full rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6;
+  }
+  .team-reference {
+    @apply mb-5 inline-flex rounded-md border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-semibold tracking-wide text-brand-blue;
+  }
+  .team-profile-content {
+    @apply min-w-0;
+  }
+  .team-profile-identity {
+    @apply flex min-w-0 items-center gap-4;
+  }
+  .team-portrait {
+    @apply inline-flex h-20 w-20 shrink-0 items-center justify-center rounded-full border-2 border-blue-100 bg-blue-50 object-cover;
+  }
+  .team-initials {
+    @apply text-2xl font-semibold tracking-tight text-brand-blue;
+    background-image: linear-gradient(135deg, #eff6ff, #e8f3f6);
+  }
+  .team-member-name {
+    @apply text-lg font-semibold leading-snug text-neutral-900;
+    overflow-wrap: anywhere;
+  }
+  .team-member-role {
+    @apply mt-2 text-sm font-medium leading-relaxed text-brand-green-dark;
+  }
+  .team-profile-details {
+    @apply mt-5 min-w-0 border-t border-neutral-200 pt-4;
+  }
+  .team-contact-link {
+    @apply inline-flex min-h-11 max-w-full items-center py-2 font-medium text-brand-blue underline-offset-4 hover:underline
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue;
+    overflow-wrap: anywhere;
+  }
+  .team-profile-featured {
+    @apply border-blue-200 border-l-4 border-l-brand-green bg-blue-50/40 p-6 sm:p-8;
+  }
+  .team-profile-featured .team-profile-content,
+  .team-profile-support .team-profile-content {
+    @apply grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(15rem,22rem)] md:items-center;
+  }
+  .team-profile-featured .team-portrait {
+    @apply h-24 w-24 sm:h-28 sm:w-28;
+  }
+  .team-profile-featured .team-initials {
+    @apply text-3xl;
+  }
+  .team-profile-featured .team-member-name {
+    @apply text-2xl sm:text-3xl;
+  }
+  .team-profile-featured .team-member-role {
+    @apply text-base;
+  }
+  .team-profile-featured .team-profile-details,
+  .team-profile-support .team-profile-details {
+    @apply mt-0 md:border-t-0 md:border-l md:pl-6 md:pt-0;
+  }
+
   /* Forms */
   .form-label {
     @apply block text-sm font-semibold text-neutral-800;

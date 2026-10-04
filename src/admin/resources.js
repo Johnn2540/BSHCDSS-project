@@ -5,6 +5,7 @@ const { prisma } = require('../lib/db');
 const { parseVideoUrl } = require('../services/video');
 const albumPhotos = require('./albumPhotos');
 const { FILE_KINDS } = require('../middleware/upload');
+const { destroyFile } = require('../services/storage');
 
 const PUBLISHED = { name: 'isPublished', label: 'Show on the website', type: 'checkbox', default: true };
 const ORDER = {
@@ -41,6 +42,7 @@ module.exports = [
     columns: [
       { label: 'Photo', field: 'photoUrl', type: 'image' },
       { label: 'Name', field: 'name' },
+      { label: 'Reference', field: 'referenceCode', type: 'badge' },
       { label: 'Title', field: 'title' },
       { label: 'Institution', field: 'institution' },
       { label: 'Order', field: 'displayOrder' },
@@ -49,12 +51,41 @@ module.exports = [
     fields: [
       { name: 'name', label: 'Full name', type: 'text', required: true, max: 120 },
       { name: 'title', label: 'Position or title', type: 'text', required: true, max: 150 },
+      {
+        name: 'referenceCode', label: 'Team reference', type: 'text', max: 12,
+        placeholder: 'e.g. K-2', help: 'Use K-1, K-2 and so on for key personnel. Leave blank for project support.',
+        validate: (value) => {
+          if (!/^K-[1-9]\d{0,3}$/i.test(value)) throw new Error('Use a reference such as K-1 or K-10.');
+          return true;
+        },
+      },
       { name: 'institution', label: 'Institution', type: 'text', max: 150, placeholder: 'e.g. Kenyatta University' },
+      { name: 'email', label: 'Email address', type: 'email', max: 254, help: 'Shown on the Project Team page. Leave blank to hide.' },
+      {
+        name: 'phone', label: 'Mobile number', type: 'text', max: 40,
+        help: 'Shown on the Project Team page. Include a country code for international callers.',
+        validate: (value) => {
+          const digits = value.replace(/\D/g, '');
+          if (!/^\+?[\d\s().-]+$/.test(value) || digits.length < 7 || digits.length > 15) {
+            throw new Error('Enter a valid mobile number.');
+          }
+          return true;
+        },
+      },
       { name: 'bio', label: 'Short biography', type: 'textarea', rows: 6, max: 3000, help: 'Separate paragraphs with a blank line.' },
       ORDER,
       PUBLISHED,
-      { name: 'photo', label: 'Photo', type: 'image', folder: 'team', urlField: 'photoUrl', publicIdField: 'photoPublicId', help: 'A square portrait works best.' },
+      { name: 'photo', label: 'Portrait photo', type: 'image', folder: 'team', urlField: 'photoUrl', publicIdField: 'photoPublicId', help: `${FILE_KINDS.image.description}. Choose a clear, square portrait, ideally at least 400 × 400 pixels. You can add or replace it later.` },
     ],
+    prepare: async (data, { item }) => {
+      if (!data.referenceCode) return {};
+      data.referenceCode = data.referenceCode.toUpperCase();
+      const taken = await prisma.teamMember.findFirst({
+        where: { referenceCode: data.referenceCode, ...(item ? { id: { not: item.id } } : {}) },
+        select: { id: true },
+      });
+      return taken ? { referenceCode: 'This reference already belongs to another team member.' } : {};
+    },
   },
 
   {
@@ -192,7 +223,7 @@ module.exports = [
     model: 'video',
     label: 'Videos',
     singular: 'video',
-    intro: 'YouTube or Vimeo videos shown on the Project in Pictures and Videos page.',
+    intro: 'Videos shown on the Project in Pictures and Videos page. Edit titles, descriptions, order and publication status here.',
     orderBy: [{ date: { sort: 'desc', nulls: 'last' } }, { displayOrder: 'asc' }, { createdAt: 'desc' }],
     listInclude: { activity: { select: { title: true } } },
     columns: [
@@ -207,13 +238,13 @@ module.exports = [
       { name: 'title', label: 'Title', type: 'text', required: true, max: 150 },
       {
         name: 'embedUrl',
-        label: 'YouTube or Vimeo link',
+        label: 'Video link',
         type: 'url',
         required: true,
         placeholder: 'https://www.youtube.com/watch?v=...',
-        help: 'Paste the address of the video from YouTube or Vimeo. Video files cannot be uploaded.',
+        help: 'Use a YouTube or Vimeo link, or the secure video URL from Cloudinary.',
         validate: (value) => {
-          if (!parseVideoUrl(value)) throw new Error('Enter a valid YouTube or Vimeo video link.');
+          if (!parseVideoUrl(value)) throw new Error('Enter a valid YouTube, Vimeo or Cloudinary video link.');
           return true;
         },
       },
@@ -223,11 +254,23 @@ module.exports = [
       ORDER,
       PUBLISHED,
     ],
-    prepare: (data) => {
+    prepare: (data, { item }) => {
       const parsed = parseVideoUrl(data.embedUrl);
       data.embedUrl = parsed.embedUrl;
       data.provider = parsed.provider;
+      // A different version or delivery transformation can still reference the same owned asset.
+      const sameAsset = item?.videoPublicId && parsed.provider === 'CLOUDINARY' &&
+        new URL(item.embedUrl).pathname.split('/')[1] === new URL(data.embedUrl).pathname.split('/')[1] &&
+        new URL(data.embedUrl).pathname.replace(/\.[^.]+$/, '').endsWith('/' + item.videoPublicId);
+      if (item && item.embedUrl !== data.embedUrl && !sameAsset) {
+        data.videoPublicId = null;
+        data.width = data.height = data.duration = null;
+      }
     },
+    afterUpdate: async (item, data) => {
+      if (item.videoPublicId && data.videoPublicId === null) await destroyFile(item.videoPublicId, 'video');
+    },
+    filesToDelete: async (item) => item.videoPublicId ? [{ publicId: item.videoPublicId, kind: 'video' }] : [],
   },
 
   {

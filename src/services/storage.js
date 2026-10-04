@@ -1,4 +1,4 @@
-// File storage for uploaded images and documents.
+// File storage for uploaded images, videos and documents.
 //
 // Images are public (they appear on the website).
 // Documents are private: they are never linked directly. Every download goes through
@@ -41,11 +41,11 @@ if (isCloudinaryConfigured) {
 // and a signed link is required.
 const DOCUMENT_OPTIONS = { resource_type: 'raw', type: 'authenticated' };
 
-// kind: 'image' or 'document'
+// kind: 'image', 'video' or 'document'
 function uploadToCloudinary(file, { folder, kind }) {
   const options =
-    kind === 'image'
-      ? { folder: `${ROOT_FOLDER}/${folder}`, resource_type: 'image' }
+    kind === 'image' || kind === 'video'
+      ? { folder: `${ROOT_FOLDER}/${folder}`, resource_type: kind, overwrite: false }
       : {
           ...DOCUMENT_OPTIONS,
           folder: `${ROOT_FOLDER}/${folder}`,
@@ -63,6 +63,7 @@ function uploadToCloudinary(file, { folder, kind }) {
         bytes: result.bytes,
         width: result.width || null,
         height: result.height || null,
+        duration: result.duration || null,
       });
     });
     stream.end(file.buffer);
@@ -110,7 +111,7 @@ async function destroyFile(publicId, kind) {
       return;
     }
     if (isCloudinaryConfigured) {
-      await cloudinary.uploader.destroy(publicId, kind === 'image' ? { resource_type: 'image' } : DOCUMENT_OPTIONS);
+      await cloudinary.uploader.destroy(publicId, kind === 'image' || kind === 'video' ? { resource_type: kind, invalidate: true } : DOCUMENT_OPTIONS);
     }
   } catch (err) {
     console.error(`Could not delete stored file ${publicId}:`, err.message);

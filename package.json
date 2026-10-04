@@ -21,7 +21,12 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "documents:import": "node scripts/import-curriculum-documents.js",
-    "check:documents": "node --test scripts/document-library.test.js scripts/document-access.test.js"
+    "check:documents": "node --test scripts/document-library.test.js scripts/document-access.test.js",
+    "check:home": "node --test scripts/home.test.js",
+    "team:import": "node scripts/import-project-team.js",
+    "check:team": "node --test scripts/team.test.js scripts/team-uploads.test.js",
+    "videos:import": "node scripts/import-project-video.js",
+    "check:videos": "node --test scripts/video.test.js scripts/video-admin.test.js"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
