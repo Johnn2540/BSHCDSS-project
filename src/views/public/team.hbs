@@ -18,17 +18,28 @@
             </div>
           </div>
           {{#if bio}}
-            <details class="group mt-4 border-t border-neutral-200 pt-3">
-              <summary class="cursor-pointer list-none text-sm font-semibold text-brand-blue hover:underline">
-                <span class="group-open:hidden">Read biography</span><span class="hidden group-open:inline">Hide biography</span><span class="sr-only"> of {{name}}</span>
-              </summary>
-              <div class="mt-3 text-sm">{{> prose text=bio}}</div>
-            </details>
+            {{#if (lt bio.length 240)}}
+              {{!-- Short bio (e.g. a position line): shown directly, no click needed --}}
+              <div class="mt-4 space-y-2 border-t border-neutral-200 pt-4 text-sm leading-relaxed text-neutral-700">{{#each (paragraphs bio)}}<p>{{this}}</p>{{/each}}</div>
+            {{else}}
+              <details class="group mt-4 border-t border-neutral-200 pt-3">
+                <summary class="cursor-pointer list-none text-sm font-semibold text-brand-blue hover:underline">
+                  <span class="group-open:hidden">Read biography</span><span class="hidden group-open:inline">Hide biography</span><span class="sr-only"> of {{name}}</span>
+                </summary>
+                <div class="mt-3 text-sm">{{> prose text=bio}}</div>
+              </details>
+            {{/if}}
           {{/if}}
         </li>
       {{/each}}
     </ul>
-  {{else}}
-    <p class="text-neutral-700">Team member profiles will be published here soon.</p>
+  {{/if}}
+
+  {{!-- Editable note (Admin -> Page content -> Project Team); clear it to hide --}}
+  {{#if page.moreNote}}
+    <p class="{{#if members.length}}mt-10 {{/if}}flex items-start gap-3 rounded-lg border border-dashed border-neutral-300 bg-neutral-50 px-5 py-4 text-neutral-700">
+      <span class="mt-0.5 text-brand-blue">{{> icon name="users" class="h-5 w-5"}}</span>
+      <span>{{page.moreNote}}</span>
+    </p>
   {{/if}}
 </section>

@@ -240,6 +240,14 @@ module.exports = [
     fields: [
       { name: 'title', label: 'Page heading', type: 'text', required: true, default: 'Project Team' },
       { name: 'summary', label: 'Introduction', type: 'textarea', rows: 3, default: 'The people leading and delivering the BSHCDSS project.' },
+      {
+        name: 'moreNote',
+        label: 'Note below the team',
+        help: 'Shown under the team members. Clear it once the team list is complete.',
+        type: 'text',
+        max: 200,
+        default: 'More team members will appear here as their profiles are added.',
+      },
     ],
   },
   {
