@@ -75,3 +75,9 @@ node scripts/check-tutor-browser.js
 ```
 
 The portal tests use isolated fake persistence, test accounts and file storage. The browser check uses installed Chrome and verifies layouts at 320, 390, 768 and 1440 pixels, search, empty states and navigation without JavaScript. It does not create accounts or upload files to production.
+
+Site motion uses the separate, optional `public/js/motion.js` and the motion styles in `src/styles/tailwind.css`. Headings and selected content cards enter once as they reach the viewport; content is visible before the script loads and when it is unavailable. Entrances use opacity and transforms without changing layout dimensions. Keyboard focus cancels an active entrance immediately. Forms, document rows and native video controls are kept outside moving containers. Auth/admin headings use a short fade, and card hover movement is limited to devices with a fine pointer.
+
+Reduced-motion preferences disable entrances, CSS animations and transitions, including changes to the preference while the page is open. Printing and hiding the page cancel active entrances. The existing partner strip remains pausable and becomes static with reduced motion. Navigation, form submission, media controls, account actions and file delivery continue to use their existing handlers.
+
+Run `npm run check:motion` for local public-page browser checks, or `node scripts/check-motion-browser.js --live` against production. `--interactions-only` checks menus, search, password controls, native media, reduced motion and fallbacks without repeating the four-width page comparisons. Run `node scripts/check-tutor-browser.js` for the isolated tutor/admin checks. Browser checks require installed Chrome; public-page checks read the configured database and do not submit contact or recovery forms.

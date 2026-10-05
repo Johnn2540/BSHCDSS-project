@@ -98,6 +98,8 @@ Enforce roles server-side with route middleware; never rely on hiding links in t
 
 ## Conventions
 
+- Motion is optional progressive enhancement in `public/js/motion.js`, separate from functional handlers in `site.js`. Use `data-motion="enter"` on selected content blocks and `data-motion="fade"` on workspace headings; section headings and auth titles are covered automatically. Nested targets are skipped. Keep form controls, document rows and native video controls outside moving containers. Content must remain visible with no JS or unsupported animation APIs. Respect reduced motion, cancel entrances on focus/printing/page hiding, and use fine-pointer hover movement only. Verify with `npm run check:motion` and `node scripts/check-tutor-browser.js`.
+
 - Tutor Portal sections are defined in `src/config/tutorSections.js`. `Document.portalSection` keeps Documents, Reports, and Plans and Activities separate from subject categories. Admin publishing uses `src/admin/documentResources.js`; new resources default to unpublished and tutor-only. Existing curriculum files remain in Documents. Portal content is editable through page configurations. Tutor routes require an active tutor/admin session; file downloads enforce audience and publication status. Tutor password changes use the shared account controller and form partial. There is no tutor upload or report-submission route.
 
 - Public views get all editable content through `src/services/content.js` (reads the DB, cached 5 min; any admin POST clears the cache). Never put page copy in `.hbs` files.

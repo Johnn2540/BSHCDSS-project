@@ -86,6 +86,8 @@ async function main() {
     if (result.error) command.reject(new Error(result.error.message)); else command.resolve(result.result);
   });
   await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable');
+  await send('Page.bringToFront');
+  await send('Emulation.setFocusEmulationEnabled', { enabled: true });
   await send('Page.addScriptToEvaluateOnNewDocument', { source: '(' + function () {
     window.__browserErrors = []; window.__motionRecords = [];
     window.addEventListener('error', event => { if (event.message) window.__browserErrors.push(event.message); });
@@ -139,7 +141,7 @@ async function main() {
 
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 1000, deviceScaleFactor: 1, mobile: true });
   await navigate(base + '/');
-  await evaluate(() => document.querySelector('[data-drawer-open]').click());
+  await evaluate(() => { const button = document.querySelector('[data-drawer-open]'); button.focus(); button.click(); });
   await until(() => evaluate(() => document.activeElement.hasAttribute('data-drawer-close')), 'drawer focus');
   assert.ok(await evaluate(() => document.querySelector('#site-drawer').classList.contains('is-open') && document.documentElement.classList.contains('drawer-locked')));
   await evaluate(() => {
@@ -148,11 +150,10 @@ async function main() {
     links[links.length - 1].focus();
   });
   await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
-  const focusState = await evaluate(() => ({
-    focused: document.activeElement.outerHTML,
-    candidates: Array.from(document.querySelector('#site-drawer').querySelectorAll('a[href], button:not([disabled])')).filter(element => element.offsetParent !== null).map(element => element.outerHTML),
-  }));
-  assert.ok(focusState.focused.includes('data-drawer-close'), 'Drawer traps keyboard focus: ' + JSON.stringify(focusState));
+  assert.ok(await evaluate(() => {
+    const items = Array.from(document.querySelector('#site-drawer').querySelectorAll('a[href], button:not([disabled])')).filter(element => element.offsetParent !== null);
+    return document.activeElement === items[0];
+  }), 'Drawer cycles keyboard focus to its first link');
   await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
   assert.ok(await evaluate(() => document.activeElement.hasAttribute('data-drawer-open') && !document.documentElement.classList.contains('drawer-locked')), 'Escape closes menu and restores focus');
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
@@ -177,6 +178,24 @@ async function main() {
   await navigate(base + '/gallery#videos');
   assert.ok(await evaluate(() => { const video = document.querySelector('[data-project-video]'); return video && video.controls && video.paused && video.preload === 'none'; }), 'Video retains native controls and no autoplay');
   console.log('Verified keyboard menus, search, password controls, stable contact fields and native video behavior.');
+
+  await navigate(base + '/');
+  await evaluate(() => document.querySelector('#contact-heading').scrollIntoView({ block: 'center' }));
+  await until(() => evaluate(() => document.querySelector('#contact-heading').closest('[data-motion]').getAnimations().length > 0), 'focusable entrance');
+  const focusCleanup = await evaluate(() => {
+    const block = document.querySelector('#contact-heading').closest('[data-motion]');
+    const link = block.querySelector('a'); link.focus();
+    return { focused: document.activeElement === link, animations: block.getAnimations().map(animation => animation.playState), transform: getComputedStyle(block).transform };
+  });
+  assert.equal(focusCleanup.focused, true, 'Link receives keyboard focus');
+  assert.deepEqual(focusCleanup.animations, [], 'Focus cancels the active entrance: ' + JSON.stringify(focusCleanup));
+  assert.equal(focusCleanup.transform, 'none', 'Focus removes the presentation transform');
+  await navigate(base + '/');
+  await evaluate(() => document.querySelector('#contact-heading').scrollIntoView({ block: 'center' }));
+  await until(() => evaluate(() => document.querySelector('#contact-heading').closest('[data-motion]').getAnimations().length > 0), 'printable entrance');
+  await evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+  assert.equal(await evaluate(() => document.querySelector('#contact-heading').closest('[data-motion]').getAnimations().length), 0, 'Printing cancels active entrances');
+  console.log('Verified immediate focus safety and print cleanup.');
 
   await navigate(base + '/');
   await evaluate(() => document.querySelector('#contact-heading').scrollIntoView({ block: 'center' }));

@@ -88,6 +88,37 @@ async function main() {
   await navigate('/tutor/documents?no-script-check=1');
   assert.equal(await evaluate('document.querySelectorAll(".document-download").length'), 2);
   console.log('Verified search, empty states and navigation/download links without JavaScript.');
+  await send('Emulation.setScriptExecutionDisabled', { value: false });
+  await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  for (const route of ['/tutor', '/tutor/documents', '/tutor/reports', '/tutor/plans-and-activities', '/tutor/password']) {
+    await navigate(route);
+    assert.equal(await evaluate('document.getAnimations().filter(animation => animation.playState === "running").length'), 0, route + ': reduced motion');
+    assert.ok(await evaluate('Array.from(document.querySelectorAll("main [data-motion]")).every(element => getComputedStyle(element).opacity === "1")'), route + ': readable content');
+  }
+  await navigate('/tutor');
+  await evaluate('fetch("/logout", { method: "POST", body: new URLSearchParams(new FormData(document.querySelector("form[action=\\"/logout\\"]"))), redirect: "manual" })');
+  await navigate('/login');
+  await evaluate('document.querySelector("#email").value="admin@example.test"; document.querySelector("#password").value=' + JSON.stringify(password) + '; fetch("/login", { method: "POST", body: new URLSearchParams(new FormData(document.querySelector("main form"))), redirect: "manual" })');
+  // Use a supported fixture list after real credential verification. This fixture
+  // deliberately omits the dashboard's unrelated production count queries.
+  for (const width of [390, 1440]) {
+    await send('Emulation.setDeviceMetricsOverride', { width, height: 1050, deviceScaleFactor: 1, mobile: width < 640 });
+    for (const route of ['/admin/documents', '/admin/plans/new', '/admin/password']) {
+      await navigate(route);
+      assert.equal(await evaluate('document.querySelectorAll("main h1").length'), 1, route);
+      assert.equal(await evaluate('document.documentElement.scrollWidth > innerWidth + 1'), false, route + ': overflow');
+      assert.equal(await evaluate('document.getAnimations().filter(animation => animation.playState === "running").length'), 0, route + ': reduced motion');
+      assert.ok(await evaluate('Array.from(document.querySelectorAll("main input, main select, main textarea")).every(element => !element.closest("[data-motion]"))'), route + ': steady form fields');
+    }
+  }
+  await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'no-preference' }] });
+  await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 1050, deviceScaleFactor: 1, mobile: true });
+  await navigate('/admin/plans/new');
+  await evaluate('document.querySelector("[data-menu-toggle]").focus(); document.querySelector("[data-menu-toggle]").click();');
+  assert.equal(await evaluate('document.querySelector("[data-menu-toggle]").getAttribute("aria-expanded")'), 'true');
+  await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+  assert.equal(await evaluate('document.querySelector("[data-menu-toggle]").getAttribute("aria-expanded")'), 'false');
+  console.log('Verified tutor/admin reduced motion, steady admin forms and the mobile admin menu.');
 }
 main().catch((error) => { console.error(error.message); process.exitCode = 1; }).finally(async () => {
   if (ws) ws.close(); if (chrome) chrome.kill(); for (const command of pending.values()) clearTimeout(command.timeout);
