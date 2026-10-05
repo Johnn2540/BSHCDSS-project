@@ -18,6 +18,9 @@ const changePasswordRules = [
     .isLength({ max: 72 })
     .withMessage('New password must be 72 characters or fewer.')
     .bail()
+    .custom((value) => Buffer.byteLength(value, 'utf8') <= 72)
+    .withMessage('This password is too long. Try fewer characters.')
+    .bail()
     .custom((value, { req }) => value !== req.body.currentPassword)
     .withMessage('New password must be different from your current password.'),
   body('confirmPassword')
@@ -27,13 +30,18 @@ const changePasswordRules = [
 
 const promisify = (fn) => new Promise((resolve, reject) => fn((err) => (err ? reject(err) : resolve())));
 
-function render(res, { errors = {}, status = 200 } = {}) {
+function render(req, res, { errors = {}, status = 200 } = {}) {
   // Password fields are never sent back to the browser, even after an error.
-  res.status(status).render('admin/password', { title: 'Change password', errors, minLength: MIN_PASSWORD_LENGTH });
+  const tutorArea = req.baseUrl === '/tutor';
+  res.status(status).render(tutorArea ? 'tutor/password' : 'admin/password', {
+    title: 'Change password', errors, minLength: MIN_PASSWORD_LENGTH,
+    passwordAction: tutorArea ? '/tutor/password' : '/admin/password',
+    passwordCancel: tutorArea ? '/tutor' : '/admin',
+  });
 }
 
 function showChangePassword(req, res) {
-  render(res);
+  render(req, res);
 }
 
 async function changePassword(req, res) {
@@ -45,7 +53,7 @@ async function changePassword(req, res) {
   if (req.body.currentPassword && !(await bcrypt.compare(req.body.currentPassword, user.passwordHash))) {
     errors.currentPassword = 'Your current password is incorrect.';
   }
-  if (Object.keys(errors).length) return render(res, { errors, status: 422 });
+  if (Object.keys(errors).length) return render(req, res, { errors, status: 422 });
 
   const passwordHash = await bcrypt.hash(req.body.newPassword, BCRYPT_ROUNDS);
   await prisma.$transaction([
@@ -60,7 +68,7 @@ async function changePassword(req, res) {
   req.flash('success', 'Your password has been changed. Any other devices where you were logged in have been signed out.');
   await promisify((cb) => req.session.save(cb));
 
-  res.redirect('/admin/password');
+  res.redirect(req.baseUrl === '/tutor' ? '/tutor/password' : '/admin/password');
 }
 
 module.exports = { changePasswordRules, showChangePassword, changePassword };

@@ -80,7 +80,7 @@ The dropdown must work with keyboard and touch, not hover only.
 ## User roles
 
 - **Admin** — manages the whole site: page content, team members, activities, documents, albums, photos, videos, announcements, partners, and tutor accounts (add, approve, suspend, remove).
-- **Tutor** — logs in to a dashboard with their profile, curriculum documents and announcements. **Read-only.**
+- **Tutor** — logs in to a portal containing Documents, Reports, and Plans and Activities. Published resources are **read-only**; tutors can change their own password.
 - **Public visitors** — no login.
 
 Enforce roles server-side with route middleware; never rely on hiding links in templates.
@@ -97,6 +97,8 @@ Enforce roles server-side with route middleware; never rely on hiding links in t
   - Minimal JS, compressed/resized images via Cloudinary transformations, lazy-loaded images and embeds, cached static assets.
 
 ## Conventions
+
+- Tutor Portal sections are defined in `src/config/tutorSections.js`. `Document.portalSection` keeps Documents, Reports, and Plans and Activities separate from subject categories. Admin publishing uses `src/admin/documentResources.js`; new resources default to unpublished and tutor-only. Existing curriculum files remain in Documents. Portal content is editable through page configurations. Tutor routes require an active tutor/admin session; file downloads enforce audience and publication status. Tutor password changes use the shared account controller and form partial. There is no tutor upload or report-submission route.
 
 - Public views get all editable content through `src/services/content.js` (reads the DB, cached 5 min; any admin POST clears the cache). Never put page copy in `.hbs` files.
 - Page text: each page is a `PageContent` row by slug, with its editable fields defined (with defaults) in `src/config/pages.js`. Fields `title`/`summary`/`body` map to columns, everything else to `sections` JSON. Pages are edit-only in the admin (they match fixed routes). Text is plain; blank lines = paragraphs (`{{#each (paragraphs text)}}`).

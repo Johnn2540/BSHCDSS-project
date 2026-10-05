@@ -9,6 +9,7 @@
           <span class="font-semibold text-brand-blue">{{fileExt fileName}}</span>
           {{#if (or (eq (fileExt fileName) "DOC") (eq (fileExt fileName) "DOCX"))}}<span>Word document</span>{{/if}}
           {{#if fileSize}}<span>{{formatBytes fileSize}}</span>{{/if}}
+          {{#if ../showUpdated}}{{#if updatedAt}}<span>Updated {{formatDate updatedAt}}</span>{{/if}}{{/if}}
           {{#if ../showAudience}}<span class="badge {{#if (eq audience "TUTORS")}}badge-green{{else}}badge-grey{{/if}}">{{enumLabel audience}}</span>{{/if}}
         </p>
       </div>

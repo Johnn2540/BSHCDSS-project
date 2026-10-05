@@ -6,6 +6,7 @@ const { parseVideoUrl } = require('../services/video');
 const albumPhotos = require('./albumPhotos');
 const { FILE_KINDS } = require('../middleware/upload');
 const { destroyFile } = require('../services/storage');
+const documentResources = require('./documentResources');
 
 const PUBLISHED = { name: 'isPublished', label: 'Show on the website', type: 'checkbox', default: true };
 const ORDER = {
@@ -134,52 +135,7 @@ module.exports = [
     },
   },
 
-  {
-    key: 'documents',
-    model: 'document',
-    label: 'Documents',
-    singular: 'document',
-    intro: 'Curriculum and project documents. "Tutors only" documents are visible after login.',
-    orderBy: [{ createdAt: 'desc' }],
-    columns: [
-      { label: 'Title', field: 'title' },
-      { label: 'Category', field: 'category' },
-      { label: 'Audience', field: 'audience', type: 'badge' },
-      { label: 'Size', field: 'fileSize', type: 'bytes' },
-      { label: 'Added', field: 'createdAt', type: 'date' },
-      { label: 'Status', field: 'isPublished', type: 'published' },
-    ],
-    fields: [
-      { name: 'title', label: 'Title', type: 'text', required: true, max: 200 },
-      {
-        name: 'category',
-        label: 'Category',
-        type: 'text',
-        required: true,
-        max: 80,
-        placeholder: 'e.g. Curriculum framework',
-        suggestions: async () =>
-          (await prisma.document.findMany({ distinct: ['category'], select: { category: true }, orderBy: { category: 'asc' } })).map(
-            (d) => d.category
-          ),
-      },
-      { name: 'description', label: 'Description', type: 'textarea', rows: 3, max: 1000 },
-      { name: 'audience', label: 'Who can see it', type: 'select', required: true, options: AUDIENCE_OPTIONS, default: 'TUTORS' },
-      PUBLISHED,
-      {
-        name: 'file',
-        label: 'File',
-        type: 'file',
-        required: true,
-        folder: 'documents',
-        urlField: 'fileUrl',
-        publicIdField: 'filePublicId',
-        meta: { fileName: 'fileName', mimeType: 'mimeType', fileSize: 'fileSize' },
-        downloadUrl: (doc) => `/documents/${doc.id}/download`, // documents are private; never link the stored URL
-        help: `${FILE_KINDS.document.description}. Choosing a new file replaces the current one.`,
-      },
-    ],
-  },
+  ...documentResources,
 
   {
     key: 'albums',

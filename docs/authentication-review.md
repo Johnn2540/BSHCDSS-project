@@ -6,6 +6,18 @@ Recommended policy: administrator-approved tutor membership, with email invitati
 
 This is an authentication code and configuration review, with limited live checks. It is not a penetration-test certification or a claim that every website vulnerability has been identified. No live account, authentication policy or application code was changed during this review. No invitation or recovery email was sent.
 
+## Portal release update: 5 October 2026
+
+The three-section Tutor Portal is deployed: Documents, Reports, and Plans and Activities. Administrators manage and publish resources; approved tutors can browse, search and download them. Existing curriculum files and audience settings are preserved. New resources default to unpublished drafts restricted to approved tutors.
+
+Tutor password changes now work at `/tutor/password`, require the current password, revoke recovery tokens and other stored sessions, and regenerate the current session. Change-password validation rejects passwords longer than 72 UTF-8 bytes. This does not resolve the separate reset-token race, session-versioning or broader password-policy findings below. Sensitive pages and protected redirects now return `Cache-Control: private, no-store`.
+
+Email setup is pending at the user's request; invitation and recovery delivery remain unverified. Administrator MFA, shared rate limiting and the remaining findings below are still outstanding. The findings table records the original review; the password-page and cache-header gaps have been addressed by this release.
+
+Validation: 55 isolated automated tests passed; browser checks passed at 320, 390, 768 and 1440 pixels. A read-only rendering check used the real database and preserved all 14 existing documents. Live checks confirmed public pages, curriculum links and protected-route redirects; production logs showed no errors after those requests. No production test accounts were created and no email was sent.
+
+The dependency audit still reports four high-severity entries in the Prisma tooling chain. Installed `mysql2` is a Prisma CLI dependency; the application uses the PostgreSQL adapter. `deepmerge-ts` is used by Prisma configuration. This source review does not establish an exploitable website path, and those dependencies still need tested fixes. Relevant advisories: [recursive merge exhaustion](https://github.com/advisories/GHSA-ggr8-5vv4-36mx), [MySQL authentication downgrade](https://github.com/advisories/GHSA-3f6p-5ww8-9rcr), and [MySQL decompression exhaustion](https://github.com/advisories/GHSA-rgwj-5xj2-c3m3).
+
 ## Account policy
 
 | Option | Operational effect | Recommendation |

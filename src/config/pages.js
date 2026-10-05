@@ -11,6 +11,8 @@
 //
 // `default` is shown until an admin saves the page for the first time.
 
+const tutorSections = require('./tutorSections');
+
 module.exports = [
   {
     slug: 'site',
@@ -337,4 +339,23 @@ module.exports = [
       },
     ],
   },
+  {
+    slug: 'tutor-portal', label: 'Tutor Portal',
+    description: 'Welcome, introduction and help text for approved tutors (/tutor).',
+    fields: [
+      { name: 'title', label: 'Portal heading', type: 'text', required: true, default: 'Tutor Portal' },
+      { name: 'summary', label: 'Introduction', type: 'textarea', rows: 3, default: 'Access documents, reports, plans and activities shared by the project team.' },
+      { name: 'helpHeading', label: 'Help heading', type: 'text', default: 'Need help with your resources?' },
+      { name: 'helpText', label: 'Help text', type: 'textarea', rows: 3, default: 'Contact the project team if you need a resource, have trouble downloading a file or need help with your account.' },
+    ],
+  },
+  ...tutorSections.map((section) => ({
+    slug: section.pageSlug, label: `Tutor Portal: ${section.label}`,
+    description: `Heading, introduction and empty-state text at ${section.href}. Files are managed in ${section.adminHref}.`,
+    fields: [
+      { name: 'title', label: 'Section heading', type: 'text', required: true, default: section.label },
+      { name: 'summary', label: 'Introduction', type: 'textarea', rows: 3, default: section.summary },
+      { name: 'libraryEmpty', label: 'Empty section message', type: 'text', default: section.emptyText },
+    ],
+  })),
 ];

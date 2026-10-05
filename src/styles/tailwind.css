@@ -472,6 +472,16 @@
   }
 }
 
+.tutor-resource-card {
+  @apply block min-w-0 rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-colors hover:border-brand-blue/40 hover:bg-brand-blue/2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue sm:p-7;
+}
+.tutor-nav-link {
+  @apply flex min-h-11 items-center justify-center rounded-lg px-3 py-3 text-center text-sm font-semibold text-neutral-700 transition-colors hover:bg-white hover:text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue sm:px-5;
+}
+.tutor-nav-link.is-current {
+  @apply bg-brand-blue text-white hover:bg-brand-blue-dark hover:text-white;
+}
+
 /* Home banner on phones/tablets: a deeper navy fade than the inner pages, because the home
    banner carries more text (eyebrow, headline, introduction, two buttons). */
 .home-shade-bottom {
@@ -567,4 +577,69 @@ html.drawer-locked body {
 .menu-toggle[aria-expanded="true"] .icon-open,
 .menu-toggle[aria-expanded="false"] .icon-close {
   display: none;
+}
+
+/* A restrained motion system: no content is hidden, no layout sizes are animated,
+   and controls stay still during focus and form entry. */
+:root {
+  --motion-fast: 160ms;
+  --motion-standard: 240ms;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn, .document-download, .nav-link, .admin-nav-link, .tutor-nav-link,
+  .library-subject-link, .hamburger, .drawer-link, .drawer-sublink,
+  .drawer-close, .marquee-toggle, .tab-link, .footer-link {
+    transition: color var(--motion-fast) ease, background-color var(--motion-fast) ease,
+      border-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease;
+  }
+  .form-input, .form-file, .document-row, .admin-table tbody tr {
+    transition: border-color var(--motion-fast) ease, background-color var(--motion-fast) ease;
+  }
+  .motion-card {
+    transition: box-shadow var(--motion-standard) ease, border-color var(--motion-standard) ease,
+      background-color var(--motion-standard) ease, translate var(--motion-standard) var(--motion-ease);
+  }
+  .motion-arrow {
+    transition: translate var(--motion-standard) var(--motion-ease);
+  }
+  .dropdown [data-dropdown-toggle] svg, .drawer-chevron {
+    transition: transform var(--motion-fast) ease, rotate var(--motion-fast) ease;
+  }
+  .js .dropdown-menu.is-open, .js .mobile-menu.is-open {
+    animation: menu-enter var(--motion-fast) var(--motion-ease);
+  }
+  .js .dropdown-menu:focus-within {
+    animation: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  a.motion-card:hover:not(:focus-visible) {
+    translate: 0 -2px;
+    box-shadow: 0 8px 20px rgb(10 47 117 / 0.09);
+  }
+  .motion-card:hover .motion-arrow, .btn:hover .motion-arrow {
+    translate: 3px 0;
+  }
+  .motion-play {
+    transition: scale var(--motion-standard) var(--motion-ease);
+  }
+  a:hover > .motion-play { scale: 1.04; }
+}
+@keyframes menu-enter {
+  from { opacity: 0.8; transform: translateY(-3px); }
+  to { opacity: 1; transform: none; }
+}
+/* Covers existing utility transitions too. JavaScript also cancels active entrances
+   when the preference changes; the partners strip keeps its existing still layout. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  a.partner-tile:hover { translate: none; }
+}
+@media print {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
 }

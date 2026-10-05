@@ -8,6 +8,7 @@ const path = require('path');
 const { prisma } = require('../lib/db');
 const pageConfigs = require('../config/pages');
 const curriculumCatalogue = require('../data/curriculumDocuments');
+const tutorSections = require('../config/tutorSections');
 
 // On Vercel several function instances run at once and each has its own cache; an admin save
 // only clears the instance that handled it, so others could show old content until expiry.
@@ -173,10 +174,11 @@ async function getTeam() {
 }
 
 // Published documents for an audience, grouped by category: [{ category, documents: [...] }]
-async function getDocuments(audiences) {
-  return cached(`documents:${audiences.join(',')}`, async () => {
+async function getDocuments(audiences, portalSection = 'DOCUMENTS') {
+  if (!tutorSections.some((section) => section.value === portalSection)) throw new Error('Unknown resource section.');
+  return cached(`documents:${portalSection}:${audiences.join(',')}`, async () => {
     const documents = await prisma.document.findMany({
-      where: { isPublished: true, audience: { in: audiences } },
+      where: { portalSection, isPublished: true, audience: { in: audiences } },
       orderBy: [{ category: 'asc' }, { title: 'asc' }],
       select: { id: true, title: true, description: true, category: true, fileName: true, fileSize: true, audience: true, updatedAt: true },
     });
@@ -187,6 +189,19 @@ async function getDocuments(audiences) {
     }
     return [...groups].map(([category, docs]) => ({ category, documents: docs }));
   });
+}
+
+async function getTutorPortal() {
+  const [page, sections] = await Promise.all([
+    getPage('tutor-portal'),
+    Promise.all(tutorSections.map(async (section) => {
+      const [sectionPage, groups] = await Promise.all([
+        getPage(section.pageSlug), getDocuments(['PUBLIC', 'TUTORS'], section.value),
+      ]);
+      return { ...section, page: sectionPage, groups, total: groups.reduce((sum, group) => sum + group.documents.length, 0) };
+    })),
+  ]);
+  return { page, sections };
 }
 
 // Placement follows the source catalogue; admin edits and file replacements retain
@@ -300,6 +315,7 @@ module.exports = {
   getPublicAnnouncements,
   getTeam,
   getDocuments,
+  getTutorPortal,
   getActivityDocuments,
   getActivity,
   getGallery,

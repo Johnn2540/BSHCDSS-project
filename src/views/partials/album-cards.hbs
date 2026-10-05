@@ -1,8 +1,8 @@
 {{!-- Grid of album cards. Param: albums [{ title, slug, date, coverUrl, photoCount }] --}}
 <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
   {{#each albums}}
-    <li>
-      <a href="/gallery/{{slug}}" class="group block overflow-hidden rounded border border-neutral-200 bg-white shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
+    <li data-motion="enter">
+      <a href="/gallery/{{slug}}" class="motion-card group block overflow-hidden rounded border border-neutral-200 bg-white shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
         {{#if coverUrl}}
           <img src="{{img coverUrl "w_640,h_427,c_fit"}}"
                srcset="{{img coverUrl "w_400,h_267,c_fit"}} 400w, {{img coverUrl "w_640,h_427,c_fit"}} 640w, {{img coverUrl "w_960,h_640,c_fit"}} 960w"

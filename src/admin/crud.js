@@ -55,7 +55,9 @@ function crudRouter(resource) {
   const view = { key: resource.key, label: resource.label, singular, base, intro: resource.intro };
 
   async function findOr404(id) {
-    const item = await model.findUnique({ where: { id } });
+    const item = resource.where
+      ? await model.findFirst({ where: { id, ...resource.where } })
+      : await model.findUnique({ where: { id } });
     if (!item) throw createError(404, `That ${singular} could not be found. It may have been deleted.`);
     return item;
   }
@@ -177,8 +179,9 @@ function crudRouter(resource) {
   router.get('/', async (req, res) => {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const [total, items] = await Promise.all([
-      model.count(),
+      model.count(resource.where ? { where: resource.where } : undefined),
       model.findMany({
+        where: resource.where,
         orderBy: resource.orderBy,
         include: resource.listInclude,
         skip: (page - 1) * PER_PAGE,
@@ -227,7 +230,7 @@ function crudRouter(resource) {
       throw err;
     }
     req.flash('success', `${capitalise(singular)} "${created[titleField]}" created.`);
-    res.redirect(resource.redirectAfterCreate ? `${base}/${created.id}/edit` : base);
+    res.redirect(resource.redirectAfterSave ? resource.redirectAfterSave(created) : resource.redirectAfterCreate ? `${base}/${created.id}/edit` : base);
   });
 
   router.get('/:id/edit', async (req, res) => {
@@ -253,7 +256,7 @@ function crudRouter(resource) {
     await Promise.all(replaced.map((r) => destroyFile(r.publicId, r.kind)));
     if (resource.afterUpdate) await resource.afterUpdate(item, data, req);
     req.flash('success', `${capitalise(singular)} "${data[titleField] || item[titleField]}" saved.`);
-    res.redirect(base);
+    res.redirect(resource.redirectAfterSave ? resource.redirectAfterSave({ ...item, ...data }) : base);
   });
 
   router.get('/:id/delete', async (req, res) => {

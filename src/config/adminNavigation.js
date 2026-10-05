@@ -7,6 +7,8 @@ module.exports = [
   { label: 'Team members', href: '/admin/team', icon: 'person' },
   { label: 'Activities', href: '/admin/activities', icon: 'growth' },
   { label: 'Documents', href: '/admin/documents', icon: 'book' },
+  { label: 'Reports', href: '/admin/reports', icon: 'page' },
+  { label: 'Plans and Activities', href: '/admin/plans', icon: 'growth' },
   { label: 'Announcements', href: '/admin/announcements', icon: 'megaphone' },
   { label: 'Partners', href: '/admin/partners', icon: 'handshake' },
   { heading: 'Gallery' },

@@ -23,7 +23,7 @@
     </div>
   </article>
 
-  <aside aria-labelledby="glance-heading" class="lg:pt-2">
+  <aside aria-labelledby="glance-heading" class="lg:pt-2" data-motion="enter">
     <div class="rounded-lg border border-neutral-200 bg-white shadow-sm lg:sticky lg:top-8">
       <div class="rounded-t-lg border-b-4 border-brand-green bg-brand-blue-dark px-6 py-4">
         <h2 id="glance-heading" class="text-sm font-semibold uppercase tracking-[0.16em] text-brand-yellow">At a glance</h2>
@@ -82,7 +82,7 @@
       <h2 id="components-heading" class="section-heading">{{@root.page.componentsHeading}}</h2>
       <ol class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {{#each components}}
-          <li class="component-card{{#if @first}} is-focus{{/if}}">
+          <li class="component-card{{#if @first}} is-focus{{/if}}" data-motion="enter">
             <div class="flex items-center justify-between gap-3">
               <span class="inline-flex h-10 w-10 items-center justify-center rounded-full {{#if @first}}bg-brand-blue text-white{{else}}bg-brand-blue/10 text-brand-blue{{/if}} font-bold" aria-hidden="true">{{add @index 1}}</span>
               {{#if @first}}<span class="badge badge-green">Focus of BSHCDSS</span>{{/if}}
@@ -112,7 +112,7 @@
 {{!-- ── Closing call to action ────────────────────────────────────────────────── --}}
 <section aria-labelledby="cta-heading" class="relative overflow-hidden bg-brand-blue-dark text-white">
   <div class="hero-pattern pointer-events-none absolute inset-0 opacity-[0.07]" aria-hidden="true"></div>
-  <div class="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-14 sm:px-6 sm:py-16 lg:flex-row lg:items-center lg:justify-between">
+  <div class="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-14 sm:px-6 sm:py-16 lg:flex-row lg:items-center lg:justify-between" data-motion="enter">
     <div class="flex items-start gap-5">
       <img src="{{#if site.brand}}{{site.brand.emblem.webp128}}{{else}}{{site.logoUrl}}{{/if}}" alt="" width="64" height="64" loading="lazy" class="hidden h-16 w-16 shrink-0 object-contain sm:block">
       <div>

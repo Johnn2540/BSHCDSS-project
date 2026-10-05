@@ -22,7 +22,7 @@
         <div class="photo-shade-top pointer-events-none absolute inset-x-0 top-0 h-40 lg:hidden" aria-hidden="true"></div>
         <div class="home-shade-bottom pointer-events-none absolute inset-0 lg:hidden" aria-hidden="true"></div>
         {{!-- Badge: desktop only --}}
-        <div class="absolute -left-10 bottom-10 hidden max-w-[17rem] items-center gap-3 rounded-xl bg-white p-4 text-neutral-900 shadow-2xl lg:flex">
+        <div class="absolute -left-10 bottom-10 hidden max-w-[17rem] items-center gap-3 rounded-xl bg-white p-4 text-neutral-900 shadow-2xl lg:flex" data-motion="fade">
           <img src="{{#if site.brand}}{{site.brand.emblem.webp128}}{{else}}{{site.logoUrl}}{{/if}}" alt="" width="48" height="48" class="h-12 w-12 shrink-0 object-contain">
           <p class="text-sm leading-snug">
             <span class="block text-xs font-semibold uppercase tracking-wider text-brand-green">A project of the</span>
@@ -36,8 +36,8 @@
     <div class="relative flex min-h-[86svh] flex-col justify-end px-4 pb-12 pt-44 sm:px-6 sm:pb-16 lg:order-1 lg:col-span-7 lg:min-h-0 lg:p-0">
       {{#if page.eyebrow}}<p class="max-w-xl text-xs font-semibold uppercase tracking-[0.16em] text-brand-yellow sm:text-sm">{{page.eyebrow}}</p>{{/if}}
       <div class="mt-5 h-1 w-14 bg-brand-yellow" aria-hidden="true"></div>
-      <h1 id="home-title" class="mt-5 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl xl:text-6xl">{{page.title}}</h1>
-      {{#if page.summary}}<p class="mt-6 max-w-2xl text-base leading-relaxed text-white/90 sm:text-lg">{{page.summary}}</p>{{/if}}
+      <h1 id="home-title" class="mt-5 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl xl:text-6xl" data-motion="enter">{{page.title}}</h1>
+      {{#if page.summary}}<p class="mt-6 max-w-2xl text-base leading-relaxed text-white/90 sm:text-lg" data-motion="enter">{{page.summary}}</p>{{/if}}
       <div class="mt-8 flex flex-col gap-3 sm:flex-row">
         {{#if page.primaryCtaLabel}}
           <a href="/about" class="btn bg-white px-6 text-brand-blue-dark shadow-lg hover:bg-neutral-100 focus-visible:outline-white">
@@ -89,7 +89,7 @@
       </div>
       <dl class="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-6">
         {{#each stats}}
-          <div class="stat-card">
+          <div class="stat-card" data-motion="enter">
             {{#if label}}<dt class="text-3xl font-bold tracking-tight text-brand-blue sm:text-5xl">{{label}}</dt>{{/if}}
             <dd class="{{#if label}}mt-3 {{/if}}text-sm leading-snug text-neutral-700 sm:text-base">{{value}}</dd>
           </div>
@@ -118,7 +118,7 @@
     </div>
 
     {{#if page.objectives.length}}
-      <aside aria-labelledby="objectives-heading" class="relative overflow-hidden rounded-xl bg-brand-blue-dark p-7 text-white shadow-xl sm:p-9 lg:col-span-5">
+      <aside aria-labelledby="objectives-heading" class="relative overflow-hidden rounded-xl bg-brand-blue-dark p-7 text-white shadow-xl sm:p-9 lg:col-span-5" data-motion="enter">
         <div class="pointer-events-none absolute inset-x-0 top-0 flex h-1.5" aria-hidden="true">
           <span class="flex-[6] bg-brand-green"></span><span class="flex-1 bg-brand-red"></span><span class="flex-1 bg-brand-yellow"></span>
         </div>
@@ -145,7 +145,7 @@
       <ul class="mt-10 grid gap-6 {{#if (eq announcements.length 1)}}max-w-3xl{{else if (eq announcements.length 2)}}md:grid-cols-2{{else}}md:grid-cols-2 lg:grid-cols-3{{/if}}">
         {{#each announcements}}
           <li>
-            <article class="flex h-full flex-col rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
+            <article class="flex h-full flex-col rounded-lg border border-neutral-200 bg-white p-6 shadow-sm" data-motion="enter">
               <p class="inline-flex items-center gap-2 text-sm font-medium text-brand-green">
                 {{> icon name="megaphone" class="h-4 w-4"}} <time datetime="{{dateInput publishedAt}}">{{formatDate publishedAt}}</time>
               </p>
@@ -194,7 +194,7 @@
 {{!-- ══ 7. Get in touch ══════════════════════════════════════════════════════════ --}}
 <section aria-labelledby="contact-heading" class="relative overflow-hidden bg-brand-blue-dark text-white">
   <div class="hero-pattern pointer-events-none absolute inset-0 opacity-[0.07]" aria-hidden="true"></div>
-  <div class="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-14 sm:px-6 sm:py-16 lg:flex-row lg:items-center lg:justify-between">
+  <div class="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-14 sm:px-6 sm:py-16 lg:flex-row lg:items-center lg:justify-between" data-motion="enter">
     <div class="flex items-start gap-5">
       <span class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/10 text-brand-yellow sm:flex">{{> icon name="mail" class="h-7 w-7"}}</span>
       <div>

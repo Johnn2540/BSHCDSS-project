@@ -61,6 +61,7 @@ app.use(express.json({ limit: '100kb' }));
 app.use(sessionMiddleware);
 app.use(flash);
 app.use(loadUser);
+app.use(security.privatePages);
 app.use(security.csrfProtection);
 app.use(security.csrfTokenForUsers);
 

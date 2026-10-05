@@ -1,0 +1,54 @@
+<section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
+  {{> tutor/header}}
+  {{#if isAdminPreview}}
+    <div class="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-brand-blue/15 bg-brand-blue/4 p-4 text-sm text-neutral-700">
+      <p>This preview shows the published files available to tutors.</p>
+      <a href="{{section.adminHref}}" class="action-link">Manage {{section.label}}</a>
+    </div>
+  {{/if}}
+  <section class="mt-8" aria-label="Resource library" id="resource-library" data-tutor-library>
+    {{#if library.total}}
+      <form method="get" action="{{section.href}}#resource-library" role="search" aria-label="Search {{page.title}}" class="library-search">
+        <div class="min-w-0 flex-1">
+          <label for="resource-search" class="form-label">Search files</label>
+          <input id="resource-search" name="q" type="search" value="{{library.q}}" maxlength="150" placeholder="Search by title or keyword" class="form-input">
+        </div>
+        <div class="sm:min-w-56">
+          <label for="resource-category" class="form-label">Category</label>
+          <select id="resource-category" name="category" class="form-input">
+            <option value="">All categories</option>
+            {{#each library.categories}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}} ({{count}})</option>{{/each}}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary min-h-11 shrink-0">Search</button>
+      </form>
+      <div class="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm text-neutral-600">
+        <p role="status">{{library.resultCount}} file{{#unless (eq library.resultCount 1)}}s{{/unless}} {{#if library.isFiltered}}found{{else}}available{{/if}}{{#if library.q}} for <strong class="text-neutral-900">“{{library.q}}”</strong>{{/if}}{{#if library.category}} in <strong class="text-neutral-900">{{library.category}}</strong>{{/if}}.</p>
+        {{#if library.isFiltered}}<a href="{{section.href}}#resource-library" class="action-link">Clear filters</a>{{/if}}
+      </div>
+      {{#if library.resultCount}}
+        <div class="mt-7 space-y-8">
+          {{#each library.groups}}
+            <section aria-labelledby="{{anchor}}-heading">
+              <h2 id="{{anchor}}-heading" class="mb-4 border-l-4 border-brand-green pl-3 text-xl font-semibold text-brand-blue">{{category}}</h2>
+              {{> document-list documents=documents headingLevel="3" showAudience=false showUpdated=true}}
+            </section>
+          {{/each}}
+        </div>
+      {{else}}
+        <div class="library-empty mt-7" role="status">
+          {{> icon name="search" class="mx-auto h-9 w-9 text-brand-blue"}}
+          <h2 class="mt-4 text-lg font-semibold text-neutral-900">No matching files</h2>
+          <p class="mt-2 text-sm text-neutral-600">Try another keyword or choose a different category.</p>
+          <a href="{{section.href}}#resource-library" class="btn btn-primary mt-5">View all files</a>
+        </div>
+      {{/if}}
+    {{else}}
+      <div class="library-empty" role="status">
+        {{> icon name=section.icon class="mx-auto h-10 w-10 text-brand-blue"}}
+        <p class="mt-5 text-base font-medium text-neutral-700">{{page.libraryEmpty}}</p>
+        <a href="/tutor" class="action-link mt-5 inline-flex items-center gap-2">Back to overview {{> icon name="arrow" class="h-4 w-4"}}</a>
+      </div>
+    {{/if}}
+  </section>
+</section>

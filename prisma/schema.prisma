@@ -35,6 +35,12 @@ enum VideoProvider {
   CLOUDINARY
 }
 
+enum ResourceSection {
+  DOCUMENTS
+  REPORTS
+  PLANS_ACTIVITIES
+}
+
 // ─── Accounts ─────────────────────────────────────────────────────────────────
 
 model User {
@@ -194,6 +200,7 @@ model Document {
   title        String
   description  String?
   category     String
+  portalSection ResourceSection @default(DOCUMENTS)
   fileUrl      String
   filePublicId String
   fileName     String?
@@ -206,6 +213,7 @@ model Document {
 
   @@index([category])
   @@index([audience, isPublished])
+  @@index([portalSection, audience, isPublished])
 }
 
 model Announcement {
