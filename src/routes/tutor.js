@@ -11,9 +11,10 @@ const router = express.Router();
 // Admins may also open the tutor area to see what tutors see.
 router.use(requireLogin, requireRole('TUTOR', 'ADMIN'), (req, res, next) => {
   res.locals.noindex = true;
+  res.locals.layout = 'tutor';
   res.locals.tutorNavigation = [
-    { label: 'Overview', href: '/tutor', active: req.path === '/' },
-    ...sections.map((section) => ({ label: section.label, href: section.href, active: '/tutor' + req.path === section.href })),
+    { label: 'Overview', icon: 'dashboard', href: '/tutor', active: req.path === '/' },
+    ...sections.map((section) => ({ label: section.label, icon: section.icon, href: section.href, active: '/tutor' + req.path === section.href })),
   ];
   next();
 });
@@ -21,7 +22,7 @@ router.use(requireLogin, requireRole('TUTOR', 'ADMIN'), (req, res, next) => {
 router.get('/', async (req, res) => {
   const { page, sections } = await content.getTutorPortal();
   res.render('tutor/dashboard', {
-    title: page.title, page, sections,
+    title: page.title, page, sections, totalFiles: sections.reduce((sum, section) => sum + section.total, 0),
   });
 });
 

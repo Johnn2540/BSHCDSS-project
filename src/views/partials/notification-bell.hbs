@@ -1,0 +1,5 @@
+<a href="/announcements" class="notification-bell {{#if dark}}notification-bell-dark{{/if}}" data-notification-trigger
+   aria-label="Notifications: {{#if publicNotifications.unavailable}}temporarily unavailable{{else}}{{either publicNotifications.total '0'}} new{{/if}}">
+  {{> icon name="bell" class="h-5 w-5"}}
+  <span class="notification-count" data-notification-count aria-hidden="true">{{#if publicNotifications.unavailable}}&mdash;{{else}}{{either publicNotifications.total '0'}}{{/if}}</span>
+</a>

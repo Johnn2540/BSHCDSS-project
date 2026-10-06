@@ -40,6 +40,53 @@
     @apply border border-neutral-300 text-brand-blue hover:bg-neutral-50 focus-visible:outline-brand-blue;
   }
 
+  /* The bell always shows a count; the modal is shared by both responsive triggers. */
+  .notification-bell {
+    @apply relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-neutral-300 text-brand-blue
+      hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue;
+  }
+  .notification-bell-dark {
+    @apply border-white/25 text-white hover:bg-white/10 focus-visible:outline-brand-yellow;
+  }
+  .notification-count {
+    @apply absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full border-2 border-white
+      bg-neutral-600 px-1 text-[0.65rem] font-bold leading-none text-white;
+  }
+  .notification-bell.has-new .notification-count { @apply bg-brand-green-dark; }
+  .notification-panel-head {
+    @apply flex shrink-0 items-center justify-between gap-3 border-b border-neutral-200 p-5;
+  }
+  .notification-heading-icon {
+    @apply inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-brand-blue;
+  }
+  .notification-close {
+    @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-neutral-600 hover:bg-neutral-100
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue;
+  }
+  .notification-read-all, .notification-refresh {
+    @apply inline-flex min-h-11 items-center rounded px-2 text-xs font-semibold text-brand-blue hover:bg-blue-50
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-default disabled:text-neutral-400 disabled:hover:bg-transparent;
+  }
+  .notification-panel-body { @apply min-h-0 flex-1 overflow-y-auto overscroll-contain; }
+  .notification-item { @apply border-b border-neutral-100 last:border-b-0; }
+  .notification-item-summary {
+    @apply flex min-h-20 cursor-pointer list-none items-center gap-3 px-5 py-4 hover:bg-neutral-50
+      focus-visible:bg-blue-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-blue;
+  }
+  .notification-item-summary::-webkit-details-marker { display: none; }
+  .notification-item-dot { @apply h-2 w-2 shrink-0 rounded-full bg-neutral-300; }
+  .notification-item.is-new .notification-item-dot { @apply bg-brand-blue; }
+  .notification-new { @apply rounded bg-blue-50 px-1.5 py-0.5 text-[0.65rem] font-bold text-brand-blue; }
+  .notification-item[open] .notification-item-chevron { rotate: 90deg; }
+  .notification-item-body { @apply space-y-3 px-5 pb-5 text-sm leading-relaxed text-neutral-700; overflow-wrap: anywhere; }
+  .notification-item-summary > span { overflow-wrap: anywhere; }
+  .notification-empty { @apply px-6 py-10 text-center; }
+  .notification-empty-icon { @apply mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-brand-blue; }
+  .notification-status { @apply shrink-0 px-5 text-xs text-neutral-600; }
+  .notification-status:not(:empty) { @apply border-b border-neutral-100 py-3; }
+  .notification-panel-foot { @apply flex shrink-0 items-center justify-between gap-3 border-t border-neutral-200 px-5 py-3; }
+  .notification-all-link { @apply inline-flex min-h-11 items-center gap-2 rounded text-sm font-semibold text-brand-blue hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue; }
+
   /* Sidebar menu (drawer) */
   .drawer-head {
     @apply flex shrink-0 items-center justify-between gap-3 bg-black px-4 py-3 text-white;
@@ -247,9 +294,12 @@
     @apply mt-5 min-w-0 border-t border-neutral-200 pt-4;
   }
   .team-contact-link {
-    @apply inline-flex min-h-11 max-w-full items-center py-2 font-medium text-brand-blue underline-offset-4 hover:underline
+    @apply inline-flex min-h-11 max-w-full items-center gap-3 py-2 font-medium text-brand-blue underline-offset-4 hover:underline
       focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue;
     overflow-wrap: anywhere;
+  }
+  .team-contact-whatsapp {
+    @apply text-brand-green-dark focus-visible:outline-brand-green-dark;
   }
   .team-profile-featured {
     @apply border-blue-200 border-l-4 border-l-brand-green bg-blue-50/40 p-6 sm:p-8;
@@ -473,7 +523,7 @@
 }
 
 .tutor-resource-card {
-  @apply block min-w-0 rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-colors hover:border-brand-blue/40 hover:bg-brand-blue/2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue sm:p-7;
+  @apply flex h-full min-w-0 flex-col rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-colors hover:border-brand-blue/40 hover:bg-brand-blue/2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue sm:p-7;
 }
 .tutor-nav-link {
   @apply flex min-h-11 items-center justify-center rounded-lg px-3 py-3 text-center text-sm font-semibold text-neutral-700 transition-colors hover:bg-white hover:text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue sm:px-5;
@@ -512,6 +562,39 @@
   visibility: hidden;
   transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1), visibility 0s linear 280ms;
 }
+
+.notification-panel {
+  position: fixed;
+  inset: auto 1rem 1rem;
+  margin: 0 0 0 auto;
+  padding: 0;
+  width: calc(100% - 2rem);
+  max-width: 28rem;
+  max-height: calc(100dvh - 2rem);
+  border: 1px solid #e5e5e5;
+  border-radius: 1rem;
+  color: #171717;
+  background: #fff;
+  box-shadow: 0 20px 60px rgb(10 25 45 / 0.22);
+}
+.notification-panel:not([open]) { display: none; }
+.notification-panel[open] { display: flex; flex-direction: column; }
+.notification-panel::backdrop { background: rgb(10 25 45 / 0.28); }
+html.notifications-open, html.notifications-open body { overflow: hidden; }
+@media (min-width: 40rem) {
+  .notification-panel {
+    top: var(--notifications-top, 1rem);
+    bottom: auto;
+    right: max(1rem, calc((100vw - 80rem) / 2 + 1.5rem));
+    max-height: min(42rem, calc(100dvh - var(--notifications-top, 1rem) - 1rem));
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .notification-panel[open] { animation: menu-enter 160ms ease-out; }
+  .notification-bell, .notification-close, .notification-item-summary { transition: background-color 160ms ease; }
+  .notification-item-chevron { transition: rotate 160ms ease; }
+}
+@media print { .notification-panel, .notification-bell { display: none !important; } }
 .drawer.is-open {
   transform: none;
   visibility: visible;
@@ -642,4 +725,63 @@ html.drawer-locked body {
 }
 @media print {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* Tutor workspace. The navigation starts as a plain list; tutor.js enables the
+   mobile dialog only after all of its handlers are attached. */
+.portal-body { @apply min-h-screen bg-neutral-50 text-neutral-900 antialiased; }
+.portal-skip { @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded focus:bg-brand-yellow focus:px-4 focus:py-3 focus:font-semibold focus:text-black; }
+.portal-topbar { @apply sticky top-0 z-40 flex min-h-19 items-center justify-between gap-3 border-b border-neutral-200 bg-white px-4 py-3 sm:px-6; }
+.portal-brand { @apply flex min-w-0 items-center gap-3 rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-blue; }
+.portal-website-link { @apply inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg px-2 text-sm font-semibold text-neutral-600 hover:bg-neutral-50 hover:text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue; }
+.portal-avatar { @apply inline-flex h-9 w-9 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-brand-blue; }
+.portal-shell { @apply min-h-[calc(100dvh-4.75rem)] lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]; }
+.portal-sidebar { @apply flex flex-col border-b border-neutral-200 bg-white lg:sticky lg:top-19 lg:h-[calc(100dvh-4.75rem)] lg:border-b-0 lg:border-r; }
+.portal-sidebar-head { @apply flex min-h-16 shrink-0 items-center justify-between gap-3 border-b border-neutral-100 px-6 py-3; }
+.portal-sidebar-scroll { @apply flex-1 overflow-y-auto overscroll-contain px-4 py-5; }
+.portal-nav-label { @apply mb-3 px-3 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-neutral-500; }
+.portal-nav-link { @apply flex min-h-12 items-center gap-3 rounded-lg border-l-3 border-transparent px-3 py-3 text-sm font-medium leading-snug text-neutral-600 hover:bg-neutral-50 hover:text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand-blue; }
+.portal-nav-link.is-current { @apply border-brand-blue bg-blue-50 font-semibold text-brand-blue; }
+.portal-sidebar-account { @apply shrink-0 border-t border-neutral-200 bg-neutral-50/70 p-5; }
+.portal-logout { @apply inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 hover:border-brand-blue hover:text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue; }
+.portal-menu-toggle, .portal-close { @apply hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue; }
+.portal-content { @apply flex min-w-0 flex-col; }
+.portal-main { @apply mx-auto w-full max-w-7xl flex-1 px-4 py-7 sm:px-7 sm:py-9 lg:px-9 lg:py-10; }
+.portal-footer { @apply mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200 px-4 py-5 text-xs text-neutral-600 sm:px-7 lg:px-9; }
+.portal-page-heading { @apply flex flex-col items-start justify-between gap-5 border-b border-neutral-200 pb-7 sm:flex-row; }
+.portal-library-count { @apply inline-flex shrink-0 items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-2 text-xs font-semibold text-brand-blue; }
+.portal-help { @apply mt-8 flex items-start gap-4 rounded-xl border border-blue-100 bg-blue-50/50 p-5 sm:p-6; }
+.portal-backdrop { display: none; }
+@media (max-width: 63.999rem) {
+  .portal-enhanced .portal-menu-toggle, .portal-enhanced .portal-close { display: inline-flex; }
+  .portal-enhanced .portal-sidebar {
+    position: fixed; inset-block: 0; left: 0; z-index: 70;
+    width: min(88vw, 20rem); height: 100dvh; border: 0;
+    visibility: hidden; transform: translateX(-100%);
+    transition: none;
+    box-shadow: 12px 0 32px rgb(10 47 117 / 0.15);
+  }
+  .portal-enhanced.portal-ready .portal-sidebar { transition: transform var(--motion-standard) var(--motion-ease), visibility 0s linear var(--motion-standard); }
+  .portal-enhanced.portal-ready:not(.portal-inert) .portal-sidebar { transition: transform var(--motion-standard) var(--motion-ease), visibility 0s; }
+  .portal-enhanced.portal-menu-open .portal-sidebar {
+    visibility: visible; transform: none;
+    transition: transform var(--motion-standard) var(--motion-ease), visibility 0s;
+  }
+  .portal-enhanced .portal-backdrop {
+    display: block; position: fixed; inset: 0; z-index: 60;
+    background: rgb(10 25 45 / 0.48); opacity: 0; visibility: hidden;
+    transition: none;
+  }
+  .portal-enhanced.portal-ready .portal-backdrop { transition: opacity var(--motion-standard) ease, visibility 0s linear var(--motion-standard); }
+  .portal-enhanced.portal-menu-open .portal-backdrop { opacity: 1; visibility: visible; transition: opacity var(--motion-standard) ease, visibility 0s; }
+  html.portal-menu-open, html.portal-menu-open body { overflow: hidden; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .portal-nav-link, .portal-menu-toggle, .portal-close, .portal-website-link, .portal-logout {
+    transition: color var(--motion-fast) ease, background-color var(--motion-fast) ease, border-color var(--motion-fast) ease;
+  }
+}
+@media print {
+  .portal-sidebar, .portal-topbar, .portal-backdrop { display: none !important; }
+  .portal-shell { display: block; }
 }

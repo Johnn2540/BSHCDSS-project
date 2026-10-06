@@ -17,11 +17,12 @@
           {{/with}}
         </a>
 
-        <div class="flex shrink-0 items-center gap-6">
+        <div class="flex shrink-0 items-center gap-2 sm:gap-4">
           <div class="hidden border-l-2 border-brand-yellow/70 pl-4 text-left md:block">
             <p class="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-brand-yellow">{{site.country}}</p>
             <p class="mt-1 max-w-64 text-sm font-medium leading-snug text-white/90">{{site.ministry}}</p>
           </div>
+          <div class="xl:hidden">{{> notification-bell dark=true}}</div>
           {{> menu-button dark=true}}
         </div>
       </div>
@@ -41,7 +42,10 @@
           <span class="block text-xs leading-snug text-neutral-700 sm:text-sm">{{site.fullName}}</span>
         </span>
       </a>
-      {{> menu-button}}
+      <div class="flex shrink-0 items-center gap-2 xl:hidden">
+        {{> notification-bell}}
+        {{> menu-button}}
+      </div>
     </div>
   {{/if}}
 
@@ -73,7 +77,8 @@
           {{/if}}
         {{/each}}
       </ul>
-      <div class="flex items-center pl-4">
+      <div class="flex shrink-0 items-center gap-3 pl-3">
+        {{> notification-bell dark=true}}
         {{#if currentUser}}
           <a href="{{currentUser.homePath}}" class="rounded bg-brand-yellow px-4 py-1.5 text-sm font-semibold text-black hover:bg-yellow-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Dashboard</a>
         {{else}}
@@ -91,4 +96,5 @@
   </div>
 
   {{> site-drawer}}
+  {{> notification-panel}}
 </header>

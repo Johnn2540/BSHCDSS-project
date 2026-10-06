@@ -1,5 +1,6 @@
 function notFound(req, res, message) {
   res.locals.noindex = true;
+  res.set('X-Robots-Tag', 'noindex, nofollow');
   res.status(404).render('public/404', { title: 'Page not found', message: typeof message === 'string' ? message : null });
 }
 
@@ -8,6 +9,7 @@ function errorHandler(err, req, res, next) {
   // Headers already sent (e.g. a failed file download): let Express close the connection.
   if (res.headersSent) return next(err);
   res.locals.noindex = true;
+  res.set('X-Robots-Tag', 'noindex, nofollow');
 
   if (err.code === 'EBADCSRFTOKEN') {
     return res.status(403).render('public/error', {

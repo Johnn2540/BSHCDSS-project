@@ -9,6 +9,7 @@ const { body } = require('express-validator');
 const { prisma, pool } = require('../../lib/db');
 const { collectErrors } = require('../../admin/fields');
 const { sendInviteEmail } = require('../../services/passwordTokens');
+const { logMailError } = require('../../services/mailer');
 const { BCRYPT_ROUNDS } = require('../../config/auth');
 
 const STATUSES = ['PENDING', 'ACTIVE', 'SUSPENDED'];
@@ -47,7 +48,7 @@ async function emailInvite(req, tutor) {
     await sendInviteEmail(req, tutor);
     return true;
   } catch (err) {
-    console.error('Invitation email failed:', err);
+    logMailError('tutor invitation', err);
     req.flash('error', `The invitation email to ${tutor.email} could not be sent. Check the email settings, then use "Resend invitation".`);
     return false;
   }

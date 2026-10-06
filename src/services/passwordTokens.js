@@ -3,7 +3,8 @@
 
 const crypto = require('crypto');
 const { prisma } = require('../lib/db');
-const { sendMail } = require('./mailer');
+const { sendMail, assertMailConfigured, logMailError } = require('./mailer');
+const { accountEmail } = require('./emailTemplates');
 const { RESET_TOKEN_TTL_MS, INVITE_TOKEN_TTL_MS } = require('../config/auth');
 
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
@@ -30,37 +31,43 @@ async function findValidToken(token) {
   return record;
 }
 
-function linkFor(req, token) {
-  const appUrl = (process.env.APP_URL || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '');
-  return `${appUrl}/reset-password/${token}`;
+function emailOrigin() {
+  const configured = (process.env.APP_URL || '').trim();
+  if (!configured && process.env.NODE_ENV === 'production') throw new Error('APP_URL is required for account emails.');
+  const url = new URL(configured || 'http://localhost:3000');
+  if (!['https:', 'http:'].includes(url.protocol) || (process.env.NODE_ENV === 'production' && url.protocol !== 'https:') || url.username || url.password || url.search || url.hash || url.pathname !== '/') {
+    throw new Error('APP_URL must be the website origin, using HTTPS in production.');
+  }
+  return url.origin;
 }
 
 const hoursOrMinutes = (ms) => (ms >= 2 * 3600000 ? `${Math.round(ms / 3600000)} hours` : `${Math.round(ms / 60000)} minutes`);
 
-async function sendResetEmail(req, user) {
-  const token = await createToken(user.id, RESET_TOKEN_TTL_MS);
-  await sendMail({
-    to: user.email,
-    subject: 'Reset your BSHCDSS password',
-    text:
-      `Hello ${user.name},\n\n` +
-      `We received a request to reset the password for your BSHCDSS account.\n\n` +
-      `Reset your password here (link valid for ${hoursOrMinutes(RESET_TOKEN_TTL_MS)}):\n${linkFor(req, token)}\n\n` +
-      `If you did not request this, you can ignore this email; your password will not change.\n`,
-  });
+async function sendAccountEmail(req, user, kind, ttlMs) {
+  // Configuration errors must not invalidate an earlier usable link.
+  assertMailConfigured();
+  const origin = emailOrigin();
+  const token = await createToken(user.id, ttlMs);
+  try {
+    return await sendMail({
+      to: user.email,
+      ...accountEmail({ kind, name: user.name, email: user.email, url: `${origin}/reset-password/${token}`, expiresIn: hoursOrMinutes(ttlMs), siteName: req.res?.locals?.site?.shortName || 'BSHCDSS' }),
+    });
+  } catch (error) {
+    // A timeout can happen after SMTP accepted the message. Keep that link usable.
+    // Only remove this request's token after a confirmed rejection, preserving newer ones.
+    if (error.responseCode >= 400 || ['EMAIL_NOT_ACCEPTED', 'EAUTH', 'EENVELOPE', 'EMESSAGE'].includes(error.code)) {
+      try {
+        await prisma.passwordResetToken.deleteMany({ where: { userId: user.id, tokenHash: hashToken(token) } });
+      } catch (cleanupError) {
+        logMailError('rejected email token cleanup', cleanupError);
+      }
+    }
+    throw error;
+  }
 }
 
-async function sendInviteEmail(req, user) {
-  const token = await createToken(user.id, INVITE_TOKEN_TTL_MS);
-  await sendMail({
-    to: user.email,
-    subject: 'Your BSHCDSS tutor account',
-    text:
-      `Hello ${user.name},\n\n` +
-      `An account has been created for you on the BSHCDSS website.\n\n` +
-      `Choose your password here (link valid for ${hoursOrMinutes(INVITE_TOKEN_TTL_MS)}):\n${linkFor(req, token)}\n\n` +
-      `Then log in with this email address (${user.email}).\n`,
-  });
-}
+const sendResetEmail = (req, user) => sendAccountEmail(req, user, 'reset', RESET_TOKEN_TTL_MS);
+const sendInviteEmail = (req, user) => sendAccountEmail(req, user, 'invite', INVITE_TOKEN_TTL_MS);
 
 module.exports = { hashToken, createToken, findValidToken, sendResetEmail, sendInviteEmail };

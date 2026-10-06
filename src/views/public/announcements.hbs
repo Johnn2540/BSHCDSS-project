@@ -1,0 +1,33 @@
+<section class="border-b-4 border-brand-green bg-brand-blue-dark text-white">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+    <p class="text-xs font-semibold uppercase tracking-widest text-brand-yellow">Project updates</p>
+    <h1 class="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">{{page.title}}</h1>
+    {{#if page.summary}}<p class="mt-4 max-w-2xl leading-relaxed text-white/85">{{page.summary}}</p>{{/if}}
+  </div>
+</section>
+<section aria-label="Public announcements" class="mx-auto w-full max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
+  {{#if feed.items.length}}
+    <ul class="space-y-6">
+      {{#each feed.items}}
+        <li><article class="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm [overflow-wrap:anywhere] sm:p-8">
+          <p class="flex items-center gap-2 text-sm font-medium text-brand-green">{{> icon name="megaphone" class="h-4 w-4"}}<time datetime="{{publishedAt}}">{{formatDate publishedAt}}</time></p>
+          <h2 class="mt-3 text-xl font-bold text-neutral-900">{{title}}</h2>
+          <div class="mt-4 text-neutral-700">{{> prose text=body}}</div>
+        </article></li>
+      {{/each}}
+    </ul>
+    {{#if (or previousPage nextPage)}}
+      <nav aria-label="Announcements pages" class="mt-8 flex flex-wrap items-center justify-between gap-4">
+        {{#if previousPage}}<a href="/announcements?page={{previousPage}}" class="btn border border-neutral-300 text-neutral-800">Previous page</a>{{else}}<span></span>{{/if}}
+        <p class="text-sm text-neutral-600">Page {{feed.page}}</p>
+        {{#if nextPage}}<a href="/announcements?page={{nextPage}}" class="btn btn-primary">Next page</a>{{else}}<span></span>{{/if}}
+      </nav>
+    {{/if}}
+  {{else}}
+    <div class="notification-empty rounded-xl border border-dashed border-neutral-300 bg-neutral-50">
+      <span class="notification-empty-icon">{{> icon name="bell" class="h-7 w-7"}}</span>
+      <h2 class="mt-4 text-xl font-bold text-neutral-900">No announcements yet</h2>
+      <p class="mt-2 text-neutral-600">Public project notices will appear here when they are published.</p>
+    </div>
+  {{/if}}
+</section>

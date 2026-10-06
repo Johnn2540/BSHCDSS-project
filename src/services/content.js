@@ -9,6 +9,9 @@ const { prisma } = require('../lib/db');
 const pageConfigs = require('../config/pages');
 const curriculumCatalogue = require('../data/curriculumDocuments');
 const tutorSections = require('../config/tutorSections');
+const notifications = require('./notifications');
+const { PUBLIC_PAGES } = require('../config/seo');
+const { latestDate } = require('./seo');
 
 // On Vercel several function instances run at once and each has its own cache; an admin save
 // only clears the instance that handled it, so others could show old content until expiry.
@@ -27,6 +30,7 @@ async function cached(key, fn) {
 
 function clearCache() {
   cache.clear();
+  notifications.clearCache();
 }
 
 // ─── Logo ─────────────────────────────────────────────────────────────────────
@@ -114,7 +118,16 @@ async function getSite() {
     ministry: page.ministry,
     country: page.country,
     tagline: page.summary,
-    contact: { address: page.address || [], phone: page.phone, email: page.email, hours: page.hours },
+    googleSiteVerification: page.googleSiteVerification,
+    contact: {
+      address: page.address || [],
+      locality: page.addressLocality,
+      countryCode: page.addressCountryCode?.toUpperCase(),
+      phone: page.phone,
+      secondaryPhone: page.secondaryPhone,
+      email: page.email,
+      hours: page.hours,
+    },
     logoUrl,
     brand,
   };
@@ -287,17 +300,43 @@ async function getAlbum(slug) {
 // Published URLs for sitemap.xml
 async function getSitemapEntries() {
   return cached('sitemap', async () => {
-    const [pages, activities, albums] = await Promise.all([
+    const asOf = new Date();
+    const [pages, activities, albums, team, documents, videos, announcements] = await Promise.all([
       prisma.pageContent.findMany({ select: { slug: true, updatedAt: true } }),
-      prisma.activity.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }),
-      prisma.album.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }),
+      prisma.activity.findMany({ where: { isPublished: true }, select: { id: true, slug: true, updatedAt: true } }),
+      prisma.album.findMany({ where: { isPublished: true }, select: {
+        slug: true, activityId: true, updatedAt: true, photos: { select: { createdAt: true } },
+      } }),
+      prisma.teamMember.aggregate({ where: { isPublished: true }, _max: { updatedAt: true } }),
+      prisma.document.findMany({ where: { isPublished: true, audience: 'PUBLIC', portalSection: 'DOCUMENTS' }, select: { id: true, fileName: true, updatedAt: true } }),
+      // Provider-independent: sitemap generation never needs to decode video enums.
+      prisma.video.findMany({ where: { isPublished: true }, select: { activityId: true, updatedAt: true } }),
+      prisma.announcement.aggregate({ where: notifications.publishedWhere(asOf), _max: { updatedAt: true, publishedAt: true }, _count: { _all: true } }),
     ]);
     const pageUpdated = Object.fromEntries(pages.map((p) => [p.slug, p.updatedAt]));
-    const staticPaths = { '/': 'home', '/about': 'about', '/team': 'team', '/curriculum': 'curriculum', '/gallery': 'gallery', '/contact': 'contact' };
+    const albumDates = album => [album.updatedAt, ...album.photos.map(photo => photo.createdAt)];
+    const mediaDates = [...albums.flatMap(albumDates), ...videos.map(video => video.updatedAt)];
+    const announcementDate = latestDate(Object.values(announcements._max), asOf);
+    const changedContent = {
+      home: [...activities.map(activity => activity.updatedAt), ...mediaDates, announcementDate],
+      team: [team._max.updatedAt], curriculum: documents.map(document => document.updatedAt),
+      gallery: mediaDates, announcements: [announcementDate],
+    };
+    const modified = (slug, dates = []) => latestDate([pageUpdated.site, pageUpdated[slug], ...dates], asOf);
     return [
-      ...Object.entries(staticPaths).map(([loc, slug]) => ({ loc, lastmod: pageUpdated[slug] || null })),
-      ...activities.map((a) => ({ loc: `/activities/${a.slug}`, lastmod: a.updatedAt })),
-      ...albums.map((a) => ({ loc: `/gallery/${a.slug}`, lastmod: a.updatedAt })),
+      ...Object.entries(PUBLIC_PAGES).map(([loc, { slug }]) => ({ loc, lastmod: modified(slug, changedContent[slug]) })),
+      ...Array.from({ length: Math.max(0, Math.min(9999, Math.ceil(announcements._count._all / notifications.PAGE_SIZE)) - 1) }, (_, index) => ({
+        loc: `/announcements?page=${index + 2}`, lastmod: modified('announcements', [announcementDate]),
+      })),
+      ...activities.map(activity => {
+        const sources = curriculumCatalogue.filter(source => (source.activitySlugs || []).includes(activity.slug));
+        const resourceDates = documents.filter(document => sources.some(source => source.id === document.id || source.fileName === document.fileName)).map(document => document.updatedAt);
+        return { loc: `/activities/${encodeURIComponent(activity.slug)}`, lastmod: modified(null, [
+          activity.updatedAt, ...resourceDates, ...albums.filter(album => album.activityId === activity.id).flatMap(albumDates),
+          ...videos.filter(video => video.activityId === activity.id).map(video => video.updatedAt),
+        ]) };
+      }),
+      ...albums.map(album => ({ loc: `/gallery/${encodeURIComponent(album.slug)}`, lastmod: modified(null, albumDates(album)) })),
     ];
   });
 }

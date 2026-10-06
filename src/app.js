@@ -10,6 +10,9 @@ const { sessionMiddleware } = require('./middleware/session');
 const flash = require('./middleware/flash');
 const { loadUser } = require('./middleware/auth');
 const siteLocals = require('./middleware/siteLocals');
+const notifications = require('./controllers/notificationsController');
+const seoController = require('./controllers/seoController');
+const seoMiddleware = require('./middleware/seo');
 const { notFound, errorHandler } = require('./middleware/errorHandlers');
 
 const app = express();
@@ -35,6 +38,8 @@ app.set('views', path.join(__dirname, 'views'));
 // Security headers
 app.use(security.cspNonce);
 app.use(security.helmet);
+app.use(seoMiddleware.indexingRules);
+app.use(seoMiddleware.canonicalPaths);
 
 // Static assets (built CSS, JS, images). Served before sessions so assets never touch the DB.
 app.use(
@@ -52,6 +57,12 @@ app.get('/healthz', async (req, res) => {
     res.status(503).type('text/plain').send('database unavailable');
   }
 });
+
+// Public, read-only JSON: avoid sessions and unrelated page-content queries.
+app.get('/api/public/notifications', notifications.feed);
+// Crawlers don't need sessions, notification queries or page rendering.
+app.get('/robots.txt', seoController.robots);
+app.get('/sitemap.xml', seoController.sitemap);
 
 // Body parsing
 app.use(express.urlencoded({ extended: false, limit: '100kb' }));

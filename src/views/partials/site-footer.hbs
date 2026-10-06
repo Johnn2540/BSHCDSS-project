@@ -70,11 +70,11 @@
               <span>{{#each site.contact.address}}{{this}}{{#unless @last}}<br>{{/unless}}{{/each}}</span>
             </p>
           {{/if}}
-          {{#if site.contact.phone}}
-            <p class="flex gap-3">
+          {{#if (or site.contact.phone site.contact.secondaryPhone)}}
+            <div class="flex gap-3">
               <svg class="mt-0.5 h-4 w-4 shrink-0 text-brand-yellow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg>
-              <span><span class="sr-only">Phone: </span>{{site.contact.phone}}</span>
-            </p>
+              {{> contact-phones contact=site.contact linkClass="footer-link"}}
+            </div>
           {{/if}}
           {{#if site.contact.email}}
             <p class="flex gap-3">

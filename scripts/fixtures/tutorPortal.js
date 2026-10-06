@@ -52,6 +52,7 @@ const prisma = {
     update: async ({ where, data }) => { Object.assign(users[where.id], data); return { ...users[where.id] }; },
   },
   pageContent: { findUnique: async () => null },
+  announcement: { findMany: async () => [], count: async () => 0 },
   passwordResetToken: { deleteMany: async () => { state.events.push('revoke-tokens'); return { count: 0 }; } },
   $transaction: async (operations) => Promise.all(operations),
 };
@@ -80,12 +81,13 @@ function createPortalFixture() {
   app.use(express.urlencoded({ extended: false }));
   app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false }));
   app.use(flash, loadUser, security.privatePages, security.csrfProtection, security.csrfTokenForUsers);
-  app.use((req, res, next) => {
-    res.locals.site = { shortName: 'BSHCDSS', fullName: 'Building Skills for Human Capacity Development in South Sudan', logoUrl: '/images/logo-placeholder.svg', contact: { email: 'kussdproject@gmail.com' } };
+  app.use(async (req, res, next) => {
+    res.locals.site = await content.getSite();
     res.locals.navigation = []; res.locals.currentPath = req.path; res.locals.baseUrl = 'http://localhost';
     next();
   });
   app.use('/', require('../../src/routes/auth'));
+  app.get('/api/public/notifications', require('../../src/controllers/notificationsController').feed);
   app.use('/tutor', require('../../src/routes/tutor'));
   app.use('/admin', require('../../src/routes/admin'));
   app.get('/documents/:id/download', require('../../src/controllers/documentsController').download);

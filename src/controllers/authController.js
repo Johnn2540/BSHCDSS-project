@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 
 const { prisma, pool } = require('../lib/db');
 const { findValidToken, sendResetEmail } = require('../services/passwordTokens');
+const { logMailError } = require('../services/mailer');
 const { SESSION_COOKIE_NAME } = require('../middleware/session');
 const { BCRYPT_ROUNDS, MIN_PASSWORD_LENGTH, HOME_BY_ROLE } = require('../config/auth');
 
@@ -112,7 +113,7 @@ async function forgot(req, res) {
     try {
       await sendResetEmail(req, user);
     } catch (err) {
-      console.error('Password reset email failed:', err);
+      logMailError('password reset', err);
     }
   }
 

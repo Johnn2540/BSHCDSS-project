@@ -70,6 +70,7 @@ function routes(router, { base, findOr404 }) {
           throw err;
         }
       }
+      await prisma.album.update({ where: { id: album.id }, data: { updatedAt: new Date() } });
       req.flash('success', `${added} photo(s) added.`);
       res.redirect(editUrl);
     }
@@ -95,6 +96,7 @@ function routes(router, { base, findOr404 }) {
         })
       );
     }
+    updates.push(prisma.album.update({ where: { id: album.id }, data: { updatedAt: new Date() } }));
     await prisma.$transaction(updates);
     req.flash('success', 'Photo captions and order saved.');
     res.redirect(editUrl);
@@ -104,7 +106,10 @@ function routes(router, { base, findOr404 }) {
     const album = await findOr404(req.params.id);
     const photo = await prisma.photo.findFirst({ where: { id: req.params.photoId, albumId: album.id } });
     if (photo) {
-      await prisma.photo.delete({ where: { id: photo.id } });
+      await prisma.$transaction([
+        prisma.photo.delete({ where: { id: photo.id } }),
+        prisma.album.update({ where: { id: album.id }, data: { updatedAt: new Date() } }),
+      ]);
       await destroyFile(photo.publicId, 'image');
       req.flash('success', 'Photo deleted.');
     }

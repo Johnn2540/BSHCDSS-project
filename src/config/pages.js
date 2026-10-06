@@ -12,8 +12,18 @@
 // `default` is shown until an admin saves the page for the first time.
 
 const tutorSections = require('./tutorSections');
+const { PUBLIC_PAGES, SEO_FIELDS } = require('./seo');
 
-module.exports = [
+const pageConfigs = [
+  {
+    slug: 'announcements',
+    label: 'Public announcements page',
+    description: 'Introduction to the public notices opened from the notification bell. Notices are managed in Announcements.',
+    fields: [
+      { name: 'title', label: 'Page heading', type: 'text', required: true, max: 150, default: 'News and announcements' },
+      { name: 'summary', label: 'Introduction', type: 'textarea', rows: 3, max: 500, default: 'The latest public notices and updates from the project.' },
+    ],
+  },
   {
     slug: 'site',
     label: 'Site settings and contact details',
@@ -45,11 +55,33 @@ module.exports = [
         help: 'One line per row.',
         type: 'lines',
         rows: 3,
-        default: ['Ministry of General Education and Instruction', 'Juba, Republic of South Sudan'],
+        default: [
+          'Teacher Training and Development Project',
+          'Ministry of General Education and Instruction',
+          'Juba, Republic of South Sudan',
+        ],
       },
-      { name: 'phone', label: 'Phone number', type: 'text', max: 40, default: '+211 000 000 000' },
+      { name: 'addressLocality', label: 'Office city', type: 'text', max: 100, default: 'Juba', help: 'City used in the structured address for search engines.' },
+      {
+        name: 'addressCountryCode', label: 'Office country code', type: 'text', max: 2, default: 'SS',
+        help: 'Two-letter ISO country code for the office address. South Sudan is SS.',
+        validate: value => {
+          if (!/^[A-Za-z]{2}$/.test(value)) throw new Error('Use a two-letter country code, such as SS.');
+          return true;
+        },
+      },
+      { name: 'phone', label: 'Primary phone number', type: 'text', max: 40, default: '0926540368', help: 'Include + and the country code to also use this number in search engine structured data.' },
+      { name: 'secondaryPhone', label: 'Alternative phone number', type: 'text', max: 40, default: '0725745166' },
       { name: 'email', label: 'Contact email', type: 'email', default: 'kussdproject@gmail.com' },
       { name: 'hours', label: 'Office hours', type: 'text', default: 'Monday to Friday, 8:00 am to 5:00 pm' },
+      {
+        name: 'googleSiteVerification', label: 'Google Search Console verification code', type: 'text', max: 200, default: '',
+        help: 'Optional. Paste only the content value from the Google HTML verification tag. Domain verification through DNS also works.',
+        validate: value => {
+          if (!/^[A-Za-z0-9_-]+$/.test(value)) throw new Error('Paste the verification code only, without the HTML tag.');
+          return true;
+        },
+      },
     ],
   },
   {
@@ -359,3 +391,11 @@ module.exports = [
     ],
   })),
 ];
+
+const searchDefaults = Object.fromEntries(Object.values(PUBLIC_PAGES).map(page => [page.slug, page]));
+module.exports = pageConfigs.map(config => searchDefaults[config.slug] ? {
+  ...config,
+  fields: [...config.fields, ...SEO_FIELDS.map(field => ({
+    ...field, default: field.name === 'seoTitle' ? searchDefaults[config.slug].title : searchDefaults[config.slug].description,
+  }))],
+} : config);

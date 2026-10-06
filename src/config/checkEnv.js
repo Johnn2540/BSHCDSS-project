@@ -1,3 +1,5 @@
+const { getEmailConfig } = require('./email');
+
 // Startup checks for required configuration. In production, missing security-critical
 // settings stop the server rather than letting it run in an unsafe state.
 
@@ -36,10 +38,13 @@ function checkEnv() {
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
       warnings.push('Cloudinary is not configured: image, video and document uploads will fail.');
     }
-    if (!process.env.SMTP_HOST || !process.env.MAIL_FROM) {
-      warnings.push('SMTP_HOST / MAIL_FROM not set: password reset, invitations and the contact form cannot send email.');
-    }
   }
+
+  const emailConfig = getEmailConfig();
+  if (!emailConfig.enabled || emailConfig.errors.length) {
+    warnings.push('Email is unavailable: ' + (emailConfig.errors.join(' ') || 'SMTP_HOST is not set.') + ' Contact messages, invitations and password reset links cannot be sent.');
+  }
+  warnings.push(...emailConfig.warnings);
 
   warnings.forEach((w) => console.warn(`[config] Warning: ${w}`));
   if (errors.length) {

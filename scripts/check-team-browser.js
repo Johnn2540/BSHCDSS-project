@@ -55,9 +55,12 @@ async function main() {
   console.log('Verified database roster, retained lead contacts and Cloudinary portrait.');
 
   await fs.mkdir(artifactDir, { recursive: true });
-  server = app.listen(0, '127.0.0.1');
-  await new Promise((resolve) => server.once('listening', resolve));
-  const base = 'http://127.0.0.1:' + server.address().port;
+  let base = process.env.TEAM_CHECK_URL;
+  if (!base) {
+    server = app.listen(0, '127.0.0.1');
+    await new Promise((resolve) => server.once('listening', resolve));
+    base = 'http://127.0.0.1:' + server.address().port;
+  }
   const restricted = await fetch(base + '/admin/team', { redirect: 'manual' });
   assert.equal(restricted.status, 302);
   assert.equal(restricted.headers.get('location'), '/login');
@@ -103,6 +106,7 @@ async function main() {
       lead: document.querySelector('.team-profile-featured h3')?.textContent,
       initials: document.querySelectorAll('.team-initials').length,
       support: document.querySelector('.team-profile-support h3')?.textContent,
+      administratorContacts: Array.from(document.querySelectorAll('.team-profile-support .team-contact-link')).map(el => ({href: el.getAttribute('href'), iconInsideLink: Boolean(el.querySelector('svg'))})),
       contactTargets: Array.from(document.querySelectorAll('.team-contact-link')).map(el => ({height: el.getBoundingClientRect().height, width: el.getBoundingClientRect().width})),
       portraits: Array.from(document.querySelectorAll('.team-portrait')).map(el => ({height: el.getBoundingClientRect().height, width: el.getBoundingClientRect().width})),
       names: Array.from(document.querySelectorAll('.team-member-name')).map(el => ({client: el.clientWidth, scroll: el.scrollWidth})),
@@ -112,6 +116,8 @@ async function main() {
     assert.deepEqual(state.references, roster.map((member) => member.referenceCode));
     assert.equal(state.lead, 'Dr. Martin Ogola');
     assert.equal(state.support, 'Cestine W. Ndongoli');
+    assert.ok(state.administratorContacts.some(contact => contact.href === 'https://wa.me/254715330094' && contact.iconInsideLink));
+    assert.ok(state.administratorContacts.some(contact => contact.href === 'mailto:ndongoli.cestine@ku.ac.ke' && contact.iconInsideLink));
     assert.equal(state.initials, 10);
     assert.ok(state.scrollWidth <= state.width + 1, 'Horizontal overflow at ' + viewport.name);
     assert.ok(state.names.every((name) => name.scroll <= name.client + 1), 'A name overflows its card.');
@@ -126,6 +132,11 @@ async function main() {
     }
     await evaluate('document.querySelector(".team-profile-support").scrollIntoView();');
     await until(async () => await evaluate('Array.from(document.querySelectorAll("img.team-portrait")).every(img => img.complete && img.naturalWidth > 0)'), 'Cloudinary portrait delivery');
+    if (viewport.name === 'desktop' || viewport.name === 'mobile') {
+      await delay(400);
+      const shot = await send('Page.captureScreenshot', { format: 'png' });
+      await fs.writeFile(path.join(artifactDir, 'team-administrator-' + viewport.name + '.png'), Buffer.from(shot.data, 'base64'));
+    }
     console.log('Verified team layout, contacts and portrait delivery at ' + viewport.width + 'px.');
   }
   await send('Emulation.setScriptExecutionDisabled', { value: true });

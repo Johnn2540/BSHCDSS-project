@@ -1,0 +1,12 @@
+<details class="notification-item is-new" data-notification-item data-notification-id="{{id}}" data-notification-version="{{versionAt}}">
+  <summary class="notification-item-summary">
+    <span class="notification-item-dot" aria-hidden="true"></span>
+    <span class="min-w-0 flex-1">
+      <span class="block text-sm font-semibold leading-snug text-neutral-900">{{title}}</span>
+      <span class="mt-1 block text-xs text-neutral-600"><time datetime="{{publishedAt}}">{{formatDate publishedAt}}</time></span>
+    </span>
+    <span class="notification-new" data-notification-new>New</span>
+    <svg class="notification-item-chevron h-4 w-4 shrink-0 text-neutral-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+  </summary>
+  <div class="notification-item-body">{{> prose text=body}}</div>
+</details>

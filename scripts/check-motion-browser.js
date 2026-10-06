@@ -61,7 +61,7 @@ async function assertReadable(label) {
 }
 
 async function main() {
-  let base = 'https://k-u-bshcdss-project.vercel.app';
+  let base = 'https://kubshcdss.com';
   if (!process.argv.includes('--live')) {
     const app = require('../src/app'); db = require('../src/lib/db');
     server = app.listen(0, '127.0.0.1');
@@ -137,6 +137,15 @@ async function main() {
       }
     }
     console.log('Verified all 12 public/auth pages at ' + width + 'px; form and link contracts unchanged.');
+  }
+
+  if (process.argv.includes('--live')) {
+    for (const [route, email] of [['/team', 'ogola.martin@ku.ac.ke'], ['/', 'kussdproject@gmail.com']]) {
+      await navigate(base + route);
+      await until(() => evaluate(expected => Array.from(document.querySelectorAll('a[href]')).some(link => link.getAttribute('href') === 'mailto:' + expected), email), 'usable contact email on ' + route);
+      await assertReadable(route + ' with Cloudflare email protection');
+    }
+    console.log('Verified project and team contact links after Cloudflare email decoding.');
   }
 
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 1000, deviceScaleFactor: 1, mobile: true });

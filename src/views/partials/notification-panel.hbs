@@ -1,0 +1,34 @@
+<dialog id="notification-panel" class="notification-panel" aria-labelledby="notification-title" data-notification-panel>
+  <div class="notification-panel-head">
+    <div class="flex items-center gap-3">
+      <span class="notification-heading-icon">{{> icon name="bell" class="h-5 w-5"}}</span>
+      <div>
+        <h2 id="notification-title" class="text-lg font-bold text-neutral-900">Notifications</h2>
+        <p class="mt-0.5 text-xs text-neutral-600" data-notification-summary>{{publicNotifications.total}} public announcement{{#unless (eq publicNotifications.total 1)}}s{{/unless}}</p>
+      </div>
+    </div>
+    <button type="button" class="notification-close" data-notification-close autofocus aria-label="Close notifications">
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="flex items-center justify-between gap-3 border-b border-neutral-200 bg-neutral-50 px-5 py-3">
+    <p class="text-xs font-medium text-neutral-600" data-notification-unread>{{publicNotifications.total}} new</p>
+    <button type="button" class="notification-read-all" data-notification-read-all disabled>Mark all as read</button>
+  </div>
+  <p class="notification-status" data-notification-status role="status" aria-live="polite"></p>
+  <div class="notification-panel-body" data-notification-list>
+    {{#each publicNotifications.items}}
+      {{> notification-item}}
+    {{else}}
+      <div class="notification-empty">
+        <span class="notification-empty-icon">{{> icon name="bell" class="h-7 w-7"}}</span>
+        <h3 class="mt-4 font-semibold text-neutral-900">No notifications yet</h3>
+        <p class="mt-2 text-sm leading-relaxed text-neutral-600">New public announcements will appear here when they are published.</p>
+      </div>
+    {{/each}}
+  </div>
+  <div class="notification-panel-foot">
+    <a href="/announcements" class="notification-all-link">View all announcements {{> icon name="arrow" class="h-4 w-4"}}</a>
+    <button type="button" class="notification-refresh" data-notification-refresh>Refresh</button>
+  </div>
+</dialog>

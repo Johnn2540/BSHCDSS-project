@@ -3,6 +3,8 @@
 
 const { prisma } = require('../lib/db');
 const { parseVideoUrl } = require('../services/video');
+const { whatsappUrlFor } = require('../services/team');
+const { SEO_FIELDS } = require('../config/seo');
 const albumPhotos = require('./albumPhotos');
 const { FILE_KINDS } = require('../middleware/upload');
 const { destroyFile } = require('../services/storage');
@@ -73,12 +75,22 @@ module.exports = [
           return true;
         },
       },
+      {
+        name: 'whatsappNumber', label: 'WhatsApp number', type: 'text', max: 40,
+        placeholder: 'e.g. +254 715 330094',
+        help: 'Use the full international number, including + and the country code. Leave blank to hide the WhatsApp link.',
+        validate: (value) => {
+          if (!whatsappUrlFor(value)) throw new Error('Enter a full international WhatsApp number, such as +254 715 330094.');
+          return true;
+        },
+      },
       { name: 'bio', label: 'Short biography', type: 'textarea', rows: 6, max: 3000, help: 'Separate paragraphs with a blank line.' },
       ORDER,
       PUBLISHED,
       { name: 'photo', label: 'Portrait photo', type: 'image', folder: 'team', urlField: 'photoUrl', publicIdField: 'photoPublicId', help: `${FILE_KINDS.image.description}. Choose a clear, square portrait, ideally at least 400 × 400 pixels. You can add or replace it later.` },
     ],
     prepare: async (data, { item }) => {
+      if (data.whatsappNumber) data.whatsappNumber = data.whatsappNumber.replace(/[^\d+]/g, '');
       if (!data.referenceCode) return {};
       data.referenceCode = data.referenceCode.toUpperCase();
       const taken = await prisma.teamMember.findFirst({
@@ -124,6 +136,7 @@ module.exports = [
       ORDER,
       PUBLISHED,
       { name: 'cover', label: 'Cover image', type: 'image', folder: 'activities', urlField: 'coverImageUrl', publicIdField: 'coverImagePublicId' },
+      ...SEO_FIELDS,
     ],
     deleteWarning: async (activity) => {
       const [albums, videos] = await Promise.all([
@@ -158,6 +171,7 @@ module.exports = [
       { name: 'date', label: 'Date', type: 'date', help: 'When the photos were taken.' },
       { name: 'activityId', label: 'Linked activity', type: 'select', options: activityOptions, emptyLabel: 'None' },
       { name: 'description', label: 'Description', type: 'textarea', rows: 3, max: 1000 },
+      ...SEO_FIELDS,
       PUBLISHED,
     ],
     redirectAfterCreate: true,
@@ -234,7 +248,7 @@ module.exports = [
     model: 'announcement',
     label: 'Announcements',
     singular: 'announcement',
-    intro: 'News and notices. "Tutors only" announcements appear on the tutor dashboard.',
+    intro: 'Published public announcements appear in the website notification bell and on the home page. "Tutors only" announcements appear on the tutor dashboard.',
     orderBy: [{ publishedAt: 'desc' }],
     listInclude: { author: { select: { name: true } } },
     columns: [

@@ -65,6 +65,7 @@
     drawerOpenBtn.addEventListener('click', openDrawer);
     drawerCloseBtn.addEventListener('click', function () { closeDrawer(); });
     drawerBackdrop.addEventListener('click', function () { closeDrawer(); });
+    window.addEventListener('notifications:open', function () { closeDrawer(false); });
 
     // Choosing a link closes the menu (the page then navigates)
     drawer.addEventListener('click', function (e) {

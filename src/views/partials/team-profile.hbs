@@ -17,26 +17,32 @@
         {{#if institution}}<p class="mt-2 text-sm leading-relaxed text-neutral-600">{{institution}}</p>{{/if}}
       </div>
     </div>
-    {{#if (or email phone bio)}}
+    {{#if (or email phone whatsappUrl bio)}}
       <div class="team-profile-details">
-        {{#if (or email phone)}}
+        {{#if (or email phone whatsappUrl)}}
           <dl class="space-y-1 text-sm">
+            {{#if whatsappUrl}}
+              <div>
+                <dt class="sr-only">WhatsApp</dt>
+                <dd class="min-w-0"><a href="{{whatsappUrl}}" target="_blank" rel="noopener noreferrer" class="team-contact-link team-contact-whatsapp" aria-label="Contact {{name}} on WhatsApp (opens in a new tab)">{{> icon name="whatsapp" class="h-5 w-5 shrink-0"}}<span class="min-w-0">WhatsApp</span>{{> icon name="external" class="h-3.5 w-3.5 shrink-0"}}</a></dd>
+              </div>
+            {{/if}}
             {{#if email}}
-              <div class="flex items-start gap-3">
-                <dt class="flex h-11 shrink-0 items-center text-brand-blue">{{> icon name="mail" class="h-4 w-4"}}<span class="sr-only">Email address</span></dt>
-                <dd class="min-w-0 flex-1"><a href="mailto:{{email}}" class="team-contact-link"><span>{{email}}</span><span class="sr-only">, email {{name}}</span></a></dd>
+              <div>
+                <dt class="sr-only">Email address</dt>
+                <dd class="min-w-0"><a href="mailto:{{email}}" class="team-contact-link">{{> icon name="mail" class="h-4 w-4 shrink-0"}}<span class="min-w-0">{{email}}</span><span class="sr-only">, email {{name}}</span></a></dd>
               </div>
             {{/if}}
             {{#if phone}}
-              <div class="flex items-start gap-3">
-                <dt class="flex h-11 shrink-0 items-center text-brand-blue">{{> icon name="phone" class="h-4 w-4"}}<span class="sr-only">Mobile number</span></dt>
-                <dd class="min-w-0 flex-1"><a href="tel:{{telHref phone}}" class="team-contact-link"><span>{{phone}}</span><span class="sr-only">, call {{name}}</span></a></dd>
+              <div>
+                <dt class="sr-only">Mobile number</dt>
+                <dd class="min-w-0"><a href="tel:{{telHref phone}}" class="team-contact-link">{{> icon name="phone" class="h-4 w-4 shrink-0"}}<span class="min-w-0">{{phone}}</span><span class="sr-only">, call {{name}}</span></a></dd>
               </div>
             {{/if}}
           </dl>
         {{/if}}
         {{#if bio}}
-          <div class="{{#if (or email phone)}}mt-4{{/if}}">
+          <div class="{{#if (or email phone whatsappUrl)}}mt-4{{/if}}">
             {{#if (lt bio.length 240)}}
               <div class="space-y-2 text-sm leading-relaxed text-neutral-700">{{#each (paragraphs bio)}}<p>{{this}}</p>{{/each}}</div>
             {{else}}

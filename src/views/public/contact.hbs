@@ -1,9 +1,9 @@
 {{!-- Banner: shared photo hero (partials/photo-hero.hbs) with quick Call / Email actions --}}
 {{#> photo-hero image=heroImage title=page.title summary=page.summary titleId="contact-title" overlap=true actions=true}}
   {{!-- Inside a partial block, page data must be read through @root --}}
-  {{#if @root.site.contact.phone}}
-    <a href="tel:{{telHref @root.site.contact.phone}}" class="btn bg-white text-brand-blue-dark shadow-lg hover:bg-neutral-100 focus-visible:outline-white">
-      {{> icon name="phone" class="h-5 w-5"}} Call {{@root.site.contact.phone}}
+  {{#if (or @root.site.contact.phone @root.site.contact.secondaryPhone)}}
+    <a href="tel:{{telHref (either @root.site.contact.phone @root.site.contact.secondaryPhone)}}" class="btn bg-white text-brand-blue-dark shadow-lg hover:bg-neutral-100 focus-visible:outline-white">
+      {{> icon name="phone" class="h-5 w-5"}} Call {{either @root.site.contact.phone @root.site.contact.secondaryPhone}}
     </a>
   {{/if}}
   {{#if @root.site.contact.email}}
@@ -25,12 +25,12 @@
         </div>
       </li>
     {{/if}}
-    {{#if site.contact.phone}}
+    {{#if (or site.contact.phone site.contact.secondaryPhone)}}
       <li class="contact-card" data-motion="enter">
         <span class="contact-card-icon">{{> icon name="phone" class="h-5 w-5"}}</span>
         <div class="min-w-0">
           <h2 class="contact-card-label">Call us</h2>
-          <a href="tel:{{telHref site.contact.phone}}" class="font-medium text-neutral-900 hover:text-brand-blue hover:underline">{{site.contact.phone}}</a>
+          {{> contact-phones contact=site.contact linkClass="font-medium text-neutral-900 hover:text-brand-blue hover:underline"}}
         </div>
       </li>
     {{/if}}

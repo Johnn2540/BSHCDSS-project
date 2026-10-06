@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0F47AF">
+  <title>{{title}} | Tutor Portal | {{site.shortName}}</title>
+  {{> head-icons}}
+  <script nonce="{{cspNonce}}">document.documentElement.className = document.documentElement.className.replace('no-js', 'js');</script>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/site.js" defer></script>
+  <script src="/js/tutor.js" defer></script>
+  <script src="/js/motion.js" defer></script>
+</head>
+<body class="portal-body">
+  <a href="#main" class="portal-skip">Skip to main content</a>
+  <header class="portal-topbar" data-portal-background>
+    <div class="flex min-w-0 items-center gap-3">
+      <button type="button" class="portal-menu-toggle" data-portal-toggle aria-controls="portal-navigation" aria-expanded="false" aria-haspopup="dialog">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <span class="sr-only">Open Tutor Portal menu</span>
+      </button>
+      <a href="/tutor" class="portal-brand" aria-label="{{site.shortName}} Tutor Portal overview">
+        <img src="{{#if site.brand}}{{site.brand.emblem.webp128}}{{else}}{{site.logoUrl}}{{/if}}" alt="" width="44" height="44" class="h-11 w-11 shrink-0 object-contain">
+        <span class="min-w-0"><span class="block text-base font-bold tracking-tight text-brand-blue sm:text-lg">{{site.shortName}}</span><span class="block text-xs font-medium text-neutral-600">Tutor Portal</span></span>
+      </a>
+    </div>
+    <div class="flex shrink-0 items-center gap-4">
+      <a href="/" class="portal-website-link">{{> icon name="external" class="h-4 w-4"}}<span class="hidden sm:inline">View website</span><span class="sr-only sm:hidden">View public website</span></a>
+      {{#if (eq currentUser.role "ADMIN")}}<a href="/admin" class="hidden text-sm font-semibold text-brand-blue lg:inline-flex">Admin dashboard</a>{{/if}}
+      <span class="hidden items-center gap-2 border-l border-neutral-200 pl-4 sm:flex">
+        <span class="portal-avatar" aria-hidden="true">{{> icon name="person" class="h-5 w-5"}}</span>
+        <span class="max-w-36 truncate text-sm font-semibold text-neutral-800">{{currentUser.name}}</span>
+      </span>
+    </div>
+  </header>
+
+  <div class="portal-shell">
+    {{> tutor/sidebar}}
+    <div class="portal-content" data-portal-background>
+      <main id="main" class="portal-main" tabindex="-1">
+        {{> flash}}
+        {{{body}}}
+      </main>
+      <footer class="portal-footer"><p>&copy; {{year}} {{site.shortName}} <span aria-hidden="true">&middot;</span> Tutor Portal</p><a href="/contact" class="action-link">Contact the project team</a></footer>
+    </div>
+  </div>
+  <div class="portal-backdrop" data-portal-backdrop aria-hidden="true"></div>
+</body>
+</html>

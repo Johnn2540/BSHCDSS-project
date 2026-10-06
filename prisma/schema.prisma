@@ -109,6 +109,7 @@ model TeamMember {
   institution   String?
   email         String?
   phone         String?
+  whatsappNumber String?
   bio           String?
   photoUrl      String?
   photoPublicId String? // Cloudinary public_id, used to delete/replace the image
@@ -125,6 +126,8 @@ model Activity {
   slug               String   @unique
   title              String
   summary            String?
+  seoTitle           String?
+  seoDescription     String?
   body               String?
   coverImageUrl      String?
   coverImagePublicId String?
@@ -143,6 +146,8 @@ model Album {
   title       String
   slug        String    @unique
   description String?
+  seoTitle    String?
+  seoDescription String?
   date        DateTime?
   activityId  String?
   isPublished Boolean   @default(true)

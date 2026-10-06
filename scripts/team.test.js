@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const Handlebars = require('handlebars').create();
-const { initialsFor, buildTeamPresentation } = require('../src/services/team');
+const { initialsFor, whatsappUrlFor, buildTeamPresentation } = require('../src/services/team');
 const roster = require('../src/data/projectTeam');
 const helpers = require('../src/helpers/handlebars');
 const config = require('../src/config/pages').find((page) => page.slug === 'team');
@@ -70,6 +70,25 @@ test('Cloudinary portraits use face cropping, responsive sizes and accessible im
   assert.match(html, /alt="Dr\. Martin Ogola"/);
   assert.match(html, /loading="lazy" decoding="async"/);
   assert.doesNotMatch(html, /team-initials/);
+});
+
+test('WhatsApp links use explicit international numbers and reject ambiguous or unsafe input', () => {
+  assert.equal(whatsappUrlFor('+254 715 330094'), 'https://wa.me/254715330094');
+  assert.equal(whatsappUrlFor('+211 (926) 540-368'), 'https://wa.me/211926540368');
+  for (const number of [null, '', '0715 330094', '+0715330094', '+123', '+1234567890123456', 'https://evil.example', '+254715330094?text=hello']) {
+    assert.equal(whatsappUrlFor(number), null);
+  }
+});
+
+test('the administrator contact icons are part of their clickable links and contacts are opt-in', () => {
+  const administrator = { ...support, email: 'ndongoli.cestine@ku.ac.ke', whatsappNumber: '+254715330094' };
+  const html = render({ page, team: buildTeamPresentation([...roster, administrator]) });
+  assert.match(html, /href="https:\/\/wa\.me\/254715330094" target="_blank" rel="noopener noreferrer"/);
+  assert.match(html, /aria-label="Contact Cestine W\. Ndongoli on WhatsApp \(opens in a new tab\)"/);
+  assert.match(html, /href="https:\/\/wa\.me\/254715330094"[^>]*>\s*<svg/);
+  assert.match(html, /href="mailto:ndongoli\.cestine@ku\.ac\.ke"[^>]*>\s*<svg/);
+  assert.equal((html.match(/https:\/\/wa\.me\//g) || []).length, 1);
+  assert.doesNotMatch(render({ page, team: buildTeamPresentation([support]) }), /https:\/\/wa\.me\//);
 });
 
 test('profile content is escaped and long biographies work with native disclosure controls', () => {

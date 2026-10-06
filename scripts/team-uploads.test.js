@@ -106,6 +106,23 @@ test('admin portrait editing preserves files correctly across success and failur
     assert.equal(member.photoUrl, newUrl);
     assert.equal(member.photoPublicId, newId);
   });
+  await t.test('WhatsApp contacts can be saved, edited and removed without changing the portrait', async () => {
+    reset();
+    assert.equal((await submit({ extra: { whatsappNumber: '+254 715 330094' } })).status, 302);
+    assert.equal(member.whatsappNumber, '+254715330094');
+    assert.equal(member.photoUrl, oldUrl);
+    assert.equal((await submit({ extra: { whatsappNumber: '+211 926 540368' } })).status, 302);
+    assert.equal(member.whatsappNumber, '+211926540368');
+    assert.equal((await submit({ extra: { whatsappNumber: '' } })).status, 302);
+    assert.equal(member.whatsappNumber, null);
+  });
+  await t.test('invalid WhatsApp numbers are rejected before saving or uploading', async () => {
+    reset();
+    const response = await submit({ file: png, extra: { whatsappNumber: '0715 330094' } });
+    assert.equal(response.status, 422);
+    assert.match((await response.json()).errors.whatsappNumber, /international WhatsApp number/);
+    assert.deepEqual(events, []);
+  });
   await t.test('upload failures show an inline error and retain the portrait and entered values', async () => {
     reset(); uploadFails = true;
     const response = await submit({ file: png });

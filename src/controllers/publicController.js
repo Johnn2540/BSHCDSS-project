@@ -3,11 +3,13 @@ const { body } = require('express-validator');
 
 const content = require('../services/content');
 const { presentVideo } = require('../services/video');
-const { sendMail } = require('../services/mailer');
+const { sendMail, logMailError } = require('../services/mailer');
+const { contactEmail } = require('../services/emailTemplates');
 const { collectErrors } = require('../admin/fields');
 const pageImages = require('../config/pageImages');
 const { buildDocumentLibrary } = require('../services/documentLibrary');
 const { buildTeamPresentation } = require('../services/team');
+const { setPageSeo } = require('../services/seo');
 
 // Icon shown on each home page activity card, by activity slug.
 const ACTIVITY_ICONS = { 'in-service-training': 'users', cpd: 'growth', lms: 'screen' };
@@ -70,6 +72,7 @@ async function home(req, res) {
   const { page, curriculum, activities, announcements, albums, videoCount } = await content.getHomePage();
   const firstActivity = activities[0];
   const heroImage = homeHeroImage(page);
+  setPageSeo(req, res, { path: '/', page });
   res.render('public/home', {
     isHome: true,
     page,
@@ -89,6 +92,7 @@ async function about(req, res) {
     content.getActivities(),
   ]);
   const focusItems = buildFocusItems(curriculum, activities);
+  setPageSeo(req, res, { path: '/about', page, image: pageImages.about.fallback, imageAlt: pageImages.about.alt });
   res.render('public/about', {
     title: page.title,
     metaDescription: page.summary,
@@ -101,14 +105,17 @@ async function about(req, res) {
 
 async function team(req, res) {
   const [page, members] = await Promise.all([content.getPage('team'), content.getTeam()]);
+  setPageSeo(req, res, { path: '/team', page });
   res.render('public/team', { title: page.title, metaDescription: page.summary, page, team: buildTeamPresentation(members) });
 }
 
 async function curriculum(req, res) {
   const [page, documentGroups] = await Promise.all([content.getPage('curriculum'), content.getDocuments(['PUBLIC'])]);
+  const library = buildDocumentLibrary(documentGroups, req.query);
+  setPageSeo(req, res, { path: '/curriculum', page, noindex: library.isFiltered });
   res.render('public/curriculum', {
     title: page.title, metaDescription: page.summary, page,
-    library: buildDocumentLibrary(documentGroups, req.query),
+    library,
   });
 }
 
@@ -118,6 +125,7 @@ async function activity(req, res) {
   const [activities, resourceDocuments] = await Promise.all([
     content.getActivities(), content.getActivityDocuments(item.slug),
   ]);
+  setPageSeo(req, res, { path: `/activities/${encodeURIComponent(item.slug)}`, page: item, image: item.coverImageUrl });
   res.render('public/activity', {
     title: item.title,
     metaDescription: item.summary,
@@ -133,6 +141,7 @@ async function activity(req, res) {
 async function gallery(req, res) {
   const [page, { albums, videos }] = await Promise.all([content.getPage('gallery'), content.getGallery()]);
   const cards = albumCards(albums);
+  setPageSeo(req, res, { path: '/gallery', page, image: cards[0]?.coverUrl });
   res.render('public/gallery', {
     title: page.title,
     metaDescription: page.summary,
@@ -146,6 +155,11 @@ async function gallery(req, res) {
 async function album(req, res) {
   const item = await content.getAlbum(req.params.slug);
   if (!item) throw notFound();
+  setPageSeo(req, res, {
+    path: `/gallery/${encodeURIComponent(item.slug)}`, page: item,
+    description: item.description || `Photos: ${item.title}`, image: item.photos[0]?.imageUrl,
+    imageAlt: item.photos[0]?.caption, parent: { name: 'Pictures and Videos', path: '/gallery' },
+  });
   res.render('public/album', {
     title: item.title,
     metaDescription: item.description || `Photos: ${item.title}`,
@@ -176,6 +190,7 @@ const contactRules = [
 
 async function renderContact(req, res, { values = {}, errors = {}, status = 200 } = {}) {
   const page = await content.getPage('contact');
+  setPageSeo(req, res, { path: '/contact', page, image: pageImages.contact.fallback });
   res.status(status).render('public/contact', {
     title: page.title,
     metaDescription: page.summary,
@@ -205,67 +220,26 @@ async function submitContact(req, res) {
   if (Object.keys(errors).length) return renderContact(req, res, { values: req.body, errors, status: 422 });
 
   const site = await content.getSite();
-  const to = process.env.CONTACT_EMAIL || site.contact.email;
+  const to = (process.env.CONTACT_EMAIL || site.contact.email || '').trim();
   const { name, email, phone, subject, message } = req.body;
 
   try {
     await sendMail({
       to,
       replyTo: { name: oneLine(name), address: email },
-      subject: `[Website] ${oneLine(subject)}`,
-      text:
-        `New message from the ${site.shortName} website contact form.\n\n` +
-        `Name: ${oneLine(name)}\nEmail: ${email}\n${phone ? `Phone: ${oneLine(phone)}\n` : ''}` +
-        `Subject: ${oneLine(subject)}\n\n${message}\n`,
+      ...contactEmail({ siteName: site.shortName, name, email, phone, subject, message }),
     });
   } catch (err) {
-    console.error('Contact form email failed:', err);
+    logMailError('contact form', err);
     return renderContact(req, res, {
       values: req.body,
-      errors: { form: `Sorry, your message could not be sent right now. Please try again later or email us at ${site.contact.email}.` },
+      errors: { form: `Sorry, your message could not be sent right now. Please try again later${to ? ` or email us at ${to}` : ''}.` },
       status: 503,
     });
   }
 
   req.flash('success', 'Thank you. Your message has been sent and we will reply as soon as possible.');
   res.redirect('/contact');
-}
-
-// ─── SEO ──────────────────────────────────────────────────────────────────────
-
-function baseUrl(req) {
-  return (process.env.APP_URL || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '');
-}
-
-function robots(req, res) {
-  res.type('text/plain').send(
-    [
-      'User-agent: *',
-      'Disallow: /admin',
-      'Disallow: /tutor',
-      'Disallow: /login',
-      'Disallow: /forgot-password',
-      'Disallow: /reset-password',
-      'Disallow: /documents/',
-      '',
-      `Sitemap: ${baseUrl(req)}/sitemap.xml`,
-      '',
-    ].join('\n')
-  );
-}
-
-const xmlEscape = (s) => String(s).replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' })[c]);
-
-async function sitemap(req, res) {
-  const base = baseUrl(req);
-  const entries = await content.getSitemapEntries();
-  const urls = entries
-    .map(
-      (e) =>
-        `  <url><loc>${xmlEscape(base + e.loc)}</loc>${e.lastmod ? `<lastmod>${new Date(e.lastmod).toISOString().slice(0, 10)}</lastmod>` : ''}</url>`
-    )
-    .join('\n');
-  res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 }
 
 module.exports = {
@@ -279,6 +253,4 @@ module.exports = {
   contactRules,
   showContact,
   submitContact,
-  robots,
-  sitemap,
 };

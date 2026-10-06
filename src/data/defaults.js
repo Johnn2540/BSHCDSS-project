@@ -8,7 +8,7 @@ const partners = [
   {
     name: 'Ministry of General Education and Instruction',
     shortName: 'MoGEI',
-    url: null,
+    url: 'https://mogei.gov.ss/',
     logoUrl: '/images/partners/mogei.webp',
     isMain: true,
     displayOrder: 1,
