@@ -3,11 +3,12 @@ const { siteOrigin, indexingEnabled, sitemapXml } = require('../services/seo');
 
 function robots(req, res) {
   const enabled = indexingEnabled();
+  // Page URLs must remain crawlable for their noindex headers to be observed.
+  // Document redirects are excluded from crawling to avoid issuing signed links.
   const lines = enabled ? [
-    'User-agent: *', 'Allow: /', 'Disallow: /admin', 'Disallow: /tutor',
-    'Disallow: /documents/', 'Disallow: /api/', 'Disallow: /healthz', '',
+    'User-agent: *', 'Allow: /', 'Disallow: /documents/', '',
     `Sitemap: ${siteOrigin(req)}/sitemap.xml`, '',
-  ] : ['User-agent: *', 'Disallow: /', ''];
+  ] : ['User-agent: *', 'Allow: /', ''];
   res.set('X-Robots-Tag', 'noindex');
   res.set('Cache-Control', enabled ? 'public, max-age=300' : 'private, no-store');
   res.type('text/plain').send(lines.join('\n'));

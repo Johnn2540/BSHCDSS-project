@@ -12,12 +12,23 @@ function indexingRules(req, res, next) {
 }
 
 function canonicalPaths(req, res, next) {
-  if (['GET', 'HEAD'].includes(req.method) && req.path.length > 1 && req.path.endsWith('/')) {
-    const path = req.path.replace(/\/+$/, '');
-    if (PUBLIC_PAGES[path] || /^\/(activities|gallery)\/[a-z0-9-]+$/.test(path)) {
-      const queryIndex = req.originalUrl.indexOf('?');
-      return res.redirect(308, path + (queryIndex >= 0 ? req.originalUrl.slice(queryIndex) : ''));
-    }
+  if (!['GET', 'HEAD'].includes(req.method)) return next();
+
+  // Express routes are case-insensitive; published slugs use lowercase characters.
+  // Consolidate those variants with the same paths used by links and the sitemap.
+  const path = req.path.replace(/\/+$/, '').toLowerCase() || '/';
+  if (!PUBLIC_PAGES[path] && !/^\/(activities|gallery)\/[a-z0-9-]+$/.test(path)) return next();
+
+  const queryIndex = req.originalUrl.indexOf('?');
+  let query = queryIndex >= 0 ? req.originalUrl.slice(queryIndex) : '';
+  const firstAnnouncementsPage = path === '/announcements' && req.query.page === '1';
+  if (firstAnnouncementsPage) {
+    const params = new URLSearchParams(query.slice(1));
+    params.delete('page');
+    query = params.size ? '?' + params.toString() : '';
+  }
+  if (req.path !== path || firstAnnouncementsPage) {
+    return res.redirect(308, path + query);
   }
   next();
 }

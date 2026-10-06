@@ -21,7 +21,8 @@ async function main() {
   assert.equal(robotsResponse.status, 200); assert.equal(robotsResponse.headers.get('set-cookie'), null);
   const robots = await robotsResponse.text();
   assert(robots.includes('Sitemap: ' + productionOrigin + '/sitemap.xml'));
-  assert(!robots.includes('Disallow: /\n')); assert(!robots.includes('Disallow: /login'));
+  assert(!robots.includes('Disallow: /\n'));
+  assert.doesNotMatch(robots, /Disallow: \/(?:login|reset-password|admin|tutor|api|healthz)/);
   const sitemapResponse = await fetch(base + '/sitemap.xml');
   assert.equal(sitemapResponse.status, 200); assert.equal(sitemapResponse.headers.get('set-cookie'), null);
   assert.match(sitemapResponse.headers.get('content-type'), /xml/);
@@ -70,8 +71,16 @@ async function main() {
   const filteredHtml = await filtered.text();
   assert.match(filteredHtml, /name="robots" content="noindex, follow"/);
   assert.doesNotMatch(filteredHtml, /application\/ld\+json/);
-  const slash = await fetch(base + '/about/?utm_source=seo-check', { redirect: 'manual' });
-  assert.equal(slash.status, 308); assert.equal(slash.headers.get('location'), '/about?utm_source=seo-check');
+  for (const [route, target] of [
+    ['/about/?utm_source=seo-check', '/about?utm_source=seo-check'],
+    ['/ABOUT/?utm_source=seo-check', '/about?utm_source=seo-check'],
+    ['/announcements?page=1', '/announcements'],
+    ['/ANNOUNCEMENTS/?page=1&utm_source=seo-check', '/announcements?utm_source=seo-check'],
+  ]) {
+    const response = await fetch(base + route, { redirect: 'manual' });
+    assert.equal(response.status, 308, route);
+    assert.equal(response.headers.get('location'), target, route);
+  }
   console.log('PASS robots, published sitemap, private routes, filtered search and permanent URL normalization');
   console.log('SEO verification passed for ' + urls.length + ' public URLs.');
 }

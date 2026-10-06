@@ -18,7 +18,7 @@
     </ul>
     {{#if (or previousPage nextPage)}}
       <nav aria-label="Announcements pages" class="mt-8 flex flex-wrap items-center justify-between gap-4">
-        {{#if previousPage}}<a href="/announcements?page={{previousPage}}" class="btn border border-neutral-300 text-neutral-800">Previous page</a>{{else}}<span></span>{{/if}}
+        {{#if previousPage}}<a href="/announcements{{#unless (eq previousPage 1)}}?page={{previousPage}}{{/unless}}" class="btn border border-neutral-300 text-neutral-800">Previous page</a>{{else}}<span></span>{{/if}}
         <p class="text-sm text-neutral-600">Page {{feed.page}}</p>
         {{#if nextPage}}<a href="/announcements?page={{nextPage}}" class="btn btn-primary">Next page</a>{{else}}<span></span>{{/if}}
       </nav>

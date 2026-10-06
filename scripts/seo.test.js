@@ -113,14 +113,51 @@ test('HTTP indexing rules preserve public pages and redirects while excluding pr
     assert.equal((await fetch(base + '/contact', { method: 'POST' })).headers.get('x-robots-tag'), 'noindex, nofollow');
     const robots = await (await fetch(base + '/robots.txt')).text();
     assert.match(robots, /Sitemap: https:\/\/example\.test\/sitemap\.xml/);
-    assert.doesNotMatch(robots, /Disallow: \/login|Disallow: \/reset-password/);
+    assert.doesNotMatch(robots, /Disallow: \/(?:login|reset-password|admin|tutor|api|healthz)/);
+    assert.match(robots, /Disallow: \/documents\//);
     process.env.VERCEL_ENV = 'preview';
     assert.equal((await fetch(base + '/about')).headers.get('x-robots-tag'), 'noindex, nofollow');
-    assert.equal(await (await fetch(base + '/robots.txt')).text(), 'User-agent: *\nDisallow: /\n');
+    const previewRobots = await fetch(base + '/robots.txt');
+    assert.equal(previewRobots.headers.get('cache-control'), 'private, no-store');
+    assert.equal(await previewRobots.text(), 'User-agent: *\nAllow: /\n');
     assert.doesNotMatch(await (await fetch(base + '/sitemap.xml')).text(), /<url>/);
   } finally {
     await new Promise(resolve => server.close(resolve));
     for (const [name, value] of Object.entries(previous)) value === undefined ? delete process.env[name] : process.env[name] = value;
+  }
+});
+
+test('public duplicate URLs redirect once while queries, forms and private paths retain their behavior', async () => {
+  const app = express(); app.use(canonicalPaths);
+  app.use((req, res) => res.json({ path: req.path }));
+  const server = app.listen(0, '127.0.0.1');
+  await new Promise(resolve => server.once('listening', resolve));
+  const base = 'http://127.0.0.1:' + server.address().port;
+  try {
+    for (const [route, target, method = 'GET'] of [
+      ['/ABOUT/?utm_source=seo&ref=a%2Fb', '/about?utm_source=seo&ref=a%2Fb'],
+      ['/Team', '/team'],
+      ['/ACTIVITIES/In-Service-Training/', '/activities/in-service-training'],
+      ['/Gallery/Workshop///', '/gallery/workshop', 'HEAD'],
+      ['/announcements?page=1', '/announcements'],
+      ['/ANNOUNCEMENTS/?page=1&utm_source=seo&ref=a%2Fb', '/announcements?utm_source=seo&ref=a%2Fb'],
+      ['/announcements/?page=2', '/announcements?page=2'],
+      ['/curriculum/?q=teacher&category=Language', '/curriculum?q=teacher&category=Language'],
+    ]) {
+      const response = await fetch(base + route, { method, redirect: 'manual' });
+      assert.equal(response.status, 308, route);
+      assert.equal(response.headers.get('location'), target, route);
+      assert.equal((await fetch(base + target, { method, redirect: 'manual' })).status, 200, target + ' does not redirect again');
+    }
+    for (const [route, method = 'GET'] of [
+      ['/about'], ['/announcements?page=2'], ['/announcements?page=0'],
+      ['/announcements?page=1&page=2'], ['/admin/'], ['/api/public/notifications/'],
+      ['/images/Logo.png'], ['/unknown/'], ['//attacker.example/'], ['/ABOUT/', 'POST'],
+    ]) {
+      assert.equal((await fetch(base + route, { method, redirect: 'manual' })).status, 200, route + ' is passed through');
+    }
+  } finally {
+    await new Promise(resolve => server.close(resolve));
   }
 });
 
@@ -136,9 +173,18 @@ test('the actual announcements page renders page-two metadata and 404s out-of-ra
     const canonical = /rel="canonical" href="([^"]+)"/.exec(html)?.[1].replace(/&#x3D;/g, '=');
     assert.equal(canonical, origin + '/announcements?page=2');
     assert.match(html, /Page 2/);
+    assert.match(html, /href="\/announcements"[^>]*>Previous page<\/a>/);
+    assert.doesNotMatch(html, /href="\/announcements\?page=1"/);
     const response = await fetch(base + '/announcements?page=3');
     assert.equal(response.status, 404); assert.match(response.headers.get('x-robots-tag'), /noindex/);
     assert.doesNotMatch(await response.text(), /application\/ld\+json/);
+    process.env.VERCEL_ENV = 'preview';
+    const preview = await fetch(base + '/announcements');
+    assert.equal(preview.status, 200);
+    assert.match(preview.headers.get('x-robots-tag'), /noindex/);
+    const previewHtml = await preview.text();
+    assert.match(previewHtml, /name="robots" content="noindex, nofollow"/);
+    assert.doesNotMatch(previewHtml, /rel="canonical"|application\/ld\+json/);
   } finally {
     await new Promise(resolve => server.close(resolve));
     for (const [name, value] of Object.entries(previous)) value === undefined ? delete process.env[name] : process.env[name] = value;

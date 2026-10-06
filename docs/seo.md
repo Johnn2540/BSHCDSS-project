@@ -8,9 +8,9 @@ The office city and two-letter country code are editable in site settings; the s
 
 `/sitemap.xml` contains the canonical public pages, published activities, published albums and existing announcements pages. Modification dates come from relevant published records, including team profiles, documents, photos and notices. Private and future notices, draft content, tutor resources and signed download URLs are excluded. No arbitrary `priority`, `changefreq` or current-time dates are added.
 
-Announcements pagination has self-referencing canonical URLs. Tracking parameters do not enter canonicals. Filtered curriculum searches are `noindex, follow`; authentication, private routes, downloads and errors use `noindex` response headers. Account access still depends on the existing authentication middleware. Authentication pages remain crawlable so crawlers can read their `noindex` rules. Trailing slashes on public page URLs redirect permanently without changing POST/form routes.
+Announcements pagination has self-referencing canonical URLs. The first page uses `/announcements`; `?page=1` redirects there, and pagination links use that canonical path. Tracking parameters do not enter canonicals. Filtered curriculum searches are `noindex, follow`; authentication, private routes, downloads and errors use `noindex` response headers. Account access still depends on the existing authentication middleware. Authentication and private page URLs remain crawlable so crawlers can read their `noindex` rules; protected content still requires an authorized session. Production robots rules disallow document download redirects to avoid issuing signed storage links to crawlers, and download links use `nofollow`. Uppercase and trailing-slash variants of public page URLs redirect permanently while preserving query values; POST/form routes retain their existing behavior.
 
-Vercel previews, development deployments and local development use `noindex`; their robots file disallows crawling and their sitemap is empty. Only production is indexable. Configure the production `APP_URL` with the HTTPS primary domain. The robots and sitemap endpoints run before session and page-content middleware.
+Vercel previews, development deployments and local development use `noindex`; their robots file allows crawling so search engines can read the exclusion rule, and their sitemap is empty. Only production is indexable. A blanket robots disallow would prevent crawlers from seeing `noindex`, so it is not used to exclude preview pages. Configure the production `APP_URL` with the HTTPS primary domain. The robots and sitemap endpoints run before session and page-content middleware.
 
 ## Google Search Console setup
 
@@ -29,6 +29,8 @@ npm run check:seo
 node scripts/check-seo.js
 node scripts/check-seo.js --live
 ```
+
+If Windows blocks the test runner's child processes with `spawn EPERM`, run `node --experimental-test-isolation=none --test scripts/seo.test.js` on Node 22 instead.
 
 The unit checks use isolated fixtures. The local and live checks read public pages, published content and metadata without posting forms or modifying content.
 
