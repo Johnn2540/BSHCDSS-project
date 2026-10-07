@@ -93,34 +93,45 @@ function homeHeroImage(page) {
   };
 }
 
-// Photo beside the home statistics: the uploaded image if there is one, otherwise the built-in classroom photo.
-function homeStatsImage(page) {
-  const alt = page.statsImageAlt || '';
-  const uploaded = page.statsImage && page.statsImage.url ? page.statsImage : null;
-  if (!uploaded) return { ...pageImages.statsDefault, alt };
+// A photo editable from Page content (image field + description field): the uploaded image if there is one,
+// otherwise the built-in default. `crop` is an optional Cloudinary aspect ratio (e.g. '16:10') for uploads.
+function homePhoto(page, { imageField, altField, fallback, widths, crop }) {
+  const alt = page[altField] || '';
+  const uploaded = page[imageField] && page[imageField].url ? page[imageField] : null;
+  if (!uploaded) return { ...fallback, alt };
   const cloud = uploaded.url.includes('/image/upload/');
-  const at = (w) => uploaded.url.replace('/image/upload/', `/image/upload/f_auto,q_auto,c_limit,w_${w}/`);
+  const transform = crop ? `c_fill,g_auto,ar_${crop}` : 'c_limit';
+  const at = (w) => uploaded.url.replace('/image/upload/', `/image/upload/f_auto,q_auto,${transform},w_${w}/`);
+  const widest = widths[widths.length - 1];
   return {
-    src: cloud ? at(1140) : uploaded.url,
-    srcset: cloud ? [480, 800, 1140].map((w) => `${at(w)} ${w}w`).join(', ') : '',
-    width: uploaded.width || 1140,
-    height: uploaded.height || 760,
-    position: '50% 35%',
+    src: cloud ? at(widest) : uploaded.url,
+    srcset: cloud ? widths.map((w) => `${at(w)} ${w}w`).join(', ') : '',
+    width: crop ? widest : uploaded.width || fallback.width,
+    height: crop ? Math.round((widest * crop.split(':')[1]) / crop.split(':')[0]) : uploaded.height || fallback.height,
+    position: fallback.position,
     alt,
   };
 }
+
+// Photo beside the home statistics.
+const homeStatsImage = (page) =>
+  homePhoto(page, { imageField: 'statsImage', altField: 'statsImageAlt', fallback: pageImages.statsDefault, widths: [480, 800, 1140] });
+
+// Banner under the "About the project" text (uploads are cropped to 16:10; CSS crops further on wide screens).
+const homeIntroImage = (page) =>
+  homePhoto(page, { imageField: 'introImage', altField: 'introImageAlt', fallback: pageImages.introDefault, widths: [640, 1000, 1448], crop: '16:10' });
 
 async function home(req, res) {
   const { page, curriculum, activities, announcements, albums, videoCount } = await content.getHomePage();
   const firstActivity = activities[0];
   const heroImage = homeHeroImage(page);
-  const statsImage = homeStatsImage(page);
   setPageSeo(req, res, { path: '/', page });
   res.render('public/home', {
     isHome: true,
     page,
     heroImage, // the share preview for Home stays the branded logo image (og-image.jpg)
-    statsImage,
+    statsImage: homeStatsImage(page),
+    introImage: homeIntroImage(page),
     focusItems: buildFocusItems(curriculum, activities),
     announcements,
     albums: albumCards(albums),

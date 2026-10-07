@@ -31,6 +31,15 @@ module.exports = {
     height: 760,
     position: '53% 30%',
   },
+  // Home "About the project" banner photo when none has been uploaded (Admin -> Page content -> Home).
+  // 16:10 originals; the banner crops them to 3:1 on desktop, centred on the people.
+  introDefault: {
+    srcset: '/images/pages/intro-640.jpg 640w, /images/pages/intro-1200.jpg 1200w, /images/pages/intro-1448.jpg 1448w',
+    src: '/images/pages/intro-1200.jpg',
+    width: 1200,
+    height: 750,
+    position: '50% 45%',
+  },
   // Built-in 16:9 photos for the "What the project does" cards and the top of each section page,
   // keyed by activity slug (or "curriculum"). An uploaded image (Admin) replaces them.
   focus: {

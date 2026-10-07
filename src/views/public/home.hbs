@@ -130,7 +130,7 @@
           {{/if}}
         {{/each}}
       </div>
-      <a href="/about" class="btn btn-primary mt-8">Learn more about the project {{> icon name="arrow" class="h-4 w-4"}}</a>
+      <a href="/about" class="btn btn-primary cta-pulse mt-8">Learn more about the project {{> icon name="arrow" class="h-4 w-4"}}</a>
     </div>
 
     {{#if page.objectives.length}}
@@ -148,6 +148,20 @@
           {{/each}}
         </ol>
       </aside>
+    {{/if}}
+
+    {{!-- Wide photo under the text and objectives, spanning the full content width; same tricolour rule as the cards --}}
+    {{#if introImage}}
+      <figure class="relative overflow-hidden rounded-xl bg-brand-blue-dark shadow-xl lg:col-span-12" data-motion="enter">
+        <div class="relative aspect-[16/10] sm:aspect-[2/1] lg:aspect-[3/1]">
+          <img src="{{introImage.src}}"{{#if introImage.srcset}} srcset="{{introImage.srcset}}" sizes="(min-width: 1280px) 1216px, 100vw"{{/if}}
+               width="{{introImage.width}}" height="{{introImage.height}}" alt="{{introImage.alt}}" loading="lazy" decoding="async"
+               style="object-position: {{introImage.position}};" class="absolute inset-0 h-full w-full object-cover">
+          <div class="absolute inset-x-0 bottom-0 flex h-1.5" aria-hidden="true">
+            <span class="flex-[6] bg-brand-green"></span><span class="flex-1 bg-brand-yellow"></span><span class="flex-1 bg-brand-red"></span>
+          </div>
+        </div>
+      </figure>
     {{/if}}
   </div>
 </section>

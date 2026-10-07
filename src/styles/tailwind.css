@@ -692,6 +692,14 @@ html.drawer-locked body {
   .motion-badge {
     transition: translate var(--motion-standard) var(--motion-ease), box-shadow var(--motion-standard) ease;
   }
+  /* Home "Learn more about the project": a slow, continuous zoom in and out with a soft halo. It stops while
+     the button is hovered, focused or pressed so it never moves under a pointer or a keyboard user. */
+  .cta-pulse {
+    animation: cta-pulse 2.6s ease-in-out infinite;
+  }
+  .cta-pulse:hover, .cta-pulse:focus-visible, .cta-pulse:active {
+    animation: none;
+  }
   .dropdown [data-dropdown-toggle] svg, .drawer-chevron {
     transition: transform var(--motion-fast) ease, rotate var(--motion-fast) ease;
   }
@@ -719,6 +727,11 @@ html.drawer-locked body {
     transition: scale var(--motion-standard) var(--motion-ease);
   }
   a:hover > .motion-play { scale: 1.04; }
+}
+@keyframes cta-pulse {
+  0% { scale: 1; box-shadow: 0 0 0 0 rgb(15 71 175 / 0.38); }
+  50% { scale: 1.045; }
+  100% { scale: 1; box-shadow: 0 0 0 14px rgb(15 71 175 / 0); }
 }
 @keyframes menu-enter {
   from { opacity: 0.8; transform: translateY(-3px); }

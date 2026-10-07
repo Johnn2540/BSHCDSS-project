@@ -132,6 +132,22 @@ const pageConfigs = [
           'The Government of South Sudan, through the Ministry of Finance and Planning in collaboration with the Ministry of General Education and Instruction and the Ministry of Higher Education, Science and Technology, is implementing a five-year, World Bank-funded project: Building Skills for Human Capital Development in South Sudan.\n\n' +
           'BSHCDSS supports Component 1 of the project, Teaching Skills to Strengthen Education Delivery, by developing a comprehensive teacher training package to strengthen pre-service and in-service teacher training at 10 National Teacher Training Institutions (NTTIs).',
       },
+      {
+        name: 'introImage',
+        label: 'About the project photo',
+        type: 'image',
+        folder: 'pages',
+        help: 'Shown as a wide banner under the About the project text. A landscape photo at least 1400 pixels wide with the main subjects near the middle; it is cropped to a wide strip on large screens. If empty, the built-in training-room photo is used.',
+        default: null,
+      },
+      {
+        name: 'introImageAlt',
+        label: 'About the project photo description',
+        help: 'Describe the photo in a sentence for people who cannot see it. Update this when you change the photo.',
+        type: 'text',
+        max: 200,
+        default: 'Participants working at laptops and tables during a training session in a large hall',
+      },
       { name: 'objectivesHeading', label: 'Objectives box heading', type: 'text', default: 'What Component 1 will do' },
       {
         name: 'objectives',
