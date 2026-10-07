@@ -11,6 +11,7 @@ const { collectErrors } = require('../../admin/fields');
 const { sendInviteEmail } = require('../../services/passwordTokens');
 const { logMailError } = require('../../services/mailer');
 const { BCRYPT_ROUNDS } = require('../../config/auth');
+const { permissionsFor } = require('../../services/permissions');
 
 const STATUSES = ['PENDING', 'ACTIVE', 'SUSPENDED'];
 const PER_PAGE = 25;
@@ -83,7 +84,7 @@ async function list(req, res) {
       orderBy: [{ status: 'asc' }, { name: 'asc' }],
       skip: (page - 1) * PER_PAGE,
       take: PER_PAGE,
-      select: { id: true, name: true, email: true, institution: true, status: true, lastLoginAt: true, createdAt: true },
+      select: { id: true, name: true, email: true, institution: true, status: true, canManageContent: true, lastLoginAt: true, createdAt: true },
     }),
   ]);
 
@@ -191,6 +192,27 @@ async function reactivate(req, res) {
   res.redirect('/admin/tutors');
 }
 
+async function setAdministrationAccess(req, res, enabled) {
+  if (!permissionsFor(req.user).manageAccounts) throw createError(403, 'Only administrators can change administration access.');
+  const tutor = await findTutor(req.params.id);
+  if (enabled && tutor.status !== 'ACTIVE') throw createError(409, 'Approve or reactivate the tutor before promoting them.');
+
+  // Recheck the target's role and status at the write, so a stale form cannot
+  // change an administrator account or promote a concurrently suspended tutor.
+  const result = await prisma.user.updateMany({
+    where: { id: tutor.id, role: 'TUTOR', ...(enabled ? { status: 'ACTIVE' } : {}) },
+    data: { canManageContent: enabled },
+  });
+  if (result.count !== 1) throw createError(409, 'The account changed. Reload the Tutors list and try again.');
+  req.flash('success', enabled
+    ? `${tutor.name} promoted to content administrator. They can manage site content but cannot manage accounts or permissions.`
+    : `Administration access revoked for ${tutor.name}. They retain their tutor account.`);
+  res.redirect('/admin/tutors');
+}
+
+const promote = (req, res) => setAdministrationAccess(req, res, true);
+const demote = (req, res) => setAdministrationAccess(req, res, false);
+
 async function resendInvite(req, res) {
   const tutor = await findTutor(req.params.id);
   if (tutor.status !== 'ACTIVE') {
@@ -231,6 +253,8 @@ module.exports = {
   approve,
   suspend,
   reactivate,
+  promote,
+  demote,
   resendInvite,
   confirmDelete,
   destroy,

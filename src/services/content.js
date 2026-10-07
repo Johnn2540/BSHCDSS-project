@@ -119,6 +119,7 @@ async function getSite() {
     country: page.country,
     tagline: page.summary,
     googleSiteVerification: page.googleSiteVerification,
+    partnership: { buttonLabel: page.partnerButtonLabel },
     contact: {
       address: page.address || [],
       locality: page.addressLocality,

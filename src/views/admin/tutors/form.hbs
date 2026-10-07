@@ -26,6 +26,7 @@
       {{#if errors.status}}<p class="form-error">{{errors.status}}</p>{{/if}}
     </fieldset>
   {{else}}
+    <p class="text-sm text-neutral-700">Access: <strong>{{#if tutor.canManageContent}}Content administrator{{else}}Tutor{{/if}}</strong>. Change administration access from the Tutors list.</p>
     <p class="text-sm text-neutral-700">
       Status: <strong>{{enumLabel tutor.status}}</strong>. Use the actions on the Tutors list to approve, suspend or reactivate this account.
     </p>

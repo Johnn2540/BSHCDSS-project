@@ -51,6 +51,7 @@ model User {
   phone        String?
   institution  String?
   role         Role       @default(TUTOR)
+  canManageContent Boolean @default(false) // Delegated administration; account management remains ADMIN-only.
   status       UserStatus @default(PENDING)
   lastLoginAt  DateTime?
   createdAt    DateTime   @default(now())

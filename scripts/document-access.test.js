@@ -13,7 +13,7 @@ require.cache[storagePath] = { id: storagePath, filename: storagePath, loaded: t
 const { download } = require('../src/controllers/documentsController');
 
 function request(role) {
-  return { params: { id: 'test-document' }, user: role ? { role } : undefined,
+  return { params: { id: 'test-document' }, user: role ? { role, status: 'ACTIVE' } : undefined,
     session: {}, originalUrl: '/documents/test-document/download', flash() {} };
 }
 function response() {

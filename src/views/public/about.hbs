@@ -63,6 +63,11 @@
           </div>
         {{/if}}
       </dl>
+      {{#if site.partnership.buttonLabel}}
+        <div class="border-t border-neutral-200 px-6 py-4">
+          {{> partner-button buttonClass="btn-green w-full"}}
+        </div>
+      {{/if}}
       <div class="rounded-b-lg border-t border-neutral-200 bg-neutral-50 px-6 py-4">
         <p class="glance-label">Explore</p>
         <ul class="mt-2 space-y-1.5 text-sm">

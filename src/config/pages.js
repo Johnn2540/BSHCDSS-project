@@ -75,6 +75,10 @@ const pageConfigs = [
       { name: 'email', label: 'Contact email', type: 'email', default: 'kussdproject@gmail.com' },
       { name: 'hours', label: 'Office hours', type: 'text', default: 'Monday to Friday, 8:00 am to 5:00 pm' },
       {
+        name: 'partnerButtonLabel', label: 'Partnership button label', type: 'text', max: 60, default: 'Become a partner',
+        help: 'Shown on Home, About and beside the footer partner logos. Opens the contact form for a partnership enquiry. Clear to hide the buttons.',
+      },
+      {
         name: 'googleSiteVerification', label: 'Google Search Console verification code', type: 'text', max: 200, default: '',
         help: 'Optional. Paste only the content value from the Google HTML verification tag. Domain verification through DNS also works.',
         validate: value => {
@@ -328,6 +332,13 @@ const pageConfigs = [
         name: 'tutorIntro', label: 'Tutor information text', type: 'textarea', rows: 3,
         default: 'Sign in to your tutor area to access public curriculum documents and any additional materials shared with tutors.',
       },
+      {
+        name: 'cardImage',
+        label: 'Card image',
+        type: 'image',
+        folder: 'pages',
+        help: 'Hero image shown on the home page card (16:9 aspect ratio, minimum 800px wide). Required for the home page card.',
+      },
     ],
   },
   {
@@ -350,6 +361,10 @@ const pageConfigs = [
     label: 'Contact',
     description: 'Heading and introduction on the Contact page (/contact). Address and phone come from Site settings.',
     fields: [
+      {
+        name: 'partnershipSubject', label: 'Partnership enquiry subject', type: 'text', max: 150, default: 'Partnership enquiry',
+        help: 'Prefilled in the contact form when visitors select Become a partner. Visitors can edit it before sending.',
+      },
       { name: 'title', label: 'Page heading', type: 'text', required: true, default: 'Contact us' },
       {
         name: 'summary',

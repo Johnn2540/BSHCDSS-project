@@ -2,11 +2,12 @@
 // download the file, then sends it (local dev) or redirects to a short-lived signed link.
 //   PUBLIC + published  -> anyone
 //   TUTORS + published  -> logged-in tutors and admins
-//   unpublished         -> admins only
+//   unpublished         -> administrators and delegated content administrators
 
 const createError = require('http-errors');
 const { prisma } = require('../lib/db');
 const { documentDownload } = require('../services/storage');
+const { permissionsFor } = require('../services/permissions');
 
 async function download(req, res) {
   const doc = await prisma.document.findUnique({
@@ -17,7 +18,7 @@ async function download(req, res) {
 
   const role = req.user && req.user.role;
   const allowed =
-    role === 'ADMIN' || (doc.isPublished && (doc.audience === 'PUBLIC' || (doc.audience === 'TUTORS' && role === 'TUTOR')));
+    permissionsFor(req.user).manageContent || (doc.isPublished && (doc.audience === 'PUBLIC' || (doc.audience === 'TUTORS' && role === 'TUTOR')));
 
   if (!allowed) {
     if (!req.user && doc.isPublished && doc.audience === 'TUTORS') {

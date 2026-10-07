@@ -30,6 +30,7 @@
     "check:notifications": "node --test scripts/notifications.test.js",
     "check:notifications:browser": "node scripts/check-notifications-browser.js",
     "check:tutor": "node --test scripts/tutor-portal.test.js",
+    "check:permissions": "node --test scripts/admin-permissions.test.js",
     "check:motion": "node scripts/check-motion-browser.js",
     "team:import": "node scripts/import-project-team.js",
     "check:team": "node --test scripts/team.test.js scripts/team-uploads.test.js",

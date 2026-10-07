@@ -1,5 +1,5 @@
 const { prisma } = require('../lib/db');
-const { HOME_BY_ROLE } = require('../config/auth');
+const { permissionsFor, homeForUser } = require('../services/permissions');
 
 // Loads the logged-in user on every request that carries a session.
 // A user who has been suspended or deleted is logged out on their next request.
@@ -12,7 +12,7 @@ async function loadUser(req, res, next) {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, name: true, email: true, role: true, status: true },
+    select: { id: true, name: true, email: true, role: true, status: true, canManageContent: true },
   });
 
   if (!user || user.status !== 'ACTIVE') {
@@ -21,7 +21,7 @@ async function loadUser(req, res, next) {
   }
 
   req.user = user;
-  res.locals.currentUser = { ...user, homePath: HOME_BY_ROLE[user.role] };
+  res.locals.currentUser = { ...user, homePath: homeForUser(user), permissions: permissionsFor(user) };
   next();
 }
 
@@ -44,10 +44,22 @@ function requireRole(...roles) {
   };
 }
 
+// Use after requireLogin. Permissions come from the current database record,
+// never from form fields, query parameters or cached session claims.
+function requirePermission(permission) {
+  return (req, res, next) => {
+    if (permissionsFor(req.user)[permission] === true) return next();
+    res.status(403).render('public/error', {
+      title: 'Access denied', status: 403,
+      message: 'You do not have permission to perform this action.',
+    });
+  };
+}
+
 // Sends already-logged-in users to their dashboard instead of the login page.
 function redirectIfLoggedIn(req, res, next) {
-  if (req.user) return res.redirect(HOME_BY_ROLE[req.user.role]);
+  if (req.user) return res.redirect(homeForUser(req.user));
   next();
 }
 
-module.exports = { loadUser, requireLogin, requireRole, redirectIfLoggedIn };
+module.exports = { loadUser, requireLogin, requireRole, requirePermission, redirectIfLoggedIn };

@@ -1,4 +1,4 @@
-{{#> admin/page-header title="Tutors" intro="Tutor accounts. Tutors can log in to view curriculum documents and announcements. Suspended tutors cannot log in." actions=true}}
+{{#> admin/page-header title="Tutors" intro="Manage tutor accounts and promote active tutors to content administrators. Content administrators can manage the site but cannot manage accounts or permissions. Suspended tutors cannot log in." actions=true}}
   <a href="/admin/tutors/new" class="btn btn-primary">{{> icon name="plus" class="h-4 w-4"}} Add tutor</a>
 {{/admin/page-header}}
 
@@ -22,6 +22,7 @@
           <th scope="col">Email</th>
           <th scope="col">Institution</th>
           <th scope="col">Status</th>
+          <th scope="col">Access</th>
           <th scope="col">Last login</th>
           <th scope="col"><span class="sr-only">Actions</span></th>
         </tr>
@@ -37,9 +38,23 @@
               {{#if (eq status "PENDING")}}<span class="badge badge-yellow">Pending</span>{{/if}}
               {{#if (eq status "SUSPENDED")}}<span class="badge badge-red">Suspended</span>{{/if}}
             </td>
+            <td>{{#if canManageContent}}<span class="badge badge-green">Content administrator</span>{{else}}<span class="badge badge-grey">Tutor</span>{{/if}}</td>
             <td class="whitespace-nowrap">{{#if lastLoginAt}}{{formatDate lastLoginAt}}{{else}}<span class="text-neutral-500">Never</span>{{/if}}</td>
             <td>
               <div class="flex flex-wrap justify-end gap-x-3 gap-y-1">
+                {{#if canManageContent}}
+                  <form method="post" action="/admin/tutors/{{id}}/demote" class="inline">
+                    <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+                    <button type="submit" class="action-link action-link-danger">Revoke admin access<span class="sr-only"> for {{name}}</span></button>
+                  </form>
+                {{else}}
+                  {{#if (eq status "ACTIVE")}}
+                    <form method="post" action="/admin/tutors/{{id}}/promote" class="inline">
+                      <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+                      <button type="submit" class="action-link">Promote to content admin<span class="sr-only"> {{name}}</span></button>
+                    </form>
+                  {{/if}}
+                {{/if}}
                 {{#if (eq status "PENDING")}}
                   <form method="post" action="/admin/tutors/{{id}}/approve" class="inline">
                     <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">

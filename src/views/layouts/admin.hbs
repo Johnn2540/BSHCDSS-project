@@ -53,6 +53,8 @@
         </ul>
         <div class="mt-6 border-t border-white/15 pt-4">
           <a href="/" class="admin-nav-link">{{> icon name="external" class="h-5 w-5 shrink-0"}} View website</a>
+          <a href="/tutor" class="admin-nav-link">{{> icon name="book" class="h-5 w-5 shrink-0"}} Tutor Portal</a>
+          {{#unless currentUser.permissions.manageAccounts}}<p class="mt-3 px-3 text-xs text-white/70">Content administrator</p>{{/unless}}
           <p class="mt-4 px-3 text-xs text-white/70">Logged in as<br><span class="font-semibold text-white">{{currentUser.name}}</span></p>
           <a href="/admin/password" class="admin-nav-link mt-2" {{#if (eq currentPath "/admin/password")}}aria-current="page"{{/if}}>
             <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>

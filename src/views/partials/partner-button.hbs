@@ -1,0 +1,5 @@
+{{#if @root.site.partnership.buttonLabel}}
+  <a href="/contact?enquiry=partnership#contact-form" class="btn {{either buttonClass "btn-primary"}}" data-partner-link>
+    {{> icon name="handshake" class="h-5 w-5 shrink-0"}} {{@root.site.partnership.buttonLabel}}
+  </a>
+{{/if}}

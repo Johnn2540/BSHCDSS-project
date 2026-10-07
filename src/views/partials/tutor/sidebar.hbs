@@ -21,13 +21,14 @@
       <a href="/tutor/password" class="portal-nav-link {{#if (eq currentPath "/tutor/password")}}is-current{{/if}}" {{#if (eq currentPath "/tutor/password")}}aria-current="page"{{/if}}>
         {{> icon name="lock" class="h-5 w-5 shrink-0"}} Change password
       </a>
+      {{#if currentUser.permissions.manageContent}}<a href="/admin" class="portal-nav-link">{{> icon name="dashboard" class="h-5 w-5 shrink-0"}} Admin dashboard</a>{{/if}}
       <a href="mailto:{{site.contact.email}}" class="portal-nav-link">{{> icon name="mail" class="h-5 w-5 shrink-0"}} Project support</a>
     </div>
   </div>
   <div class="portal-sidebar-account">
     <div class="flex min-w-0 items-start gap-3">
       <span class="portal-avatar shrink-0" aria-hidden="true">{{> icon name="person" class="h-5 w-5"}}</span>
-      <div class="min-w-0"><p class="text-sm font-semibold text-neutral-900">{{currentUser.name}}</p><p class="mt-1 break-all text-xs leading-relaxed text-neutral-600">{{currentUser.email}}</p><p class="mt-2 text-xs font-semibold text-brand-green-dark">{{#if (eq currentUser.role "ADMIN")}}Administrator preview{{else}}Tutor account{{/if}}</p></div>
+      <div class="min-w-0"><p class="text-sm font-semibold text-neutral-900">{{currentUser.name}}</p><p class="mt-1 break-all text-xs leading-relaxed text-neutral-600">{{currentUser.email}}</p><p class="mt-2 text-xs font-semibold text-brand-green-dark">{{#if currentUser.permissions.manageAccounts}}Administrator preview{{else}}{{#if currentUser.permissions.manageContent}}Content administrator{{else}}Tutor account{{/if}}{{/if}}</p></div>
     </div>
     <form method="post" action="/logout" class="mt-4">
       <input type="hidden" name="_csrf" value="{{csrfToken}}">

@@ -43,6 +43,7 @@
 </ul>
 
 <div class="mt-8 grid gap-6 lg:grid-cols-2">
+  {{#if currentUser.permissions.manageAccounts}}
   <section aria-labelledby="tutor-heading" class="admin-card p-5">
     <h2 id="tutor-heading" class="text-lg font-bold">Tutor accounts</h2>
     <dl class="mt-4 grid grid-cols-3 gap-3 text-center">
@@ -52,6 +53,7 @@
     </dl>
     <a href="/admin/tutors/new" class="btn btn-primary mt-4">{{> icon name="plus" class="h-4 w-4"}} Add tutor</a>
   </section>
+  {{/if}}
 
   <section aria-labelledby="ann-heading" class="admin-card p-5">
     <div class="flex items-center justify-between gap-3">

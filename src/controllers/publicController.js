@@ -36,12 +36,21 @@ function albumCards(albums) {
 // Cards for the project's areas of work: Curriculum, then each published activity.
 function buildFocusItems(curriculum, activities) {
   return [
-    { icon: 'book', title: curriculum.title, summary: curriculum.summary, href: '/curriculum' },
+    {
+      icon: 'book',
+      title: curriculum.title,
+      summary: curriculum.summary,
+      href: '/curriculum',
+      imageUrl: curriculum.cardImage?.url || null,
+      imageAlt: curriculum.cardImage?.alt || `${curriculum.title} cover image`,
+    },
     ...activities.map((a) => ({
       icon: ACTIVITY_ICONS[a.slug] || 'growth',
       title: a.title,
       summary: a.summary,
       href: `/activities/${a.slug}`,
+      imageUrl: a.coverImageUrl || null,
+      imageAlt: `${a.title} cover image`,
     })),
   ];
 }
@@ -188,8 +197,9 @@ const contactRules = [
     .withMessage('Message must be between 10 and 5,000 characters.'),
 ];
 
-async function renderContact(req, res, { values = {}, errors = {}, status = 200 } = {}) {
+async function renderContact(req, res, { values = {}, errors = {}, status = 200, partnership = false } = {}) {
   const page = await content.getPage('contact');
+  if (partnership) values = { subject: page.partnershipSubject || '' };
   setPageSeo(req, res, { path: '/contact', page, image: pageImages.contact.fallback });
   res.status(status).render('public/contact', {
     title: page.title,
@@ -203,7 +213,8 @@ async function renderContact(req, res, { values = {}, errors = {}, status = 200 
 }
 
 async function showContact(req, res) {
-  await renderContact(req, res);
+  // Recognize a fixed enquiry type; never copy arbitrary query text into fields.
+  await renderContact(req, res, { partnership: req.query.enquiry === 'partnership' });
 }
 
 // Strip line breaks so user input can't add lines to email headers.

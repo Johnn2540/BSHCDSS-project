@@ -30,6 +30,8 @@ Project profiles are managed through **Admin > Team members** and published at `
 
 Public pages, activities and albums have editable SEO titles and descriptions, canonical links, social previews and safe JSON-LD structured data. The sitemap tracks relevant published content updates; private pages and previews are excluded from indexing. See [SEO setup](docs/seo.md) for Google Search Console verification, sitemap submission and checks.
 
+**Become a partner** buttons appear in the home banner, the About partner panel and the public footer. They open the contact form with a partnership subject prefilled; visitors can edit the subject and send their message to the existing project inbox. Edit **Partnership button label** in **Admin > Page content > Site settings and contact details**, and **Partnership enquiry subject** in the Contact page settings. Clearing the button label hides these buttons.
+
 Email and WhatsApp icons link directly to the saved contact details. The optional **WhatsApp number** field requires an international number with its country code (for example, `+254 715 330094`); clear it to hide the link. A mobile number alone does not enable WhatsApp.
 
 Portraits use the configured Cloudinary account, with responsive sizes, automatic format and quality, and face-centred square cropping. JPG, PNG and WebP files are supported. Until a portrait is uploaded, a profile displays initials. A replacement is saved before the previous Cloudinary asset is removed; failed uploads preserve the current portrait.
@@ -79,6 +81,8 @@ Portal headings, introductions, help text and empty-state messages are editable 
 The portal uses its own workspace layout: a persistent sidebar on desktop and a hamburger drawer below 1024 pixels. The drawer supports keyboard focus, Escape, backdrop closing and screen-size changes. Navigation remains available if JavaScript is disabled or the portal script cannot load.
 
 The existing account policy uses individual administrator-created tutor accounts and emailed password-setup links. Approve pending tutors in **Admin > Tutors**; suspend accounts to revoke access. Contact messages, invitations and password recovery share validated SMTP settings, bounded timeouts, checked recipient acceptance and HTML/plain-text templates. See [email configuration and production activation](docs/email.md). Run `npm run check:email` for isolated workflow tests and `npm run check:email:connection` to verify SMTP without sending. The additional MFA and recovery-hardening proposals in `docs/authentication-review.md` remain separate work.
+
+Administrators can promote an active tutor from **Admin > Tutors > Promote to content admin**. Promoted tutors can manage site content, media and all resource sections, including reviewing unpublished documents. Account management and promotion/revocation remain administrator-only. **Revoke admin access** restores regular tutor access on the next request, including in an existing session. See [delegated administration](docs/admin-permissions.md) for the permission table, migration and `npm run check:permissions` checks.
 
 ```sh
 npm run db:deploy

@@ -81,6 +81,7 @@ The dropdown must work with keyboard and touch, not hover only.
 
 - **Admin** — manages the whole site: page content, team members, activities, documents, albums, photos, videos, announcements, partners, and tutor accounts (add, approve, suspend, remove).
 - **Tutor** — logs in to a portal containing Documents, Reports, and Plans and Activities. Published resources are **read-only**; tutors can change their own password.
+- **Content administrator** — an active tutor with `canManageContent=true`, promoted by an administrator. Can use `/admin` to manage content, media, site settings and resources, including draft downloads; cannot manage accounts or grant/revoke permissions. Retains the `TUTOR` role. All `/admin/tutors` routes remain restricted to active `ADMIN` accounts. Use `src/services/permissions.js` for permission checks and home destinations; `loadUser` reloads the flag on every request. See `docs/admin-permissions.md` and run `npm run check:permissions`.
 - **Public visitors** — no login.
 
 Enforce roles server-side with route middleware; never rely on hiding links in templates.
@@ -130,7 +131,7 @@ Enforce roles server-side with route middleware; never rely on hiding links in t
 - Desktop nav appears at the `xl` breakpoint; below that a sidebar menu (`partials/site-drawer.hbs`, opened by `partials/menu-button.hbs`) slides in from the right as a modal dialog: focus moves to the X and is trapped, Escape/backdrop/X/link close it, page scroll is locked (`html.drawer-locked`), and it closes when the screen widens to desktop. Menus work without JS (`no-js` class on `<html>`: the drawer renders as a plain list). Don't render sub-menus with the `hidden` attribute: Tailwind's base `[hidden]` rule is a layered `!important` that no fallback can override, so `site.js` collapses them on load instead. On phones the header logo is sized by width (`w-full max-w-70`), from `sm` up by height.
 - Database: Prisma 7 with the `prisma-client-js` generator and the `@prisma/adapter-pg` driver adapter. Connection URLs are in `prisma.config.js`, not the schema (`DIRECT_URL` for migrations, pooled `DATABASE_URL` for the app). Prisma 7 requires Node 22.12+.
 - `src/lib/db.js` exports one shared `pg` pool used by both Prisma and the session store. The `session` table is a Prisma model so migrations own it.
-- Auth: `req.session.userId` only; `loadUser` sets `req.user` / `res.locals.currentUser` and logs out non-ACTIVE users. Protect routes with `requireLogin` then `requireRole(...)`.
+- Auth: `req.session.userId` only; `loadUser` sets `req.user` / `res.locals.currentUser` and logs out non-ACTIVE users. Protect content administration with `requireLogin` then `requirePermission('manageContent')`, account management with `requirePermission('manageAccounts')`, and the Tutor Portal with `requireRole('TUTOR', 'ADMIN')`. Do not infer account-management permission from content access.
 - CSRF (csrf-sync): every POST form needs `<input type="hidden" name="_csrf" value="{{csrfToken}}">`. Add `provideCsrfToken` to GET routes with forms for anonymous users (logged-in users get a token automatically).
 - Flash messages: `req.flash(type, message)` with type `success` | `error` | `info`, rendered by `{{> flash}}`.
 - Buttons: `btn` plus a variant (`btn-primary`, `btn-green`, `btn-light`, `btn-outline-light`).

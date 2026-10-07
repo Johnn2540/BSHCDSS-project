@@ -3,13 +3,16 @@
        Pauses on hover/keyboard focus and with the Pause button; still for reduced-motion users. --}}
   {{#if partnerMarquee}}
     <section aria-labelledby="partners-heading" class="border-t border-neutral-200 bg-neutral-50">
-      <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 pt-10 sm:px-6">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 pt-10 sm:px-6">
         <h2 id="partners-heading" class="text-sm font-semibold uppercase tracking-[0.16em] text-neutral-600">Our partners</h2>
+        <div class="flex flex-wrap items-center gap-3">
+        {{#unless (eq currentPath "/contact")}}{{> partner-button buttonClass="btn-green"}}{{/unless}}
         <button type="button" class="marquee-toggle" data-marquee-toggle aria-controls="partners-marquee" aria-pressed="false" hidden>
           <svg class="marquee-icon-pause h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
           <svg class="marquee-icon-play h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
           <span data-marquee-label>Pause</span><span class="sr-only"> partner logos</span>
         </button>
+        </div>
       </div>
       <div id="partners-marquee" class="marquee pb-10 pt-6" data-marquee style="--marquee-duration: {{partnerMarquee.duration}}s;">
         <div class="marquee-track">
@@ -34,6 +37,9 @@
         </div>
         <p class="mt-4 text-sm leading-relaxed">{{site.fullName}}.</p>
         <p class="mt-2 text-sm leading-relaxed">A project of the {{site.ministry}}, {{site.country}}.</p>
+        {{#unless partnerMarquee}}{{#unless (eq currentPath "/contact")}}
+          <div class="mt-5">{{> partner-button buttonClass="btn-outline-light"}}</div>
+        {{/unless}}{{/unless}}
       </div>
 
       {{!-- Quick links --}}

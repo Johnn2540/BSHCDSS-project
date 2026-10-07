@@ -8,10 +8,12 @@ const { engine } = require('express-handlebars');
 process.env.SESSION_SECRET = 'isolated-tutor-portal-test-secret-only';
 const password = 'fixture-password-for-testing';
 const hash = bcrypt.hashSync(password, 4);
-const users = Object.fromEntries(['tutor', 'admin', 'pending', 'suspended'].map((key) => [key, {
+const initialUsers = Object.fromEntries(['tutor', 'admin', 'pending', 'suspended', 'delegated', 'delegated-peer'].map((key) => [key, {
   id: key, name: key === 'admin' ? 'Project Administrator' : 'Example Tutor', email: `${key}@example.test`,
   passwordHash: hash, role: key === 'admin' ? 'ADMIN' : 'TUTOR', status: key === 'pending' ? 'PENDING' : key === 'suspended' ? 'SUSPENDED' : 'ACTIVE',
+  canManageContent: key.startsWith('delegated'), createdAt: new Date('2026-10-05T09:00:00Z'), lastLoginAt: null,
 }]));
+const users = Object.fromEntries(Object.entries(initialUsers).map(([key, user]) => [key, { ...user }]));
 function document(id, title, portalSection, audience = 'TUTORS', isPublished = true, category = 'Project resources') {
   return { id, title, portalSection, audience, isPublished, category, description: 'Published project resource.',
     fileName: id + '.pdf', mimeType: 'application/pdf', fileSize: 1024, filePublicId: 'fixture-private:' + id,
@@ -25,7 +27,7 @@ const initialDocuments = [
   document('draft', 'Unpublished report', 'REPORTS', 'TUTORS', false),
   document('plan', 'Quarterly work plan', 'PLANS_ACTIVITIES'),
 ];
-const state = { documents: initialDocuments.map((item) => ({ ...item })), events: [], users, failUpload: false };
+const state = { documents: initialDocuments.map((item) => ({ ...item })), events: [], users, failUpload: false, userWrites: [], accountManagementReads: 0, beforeUserUpdate: null };
 function matches(row, where = {}) {
   return Object.entries(where).every(([key, value]) => value && typeof value === 'object'
     ? value.in ? value.in.includes(row[key]) : value.not !== undefined ? row[key] !== value.not : row[key] === value
@@ -49,13 +51,40 @@ const prisma = {
   },
   user: {
     findUnique: async ({ where, select: fields }) => { const row = where.id ? users[where.id] : Object.values(users).find((user) => user.email === where.email); return row ? select(row, fields) : null; },
-    update: async ({ where, data }) => { Object.assign(users[where.id], data); return { ...users[where.id] }; },
+    findFirst: async ({ where, select: fields }) => { state.accountManagementReads++; const row = Object.values(users).find(user => matches(user, where)); return row ? select(row, fields) : null; },
+    findMany: async (query = {}) => {
+      state.accountManagementReads++;
+      const rows = Object.values(users).filter(user => matches(user, query.where));
+      return rows.slice(query.skip || 0, (query.skip || 0) + (query.take || rows.length)).map(row => select(row, query.select));
+    },
+    count: async (query = {}) => { state.accountManagementReads++; return Object.values(users).filter(user => matches(user, query.where)).length; },
+    groupBy: async (query = {}) => {
+      state.accountManagementReads++;
+      const counts = {};
+      for (const user of Object.values(users).filter(user => matches(user, query.where))) counts[user.status] = (counts[user.status] || 0) + 1;
+      return Object.entries(counts).map(([status, count]) => ({ status, _count: { _all: count } }));
+    },
+    create: async ({ data }) => {
+      const row = { ...initialUsers.tutor, id: 'created-' + Object.keys(users).length, canManageContent: false, ...data };
+      users[row.id] = row; state.userWrites.push({ id: row.id, data: { ...data } }); return { ...row };
+    },
+    update: async ({ where, data }) => { Object.assign(users[where.id], data); state.userWrites.push({ id: where.id, data: { ...data } }); return { ...users[where.id] }; },
+    updateMany: async ({ where, data }) => {
+      if (state.beforeUserUpdate) { const hook = state.beforeUserUpdate; state.beforeUserUpdate = null; hook(); }
+      const rows = Object.values(users).filter(user => matches(user, where));
+      for (const row of rows) { Object.assign(row, data); state.userWrites.push({ id: row.id, data: { ...data } }); }
+      return { count: rows.length };
+    },
+    delete: async ({ where }) => { const row = users[where.id]; delete users[where.id]; state.userWrites.push({ id: where.id, deleted: true }); return row; },
   },
-  pageContent: { findUnique: async () => null },
+  pageContent: { findUnique: async () => null, findMany: async () => [] },
   announcement: { findMany: async () => [], count: async () => 0 },
   passwordResetToken: { deleteMany: async () => { state.events.push('revoke-tokens'); return { count: 0 }; } },
   $transaction: async (operations) => Promise.all(operations),
 };
+for (const model of ['teamMember', 'activity', 'album', 'photo', 'video', 'partner']) {
+  prisma[model] = { count: async () => 0, findMany: async () => [] };
+}
 const dbPath = require.resolve('../../src/lib/db');
 require.cache[dbPath] = { id: dbPath, filename: dbPath, loaded: true, exports: { prisma,
   pool: { query: async (sql, params) => { state.events.push({ sql, params }); return { rows: [], rowCount: 0 }; } },
@@ -98,7 +127,9 @@ function createPortalFixture() {
 
 function resetFixture() {
   state.documents = initialDocuments.map((item) => ({ ...item })); state.events = []; state.failUpload = false;
-  for (const user of Object.values(users)) user.passwordHash = hash;
+  for (const key of Object.keys(users)) delete users[key];
+  for (const [key, user] of Object.entries(initialUsers)) users[key] = { ...user };
+  state.userWrites = []; state.accountManagementReads = 0; state.beforeUserUpdate = null;
   content.clearCache();
 }
-module.exports = { createPortalFixture, resetFixture, state, password, content };
+module.exports = { createPortalFixture, resetFixture, state, password, content, prisma };

@@ -5,19 +5,23 @@ const { prisma, pool } = require('../lib/db');
 const { findValidToken, sendResetEmail } = require('../services/passwordTokens');
 const { logMailError } = require('../services/mailer');
 const { SESSION_COOKIE_NAME } = require('../middleware/session');
-const { BCRYPT_ROUNDS, MIN_PASSWORD_LENGTH, HOME_BY_ROLE } = require('../config/auth');
+const { BCRYPT_ROUNDS, MIN_PASSWORD_LENGTH } = require('../config/auth');
+const { permissionsFor, homeForUser } = require('../services/permissions');
 
 // Compared against when the email doesn't exist, so response time doesn't reveal valid accounts.
 const DUMMY_HASH = bcrypt.hashSync('not-a-real-password', BCRYPT_ROUNDS);
 
-// Only allow same-site relative paths, and never send a tutor to an admin URL.
-function safeReturnTo(returnTo, role) {
-  const fallback = HOME_BY_ROLE[role];
-  if (typeof returnTo !== 'string' || !returnTo.startsWith('/') || returnTo.startsWith('//') || returnTo.startsWith('/\\')) {
+// Only allow same-site relative paths that the user's current permissions allow.
+function safeReturnTo(returnTo, user) {
+  const fallback = homeForUser(user);
+  if (typeof returnTo !== 'string' || !returnTo.startsWith('/') || returnTo.startsWith('//') || /[\\\u0000-\u001f\u007f]/.test(returnTo)) {
     return fallback;
   }
-  if (returnTo.startsWith('/admin') && role !== 'ADMIN') return fallback;
-  return returnTo;
+  const destination = new URL(returnTo, 'https://local.invalid');
+  const permissions = permissionsFor(user);
+  if (/^\/admin(?:\/|$)/i.test(destination.pathname) && !permissions.manageContent) return fallback;
+  if (/^\/admin\/tutors(?:\/|$)/i.test(destination.pathname) && !permissions.manageAccounts) return fallback;
+  return destination.pathname + destination.search + destination.hash;
 }
 
 const promisify = (fn) => new Promise((resolve, reject) => fn((err) => (err ? reject(err) : resolve())));
@@ -72,7 +76,7 @@ async function login(req, res) {
     return fail('Your account has been suspended. Please contact the project administrator.', 403);
   }
 
-  const returnTo = safeReturnTo(req.session.returnTo, user.role);
+  const returnTo = safeReturnTo(req.session.returnTo, user);
 
   // New session ID on login prevents session fixation.
   await promisify((cb) => req.session.regenerate(cb));

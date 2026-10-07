@@ -110,6 +110,31 @@ test('contact submission sends HTML and plain text to the project inbox with vis
   assert.match(message.html, /upcoming training dates/);
 });
 
+test('partnership enquiries prefill the editable subject and preserve visitor edits through validation and delivery', async () => {
+  const defaultSubject = pageConfigs.find(page => page.slug === 'contact').fields.find(field => field.name === 'partnershipSubject').default;
+  for (const [query, expected] of [
+    ['?enquiry=partnership', defaultSubject], ['', ''], ['?enquiry=unknown&subject=Injected', ''],
+    ['?enquiry=partnership&enquiry=other', ''],
+  ]) {
+    const response = await fetch(base + '/contact' + query);
+    assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.match(html, /id="contact-form"/);
+    const input = /<input[^>]*name="subject"[^>]*>/.exec(html)?.[0];
+    assert(input);
+    assert.equal(/value="([^"]*)"/.exec(input)?.[1] || '', expected);
+  }
+  const fields = { ...contactFields, subject: 'Partnership with Example Institution' };
+  const invalid = await form('/contact?enquiry=partnership', { ...fields, email: 'invalid' }, '/contact');
+  assert.equal(invalid.response.status, 422);
+  assert.match(invalid.html, /value="Partnership with Example Institution"/);
+  assert.equal(state.messages.length, 0);
+  const result = await form('/contact?enquiry=partnership', fields, '/contact');
+  assert.equal(result.response.status, 302);
+  assert.equal(state.messages.length, 1);
+  assert.match(state.messages[0].subject, /Partnership with Example Institution/);
+});
+
 test('contact rejects invalid input and honeypot submissions without sending', async () => {
   assert.equal((await form('/contact', { ...contactFields, email: 'invalid' })).response.status, 422);
   assert.equal((await form('/contact', { ...contactFields, website: 'spam' })).response.status, 302);

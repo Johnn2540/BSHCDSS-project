@@ -5,6 +5,7 @@ const { buildDocumentLibrary } = require('../services/documentLibrary');
 const sections = require('../config/tutorSections');
 const account = require('../controllers/accountController');
 const { changePasswordLimiter } = require('../middleware/rateLimits');
+const { permissionsFor } = require('../services/permissions');
 
 const router = express.Router();
 
@@ -33,7 +34,7 @@ for (const section of sections) {
     ]);
     res.render('tutor/resources', {
       title: page.title, page, section, library: buildDocumentLibrary(groups, req.query),
-      isAdminPreview: req.user.role === 'ADMIN',
+      isAdminPreview: permissionsFor(req.user).manageContent,
     });
   });
 }

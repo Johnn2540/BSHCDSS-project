@@ -1,5 +1,6 @@
 const express = require('express');
-const { requireLogin, requireRole } = require('../middleware/auth');
+const { requireLogin, requirePermission } = require('../middleware/auth');
+const { permissionsFor } = require('../services/permissions');
 const content = require('../services/content');
 const adminNavigation = require('../config/adminNavigation');
 const { MAX_REQUEST_BYTES } = require('../middleware/upload');
@@ -13,11 +14,16 @@ const { changePasswordLimiter } = require('../middleware/rateLimits');
 
 const router = express.Router();
 
-router.use(requireLogin, requireRole('ADMIN'));
+router.use(requireLogin, requirePermission('manageContent'));
+
+// Protect the entire account-management subtree, including direct POST requests
+// and any future tutor actions. Delegated tutors have no account permissions.
+router.use('/tutors', requirePermission('manageAccounts'));
 
 router.use((req, res, next) => {
   res.locals.layout = 'admin';
-  res.locals.adminNavigation = adminNavigation;
+  const permissions = permissionsFor(req.user);
+  res.locals.adminNavigation = adminNavigation.filter(item => !item.permission || permissions[item.permission]);
   res.locals.maxUploadBytes = MAX_REQUEST_BYTES; // set on Vercel only; checked in the browser
   // Any change made in the admin panel clears the public content cache.
   if (req.method === 'POST') res.on('finish', content.clearCache);
@@ -44,6 +50,8 @@ router.post('/tutors/:id', tutors.rules, tutors.update);
 router.post('/tutors/:id/approve', tutors.approve);
 router.post('/tutors/:id/suspend', tutors.suspend);
 router.post('/tutors/:id/reactivate', tutors.reactivate);
+router.post('/tutors/:id/promote', tutors.promote);
+router.post('/tutors/:id/demote', tutors.demote);
 router.post('/tutors/:id/invite', tutors.resendInvite);
 router.get('/tutors/:id/delete', tutors.confirmDelete);
 router.post('/tutors/:id/delete', tutors.destroy);

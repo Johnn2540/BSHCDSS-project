@@ -1,7 +1,7 @@
 // Admin panel sidebar.
 module.exports = [
   { label: 'Dashboard', href: '/admin', icon: 'dashboard', exact: true },
-  { label: 'Tutors', href: '/admin/tutors', icon: 'users' },
+  { label: 'Tutors', href: '/admin/tutors', icon: 'users', permission: 'manageAccounts' },
   { heading: 'Content' },
   { label: 'Page content', href: '/admin/pages', icon: 'page' },
   { label: 'Team members', href: '/admin/team', icon: 'person' },

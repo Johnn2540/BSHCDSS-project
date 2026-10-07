@@ -38,7 +38,7 @@
       <div class="mt-5 h-1 w-14 bg-brand-yellow" aria-hidden="true"></div>
       <h1 id="home-title" class="mt-5 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl xl:text-6xl" data-motion="enter">{{page.title}}</h1>
       {{#if page.summary}}<p class="mt-6 max-w-2xl text-base leading-relaxed text-white/90 sm:text-lg" data-motion="enter">{{page.summary}}</p>{{/if}}
-      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         {{#if page.primaryCtaLabel}}
           <a href="/about" class="btn bg-white px-6 text-brand-blue-dark shadow-lg hover:bg-neutral-100 focus-visible:outline-white">
             {{page.primaryCtaLabel}} {{> icon name="arrow" class="h-4 w-4"}}
@@ -47,6 +47,7 @@
         {{#if page.secondaryCtaLabel}}
           <a href="{{activitiesHref}}" class="btn border border-white/60 bg-white/10 px-6 text-white backdrop-blur-sm hover:bg-white/20 focus-visible:outline-white">{{page.secondaryCtaLabel}}</a>
         {{/if}}
+        {{> partner-button buttonClass="bg-brand-yellow px-6 text-black hover:bg-yellow-300 focus-visible:outline-white"}}
       </div>
 
       {{#if partners.length}}

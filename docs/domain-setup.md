@@ -11,7 +11,9 @@ On 5 October 2026, both domains were added to the existing Vercel project:
 - `kubshcdss.com` is assigned to the production website.
 - `www.kubshcdss.com` has a permanent 308 redirect to `kubshcdss.com`.
 
-The website now responds over HTTPS on the custom domain. A missing Vercel origin certificate caused Cloudflare error 525 during activation; a certificate covering both domains was issued and has automatic renewal enabled. The production `APP_URL` is now `https://kubshcdss.com`, deployed as `dpl_2TVy2xcMRuk5fXhPZGgGmJ8AW6Au`.
+The website now responds over HTTPS on the custom domain. A missing Vercel origin certificate caused Cloudflare error 525 during activation; a certificate covering both domains was issued and has automatic renewal enabled. The production `APP_URL` is `https://kubshcdss.com`; the domain activation deployment was `dpl_2TVy2xcMRuk5fXhPZGgGmJ8AW6Au`.
+
+On 6 October 2026, delegated tutor administration was released as [deployment dpl_Fx9xtciRbQBJ9ZPQGztMycSfqrEk](https://vercel.com/johnstone-s-projects/k-u-bshcdss-project/Fx9xtciRbQBJ9ZPQGztMycSfqrEk), with production status **Ready** and the existing primary/www aliases. The build regenerated Prisma, verified SMTP connectivity without sending mail and confirmed all eight database migrations were applied. Live database health, authentication forms, protected-route redirects, HTTP/www redirects and SEO checks for all 11 public sitemap URLs passed. See [delegated administration](admin-permissions.md) for the promotion controls and permission boundary.
 
 Verified: public pages, canonical URLs, sitemap, robots sitemap URL, permanent www redirect, HTTP-to-HTTPS redirect, tutor login, all five tutor pages, search, 14 document links and protected downloads. Browser checks also verified contact email decoding, menus, form controls, native video, reduced motion and script fallbacks. The verification session was logged out; no account passwords or resource records were changed.
 
