@@ -23,6 +23,14 @@ module.exports = {
     position: '45% 42%',
     positionLg: '42% 50%',
   },
+  // Home "Why teacher training matters" photo when none has been uploaded (Admin -> Page content -> Home).
+  statsDefault: {
+    srcset: '/images/pages/stats-640.jpg 640w, /images/pages/stats-1140.jpg 1140w',
+    src: '/images/pages/stats-1140.jpg',
+    width: 1140,
+    height: 760,
+    position: '53% 30%',
+  },
   // Built-in 16:9 photos for the "What the project does" cards and the top of each section page,
   // keyed by activity slug (or "curriculum"). An uploaded image (Admin) replaces them.
   focus: {

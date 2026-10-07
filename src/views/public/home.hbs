@@ -1,4 +1,4 @@
-{{!-- â•â• 1. Banner â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+{{!-- ══ 1. Banner ═══════════════════════════════════════════════════════════════
      Phone/tablet: the photo fills the banner behind the text (top shade into the black header,
      navy fade at the bottom), matching the About and Contact banners.
      Desktop (lg+): text on navy at left; the photo framed at right with a brand-colour accent and
@@ -67,7 +67,7 @@
   </div>
 </section>
 
-{{!-- â•â• 2. What the project does â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --}}
+{{!-- ══ 2. What the project does ══════════════════════════════════════════════ --}}
 {{#if focusItems.length}}
   <section aria-labelledby="focus-heading">
     <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
@@ -80,28 +80,43 @@
   </section>
 {{/if}}
 
-{{!-- â•â• 3. Why teacher training matters: sourced statistics (hidden when the list is empty) â•â• --}}
+{{!-- ══ 3. Why teacher training matters: sourced statistics (hidden when the list is empty) ══ --}}
 {{#with (pairs page.stats) as |stats|}}{{#if stats.length}}
   <section aria-labelledby="stats-heading" class="bg-neutral-50">
-    <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
-      <div class="max-w-3xl">
+    {{!-- Phone: heading, photo, then figures. Desktop (lg+): heading and figures at left, the photo spanning both rows at right. --}}
+    <div class="mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-12 lg:gap-x-14 lg:gap-y-10">
+      <div class="lg:col-span-7 lg:col-start-1 lg:row-start-1 lg:self-end">
         <h2 id="stats-heading" class="section-heading">{{@root.page.statsHeading}}</h2>
-        {{#if @root.page.statsLead}}<p class="mt-4 text-neutral-700 sm:text-lg">{{@root.page.statsLead}}</p>{{/if}}
+        {{#if @root.page.statsLead}}<p class="mt-4 max-w-2xl text-neutral-700 sm:text-lg">{{@root.page.statsLead}}</p>{{/if}}
       </div>
-      <dl class="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-6">
-        {{#each stats}}
-          <div class="stat-card" data-motion="enter">
-            {{#if label}}<dt class="text-3xl font-bold tracking-tight text-brand-blue sm:text-5xl">{{label}}</dt>{{/if}}
-            <dd class="{{#if label}}mt-3 {{/if}}text-sm leading-snug text-neutral-700 sm:text-base">{{value}}</dd>
+
+      {{#if @root.statsImage}}
+        <figure class="relative aspect-[3/2] overflow-hidden rounded-lg bg-brand-blue-dark shadow-lg sm:aspect-[16/9] lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1 lg:aspect-auto lg:min-h-[26rem]" data-motion="enter">
+          <img src="{{@root.statsImage.src}}"{{#if @root.statsImage.srcset}} srcset="{{@root.statsImage.srcset}}" sizes="(min-width: 1280px) 480px, (min-width: 1024px) 40vw, 100vw"{{/if}}
+               width="{{@root.statsImage.width}}" height="{{@root.statsImage.height}}" alt="{{@root.statsImage.alt}}" loading="lazy" decoding="async"
+               style="object-position: {{@root.statsImage.position}};" class="absolute inset-0 h-full w-full object-cover">
+          <div class="absolute inset-x-0 bottom-0 flex h-1.5" aria-hidden="true">
+            <span class="flex-[6] bg-brand-green"></span><span class="flex-1 bg-brand-yellow"></span><span class="flex-1 bg-brand-red"></span>
           </div>
-        {{/each}}
-      </dl>
-      {{#if @root.page.statsSource}}<p class="mt-6 text-xs text-neutral-600">{{@root.page.statsSource}}</p>{{/if}}
+        </figure>
+      {{/if}}
+
+      <div class="lg:col-span-7 lg:col-start-1 lg:row-start-2">
+        <dl class="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
+          {{#each stats}}
+            <div class="stat-card" data-motion="enter">
+              {{#if label}}<dt class="text-3xl font-bold tracking-tight text-brand-blue sm:text-5xl">{{label}}</dt>{{/if}}
+              <dd class="{{#if label}}mt-3 {{/if}}text-sm leading-snug text-neutral-700 sm:text-base">{{value}}</dd>
+            </div>
+          {{/each}}
+        </dl>
+        {{#if @root.page.statsSource}}<p class="mt-6 text-xs text-neutral-600">{{@root.page.statsSource}}</p>{{/if}}
+      </div>
     </div>
   </section>
 {{/if}}{{/with}}
 
-{{!-- â•â• 4. About the project + objectives â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --}}
+{{!-- ══ 4. About the project + objectives ═════════════════════════════════════ --}}
 <section aria-labelledby="intro-heading">
   <div class="mx-auto grid max-w-7xl items-start gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-12 lg:gap-14">
     <div class="lg:col-span-7">
@@ -137,7 +152,7 @@
   </div>
 </section>
 
-{{!-- â•â• 5. News and announcements (only when there are public announcements) â•â•â• --}}
+{{!-- ══ 5. News and announcements (only when there are public announcements) ═══ --}}
 {{#if announcements.length}}
   <section aria-labelledby="news-heading" class="bg-neutral-50">
     <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
@@ -165,7 +180,7 @@
   </section>
 {{/if}}
 
-{{!-- â•â• 6. From the gallery â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --}}
+{{!-- ══ 6. From the gallery ════════════════════════════════════════════════════ --}}
 <section aria-labelledby="gallery-heading" class="{{#unless announcements.length}}bg-neutral-50{{/unless}}">
   <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
     {{#if albums.length}}
@@ -195,7 +210,7 @@
   </div>
 </section>
 
-{{!-- â•â• 7. Get in touch â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• --}}
+{{!-- ══ 7. Get in touch ══════════════════════════════════════════════════════════ --}}
 <section aria-labelledby="contact-heading" class="relative overflow-hidden bg-brand-blue-dark text-white">
   <div class="hero-pattern pointer-events-none absolute inset-0 opacity-[0.07]" aria-hidden="true"></div>
   <div class="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-14 sm:px-6 sm:py-16 lg:flex-row lg:items-center lg:justify-between" data-motion="enter">

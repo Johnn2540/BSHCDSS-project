@@ -93,15 +93,34 @@ function homeHeroImage(page) {
   };
 }
 
+// Photo beside the home statistics: the uploaded image if there is one, otherwise the built-in classroom photo.
+function homeStatsImage(page) {
+  const alt = page.statsImageAlt || '';
+  const uploaded = page.statsImage && page.statsImage.url ? page.statsImage : null;
+  if (!uploaded) return { ...pageImages.statsDefault, alt };
+  const cloud = uploaded.url.includes('/image/upload/');
+  const at = (w) => uploaded.url.replace('/image/upload/', `/image/upload/f_auto,q_auto,c_limit,w_${w}/`);
+  return {
+    src: cloud ? at(1140) : uploaded.url,
+    srcset: cloud ? [480, 800, 1140].map((w) => `${at(w)} ${w}w`).join(', ') : '',
+    width: uploaded.width || 1140,
+    height: uploaded.height || 760,
+    position: '50% 35%',
+    alt,
+  };
+}
+
 async function home(req, res) {
   const { page, curriculum, activities, announcements, albums, videoCount } = await content.getHomePage();
   const firstActivity = activities[0];
   const heroImage = homeHeroImage(page);
+  const statsImage = homeStatsImage(page);
   setPageSeo(req, res, { path: '/', page });
   res.render('public/home', {
     isHome: true,
     page,
     heroImage, // the share preview for Home stays the branded logo image (og-image.jpg)
+    statsImage,
     focusItems: buildFocusItems(curriculum, activities),
     announcements,
     albums: albumCards(albums),
