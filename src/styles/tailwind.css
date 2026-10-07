@@ -669,6 +669,20 @@ html.drawer-locked body {
   --motion-standard: 240ms;
   --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
+/* Entrances and scroll effects can briefly sit past the screen edge. Clipping (unlike hiding) stops that from
+   ever giving the page a horizontal scrollbar, without making the body a scroll container, so sticky panels keep working. */
+body { overflow-x: clip; }
+/* Moving between pages cross-fades and settles in, in browsers that support cross-document view transitions;
+   elsewhere navigation is the ordinary instant load. The opt-in must not sit inside a media query (the incoming
+   page then never joins the transition), so reduced motion is honoured by switching the animations off instead. */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: page-leave 180ms ease-in both; }
+::view-transition-new(root) { animation: page-arrive 420ms var(--motion-ease) both; }
+@keyframes page-leave { to { opacity: 0; } }
+@keyframes page-arrive { from { opacity: 0; transform: scale(0.985); } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
 @media (prefers-reduced-motion: no-preference) {
   .btn, .document-download, .nav-link, .admin-nav-link, .tutor-nav-link,
   .library-subject-link, .hamburger, .drawer-link, .drawer-sublink,

@@ -10,7 +10,7 @@
 
 {{!-- ── The story + "At a glance" ───────────────────────────────────────────── --}}
 <div class="mx-auto grid max-w-7xl gap-12 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-16">
-  <article aria-labelledby="story-heading" class="min-w-0">
+  <article aria-labelledby="story-heading" class="min-w-0" data-motion="enter" data-motion-from="left">
     <h2 id="story-heading" class="section-heading">{{page.bodyHeading}}</h2>
     <div class="mt-8 space-y-5 text-base leading-relaxed text-neutral-800 sm:text-lg">
       {{#each (paragraphs page.body)}}
@@ -23,7 +23,7 @@
     </div>
   </article>
 
-  <aside aria-labelledby="glance-heading" class="lg:pt-2" data-motion="enter">
+  <aside aria-labelledby="glance-heading" class="lg:pt-2" data-motion="enter" data-motion-from="right">
     <div class="rounded-lg border border-neutral-200 bg-white shadow-sm lg:sticky lg:top-8">
       <div class="rounded-t-lg border-b-4 border-brand-green bg-brand-blue-dark px-6 py-4">
         <h2 id="glance-heading" class="text-sm font-semibold uppercase tracking-[0.16em] text-brand-yellow">At a glance</h2>

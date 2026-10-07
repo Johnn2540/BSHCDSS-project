@@ -28,9 +28,9 @@
   {{/if}}
 
   <div class="bg-brand-blue-dark text-neutral-200">
-    <div class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+    <div class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4" data-stagger>
       {{!-- About --}}
-      <div>
+      <div data-motion="enter">
         <div class="flex items-center gap-3">
           <img src="{{#if site.brand}}{{site.brand.emblem.webp128}}{{else}}{{site.logoUrl}}{{/if}}" alt="" width="56" height="56" loading="lazy" class="h-14 w-14 shrink-0 object-contain">
           <p class="text-lg font-bold tracking-wide text-white">{{site.shortName}}</p>
@@ -43,7 +43,7 @@
       </div>
 
       {{!-- Quick links --}}
-      <nav aria-labelledby="footer-quick-links">
+      <nav aria-labelledby="footer-quick-links" data-motion="enter">
         <h2 id="footer-quick-links" class="footer-heading">Quick links</h2>
         <ul class="mt-4 space-y-2 text-sm">
           {{#each navigation}}
@@ -55,7 +55,7 @@
       </nav>
 
       {{!-- Activities --}}
-      <nav aria-labelledby="footer-activities">
+      <nav aria-labelledby="footer-activities" data-motion="enter">
         <h2 id="footer-activities" class="footer-heading">Project activities</h2>
         <ul class="mt-4 space-y-2 text-sm">
           {{#each navigation}}
@@ -67,7 +67,7 @@
       </nav>
 
       {{!-- Contact --}}
-      <div>
+      <div data-motion="enter">
         <h2 class="footer-heading">Contact us</h2>
         <address class="mt-4 space-y-3 text-sm not-italic">
           {{#if site.contact.address.length}}

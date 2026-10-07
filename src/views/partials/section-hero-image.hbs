@@ -1,8 +1,8 @@
 {{!-- Photo at the top of a section page (activities, curriculum): the same picture as its home page card.
      Phone: edge to edge at 16:9. Tablet and up: contained, rounded and wider. Param: image (see coverImage). --}}
 {{#if image}}
-  <figure class="mx-auto max-w-7xl sm:px-6 sm:pt-8" data-motion="fade">
-    <div class="relative aspect-video overflow-hidden bg-brand-blue-dark sm:aspect-[2/1] sm:rounded-lg sm:shadow-lg lg:aspect-[21/9]">
+  <figure class="mx-auto max-w-7xl sm:px-6 sm:pt-8">
+    <div class="relative aspect-video overflow-hidden bg-brand-blue-dark sm:aspect-[2/1] sm:rounded-lg sm:shadow-lg lg:aspect-[21/9]" data-scroll-expand="0.92">
       <img src="{{image.src}}"{{#if image.srcset}} srcset="{{image.srcset}}" sizes="(min-width: 1280px) 1216px, 100vw"{{/if}}
            width="{{image.width}}" height="{{image.height}}" alt="{{image.alt}}" fetchpriority="high" decoding="async" data-scroll-zoom="0.08"
            style="object-position: {{image.position}};" class="h-full w-full object-cover">

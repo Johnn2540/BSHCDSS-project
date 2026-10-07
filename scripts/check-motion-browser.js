@@ -237,6 +237,22 @@ async function main() {
   await evaluate(() => window.dispatchEvent(new Event('afterprint')));
   console.log('Verified scroll-linked photo zoom, clipping frames and print cleanup.');
 
+  // Expanding frames start smaller while below the screen and are exactly full size once well up it.
+  const frameScales = () => evaluate(() => Array.from(document.querySelectorAll('[data-scroll-expand]')).map(frame => {
+    const transform = getComputedStyle(frame).transform;
+    return transform === 'none' ? 1 : parseFloat(transform.slice(transform.indexOf('(') + 1));
+  }));
+  await navigate(base + '/');
+  assert.ok((await frameScales()).length >= 2, 'Home frames opt in to expansion');
+  assert.ok((await frameScales()).every(scale => scale >= 0.85 && scale < 1), 'Frames still below the screen start smaller than full size: ' + (await frameScales()));
+  await evaluate(() => document.querySelector('[data-scroll-expand]').scrollIntoView({ block: 'start' })); await delay(400);
+  assert.equal((await frameScales())[0], 1, 'A frame is exactly full size once it reaches the upper screen');
+  await evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+  assert.ok((await frameScales()).every(scale => scale === 1), 'Printing shows frames at full size');
+  await evaluate(() => window.dispatchEvent(new Event('afterprint')));
+  assert.equal(await evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, 'Expanding frames cause no horizontal overflow');
+  console.log('Verified expanding frames and print cleanup.');
+
   await navigate(base + '/');
   await evaluate(() => document.querySelector('#contact-heading').scrollIntoView({ block: 'center' }));
   await until(() => evaluate(() => Array.from(document.querySelectorAll('[data-motion]')).some(element => element.getAnimations().length > 0)), 'active entrance');
@@ -248,7 +264,7 @@ async function main() {
     assert.equal(await evaluate(() => window.__motionRecords.length), 0, route + ': no JS animation under reduced motion');
     assert.equal(await evaluate(() => document.getAnimations().filter(animation => animation.playState === 'running').length), 0, route + ': no CSS animation under reduced motion');
     await evaluate(() => scrollTo(0, 900)); await delay(150);
-    assert.ok(await evaluate(() => Array.from(document.querySelectorAll('img[data-scroll-zoom]')).every(image => getComputedStyle(image).transform === 'none')), route + ': photos stay at normal size under reduced motion');
+    assert.ok(await evaluate(() => Array.from(document.querySelectorAll('img[data-scroll-zoom], [data-scroll-expand]')).every(element => getComputedStyle(element).transform === 'none')), route + ': photos and frames stay at normal size under reduced motion');
   }
   console.log('Verified all public/auth pages with reduced motion, including a live preference change.');
 
