@@ -1,0 +1,55 @@
+{{!-- Home gallery teasers: albums and videos in one tile style (see buildMediaTiles in publicController).
+     Params: tiles [{ isVideo, title, href, imageUrl, isPortrait, date, photoCount, durationLabel }],
+             feature (true when there is a single tile: at lg+ it runs the full row, photo left and details right).
+     Each tile is one link. A type badge sits on the photo, so albums and videos are told apart at a glance.
+     The photo is decorative (alt ""): the title and call to action already name the destination. Portrait videos
+     keep their whole poster on a dark backdrop instead of being cropped. --}}
+<ul class="grid gap-6 {{#if feature}}{{else if (eq tiles.length 2)}}md:grid-cols-2{{else}}md:grid-cols-2 lg:grid-cols-3{{/if}}">
+  {{#each tiles}}
+    <li data-motion="enter">
+      <a href="{{href}}" class="motion-card group flex h-full flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm hover:border-brand-blue/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue{{#if ../feature}} lg:flex-row{{/if}}">
+        <div class="relative aspect-video w-full shrink-0 overflow-hidden bg-neutral-900{{#if ../feature}} lg:w-3/5{{/if}}">
+          {{#if imageUrl}}
+            <img src="{{img imageUrl "c_fill,g_auto,ar_16:9,w_800"}}"
+                 {{#unless isVideo}}srcset="{{img imageUrl "c_fill,g_auto,ar_16:9,w_480"}} 480w, {{img imageUrl "c_fill,g_auto,ar_16:9,w_800"}} 800w, {{img imageUrl "c_fill,g_auto,ar_16:9,w_1200"}} 1200w"
+                 sizes="{{#if ../feature}}(min-width: 1280px) 730px, (min-width: 1024px) 58vw, 100vw{{else if (eq ../tiles.length 2)}}(min-width: 1280px) 600px, (min-width: 640px) 50vw, 92vw{{else}}(min-width: 1280px) 400px, (min-width: 1024px) 31vw, (min-width: 640px) 46vw, 92vw{{/if}}"{{/unless}}
+                 width="800" height="450" alt="" loading="lazy" decoding="async"
+                 class="motion-media absolute inset-0 h-full w-full {{#if isPortrait}}object-contain{{else}}object-cover{{/if}}">
+          {{else}}
+            <div class="hero-pattern absolute inset-0 flex items-center justify-center text-white/80" aria-hidden="true">{{> icon name="camera" class="h-12 w-12"}}</div>
+          {{/if}}
+          {{#if isVideo}}
+            <span class="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden="true">
+              <span class="motion-play flex h-16 w-16 items-center justify-center rounded-full bg-brand-red text-white shadow-lg ring-4 ring-white/70">
+                <svg class="ml-1 h-7 w-7" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+            </span>
+          {{/if}}
+          <span class="motion-badge absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold text-brand-blue shadow-md ring-1 ring-black/5">
+            {{#if isVideo}}
+              <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg> Video
+            {{else}}
+              {{> icon name="camera" class="h-3.5 w-3.5"}} Photo album
+            {{/if}}
+          </span>
+          <div class="absolute inset-x-0 bottom-0 flex h-1" aria-hidden="true">
+            <span class="flex-[6] bg-brand-green"></span><span class="flex-1 bg-brand-yellow"></span><span class="flex-1 bg-brand-red"></span>
+          </div>
+        </div>
+        <div class="flex flex-1 flex-col p-5 sm:p-6{{#if ../feature}} lg:justify-center lg:p-10{{/if}}">
+          <h3 class="font-semibold leading-snug text-neutral-900 group-hover:text-brand-blue{{#if ../feature}} text-lg lg:text-2xl{{else}} text-lg{{/if}}">{{title}}</h3>
+          <p class="mt-2 text-sm text-neutral-700">
+            {{#if isVideo}}
+              {{#if date}}{{formatDate date}}{{#if durationLabel}} &middot; {{/if}}{{/if}}{{#if durationLabel}}<span class="sr-only">Duration: </span>{{durationLabel}}{{/if}}
+            {{else}}
+              {{#if date}}{{formatDate date}} &middot; {{/if}}{{photoCount}} photo{{#unless (eq photoCount 1)}}s{{/unless}}
+            {{/if}}
+          </p>
+          <span class="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold text-brand-blue{{#if ../feature}} lg:mt-6 lg:pt-0{{/if}}">
+            {{#if isVideo}}Watch video{{else}}View album{{/if}} {{> icon name="arrow" class="motion-arrow h-4 w-4"}}
+          </span>
+        </div>
+      </a>
+    </li>
+  {{/each}}
+</ul>

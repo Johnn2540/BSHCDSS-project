@@ -1,23 +1,19 @@
-{{!-- Grid of album cards. Param: albums [{ title, slug, date, coverUrl, photoCount }]
-     Optional feature=true (for a lone album on Home): at lg+ the card runs the full row, photo left and details right. --}}
-<ul class="grid gap-6 {{#unless feature}}sm:grid-cols-2 lg:grid-cols-3{{/unless}}">
+{{!-- Grid of album cards. Param: albums [{ title, slug, date, coverUrl, photoCount }] --}}
+<ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
   {{#each albums}}
     <li data-motion="enter">
-      <a href="/gallery/{{slug}}" class="motion-card group block overflow-hidden rounded border border-neutral-200 bg-white shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue{{#if ../feature}} lg:flex{{/if}}">
+      <a href="/gallery/{{slug}}" class="motion-card group block overflow-hidden rounded border border-neutral-200 bg-white shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
         {{#if coverUrl}}
           <img src="{{img coverUrl "w_640,h_427,c_fit"}}"
                srcset="{{img coverUrl "w_400,h_267,c_fit"}} 400w, {{img coverUrl "w_640,h_427,c_fit"}} 640w, {{img coverUrl "w_960,h_640,c_fit"}} 960w"
-               sizes="{{#if ../feature}}(min-width: 1280px) 608px, (min-width: 1024px) 48vw, (min-width: 640px) 92vw, {{else}}(min-width: 1280px) 400px, (min-width: 1024px) 31vw, (min-width: 640px) 46vw, {{/if}}calc(100vw - 32px)"
-               alt="" width="640" height="427" loading="lazy" decoding="async" class="aspect-[3/2] w-full bg-neutral-100 object-contain transition group-hover:opacity-90{{#if ../feature}} lg:w-1/2 lg:shrink-0{{/if}}">
+               sizes="(min-width: 1280px) 400px, (min-width: 1024px) 31vw, (min-width: 640px) 46vw, calc(100vw - 32px)"
+               alt="" width="640" height="427" loading="lazy" decoding="async" class="aspect-[3/2] w-full bg-neutral-100 object-contain transition group-hover:opacity-90">
         {{else}}
-          <span class="flex aspect-[3/2] w-full items-center justify-center bg-neutral-100 text-neutral-400{{#if ../feature}} lg:w-1/2 lg:shrink-0{{/if}}" aria-hidden="true">{{> icon name="camera" class="h-10 w-10"}}</span>
+          <span class="flex aspect-[3/2] w-full items-center justify-center bg-neutral-100 text-neutral-400" aria-hidden="true">{{> icon name="camera" class="h-10 w-10"}}</span>
         {{/if}}
-        <div class="p-4{{#if ../feature}} lg:flex lg:flex-1 lg:flex-col lg:justify-center lg:p-10{{/if}}">
-          <h3 class="font-semibold text-neutral-900 group-hover:text-brand-blue{{#if ../feature}} lg:text-2xl lg:leading-snug{{/if}}">{{title}}</h3>
-          <p class="mt-1 text-sm text-neutral-600{{#if ../feature}} lg:mt-2 lg:text-base{{/if}}">{{#if date}}{{formatDate date}} &middot; {{/if}}{{photoCount}} photo{{#unless (eq photoCount 1)}}s{{/unless}}</p>
-          {{#if ../feature}}
-            <span class="mt-6 hidden items-center gap-1.5 text-sm font-semibold text-brand-blue lg:inline-flex">View album {{> icon name="arrow" class="motion-arrow h-4 w-4"}}</span>
-          {{/if}}
+        <div class="p-4">
+          <h3 class="font-semibold text-neutral-900 group-hover:text-brand-blue">{{title}}</h3>
+          <p class="mt-1 text-sm text-neutral-600">{{#if date}}{{formatDate date}} &middot; {{/if}}{{photoCount}} photo{{#unless (eq photoCount 1)}}s{{/unless}}</p>
         </div>
       </a>
     </li>

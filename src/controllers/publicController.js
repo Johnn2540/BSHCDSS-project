@@ -121,8 +121,50 @@ const homeStatsImage = (page) =>
 const homeIntroImage = (page) =>
   homePhoto(page, { imageField: 'introImage', altField: 'introImageAlt', fallback: pageImages.introDefault, widths: [640, 1000, 1448], crop: '16:10' });
 
+// Home gallery teasers: albums and videos share one tile style. Up to two albums, then videos to fill three
+// tiles, so a published video always gets a place; with no videos, up to three albums.
+function buildMediaTiles(albums, videos) {
+  const albumLimit = videos.length ? 2 : 3;
+  const tiles = albums.slice(0, albumLimit).map((a) => ({
+    isVideo: false,
+    title: a.title,
+    href: `/gallery/${a.slug}`,
+    imageUrl: a.coverUrl,
+    date: a.date,
+    photoCount: a.photoCount,
+  }));
+  videos.slice(0, 3 - tiles.length).forEach((v) => tiles.push({
+    isVideo: true,
+    title: v.title,
+    href: '/gallery#videos',
+    imageUrl: v.thumbnailUrl,
+    isPortrait: v.isPortrait,
+    date: v.date,
+    durationLabel: v.durationLabel,
+  }));
+  return tiles;
+}
+
+// Announcement cards: a "New" flag for notices from the last two weeks, and a one-paragraph teaser for cards
+// that should not show the whole notice. `showFull` is decided in the template (a lone, short notice shows all).
+const NEW_NOTICE_MS = 14 * 24 * 60 * 60 * 1000;
+function noticeCards(items) {
+  const now = Date.now();
+  return items.map((n) => {
+    const paragraphs = String(n.body || '').split(/\r?\n\s*\r?\n/).map((p) => p.trim()).filter(Boolean);
+    const teaser = paragraphs[0] || '';
+    return {
+      ...n,
+      isNew: now - new Date(n.publishedAt).getTime() < NEW_NOTICE_MS,
+      teaser,
+      hasMore: paragraphs.length > 1 || teaser.length > 240,
+      isLong: String(n.body || '').length > 900,
+    };
+  });
+}
+
 async function home(req, res) {
-  const { page, curriculum, activities, announcements, albums, videoCount } = await content.getHomePage();
+  const { page, curriculum, activities, announcements, albums, videos = [], videoCount } = await content.getHomePage();
   const firstActivity = activities[0];
   const heroImage = homeHeroImage(page);
   setPageSeo(req, res, { path: '/', page });
@@ -133,8 +175,8 @@ async function home(req, res) {
     statsImage: homeStatsImage(page),
     introImage: homeIntroImage(page),
     focusItems: buildFocusItems(curriculum, activities),
-    announcements,
-    albums: albumCards(albums),
+    announcements: noticeCards(announcements),
+    mediaTiles: buildMediaTiles(albumCards(albums), withVideoLinks(videos)),
     videoCount,
     activitiesHref: firstActivity ? `/activities/${firstActivity.slug}` : '/curriculum',
   });
@@ -303,6 +345,8 @@ async function submitContact(req, res) {
 }
 
 module.exports = {
+  buildMediaTiles,
+  noticeCards,
   home,
   about,
   team,

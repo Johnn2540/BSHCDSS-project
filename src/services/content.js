@@ -238,21 +238,30 @@ const ALBUM_CARD = {
   _count: { select: { photos: true } },
 };
 
-// Home needs three album previews and a count, not video records. Counting in the
-// database keeps video-provider decoding out of the home page and avoids loading
-// the entire gallery for every home-page cache refresh.
+// Home needs up to three album previews, the three latest videos for the gallery teasers, and a
+// count. Taking only three of each avoids loading the entire gallery for every home-page cache refresh.
 async function getHomeMedia() {
   return cached('home:media', async () => {
-    const [albums, videoCount] = await Promise.all([
+    const [albums, videos, videoCount] = await Promise.all([
       prisma.album.findMany({
         where: { isPublished: true },
         orderBy: [{ date: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }],
         take: 3,
         select: ALBUM_CARD,
       }),
+      // Videos are optional teasers: if their records cannot be read (for example a stale generated client that
+      // cannot decode a provider), Home still renders with albums only instead of failing.
+      prisma.video.findMany({
+        where: { isPublished: true },
+        orderBy: [{ date: { sort: 'desc', nulls: 'last' } }, { displayOrder: 'asc' }, { createdAt: 'desc' }],
+        take: 3,
+      }).catch((error) => {
+        console.warn('[home] Video previews unavailable:', error && error.name ? error.name : 'error');
+        return [];
+      }),
       prisma.video.count({ where: { isPublished: true } }),
     ]);
-    return { albums, videoCount };
+    return { albums, videos, videoCount };
   });
 }
 

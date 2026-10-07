@@ -170,21 +170,32 @@
 {{#if announcements.length}}
   <section aria-labelledby="news-heading" class="bg-neutral-50">
     <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
-      <h2 id="news-heading" class="section-heading">{{page.newsHeading}}</h2>
-      {{!-- Columns adapt to how many announcements there are: 1 = one wide card, 2 = two, 3 = three --}}
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <h2 id="news-heading" class="section-heading">{{page.newsHeading}}</h2>
+        <a href="/announcements" class="action-link inline-flex min-h-11 shrink-0 items-center gap-2 self-start font-semibold sm:self-auto">All announcements {{> icon name="arrow" class="h-4 w-4"}}</a>
+      </div>
+      {{!-- Columns adapt to how many announcements there are: 1 = one wide card, 2 = two, 3 = three.
+           A lone short notice is shown in full; otherwise each card shows a one-paragraph teaser with a link to the full notice. --}}
       <ul class="mt-10 grid gap-6 {{#if (eq announcements.length 1)}}{{else if (eq announcements.length 2)}}md:grid-cols-2{{else}}md:grid-cols-2 lg:grid-cols-3{{/if}}">
         {{#each announcements}}
           <li>
-            {{!-- A lone notice spans the row: date and headline at the left, details at the right (lg+) --}}
             <article class="flex h-full flex-col rounded-lg border border-neutral-200 border-l-4 border-l-brand-green bg-white p-6 shadow-sm {{#if (eq @root.announcements.length 1)}}lg:flex-row lg:gap-12 lg:p-8{{/if}}" data-motion="enter">
               <div class="{{#if (eq @root.announcements.length 1)}}lg:w-2/5 lg:shrink-0{{/if}}">
-                <p class="inline-flex items-center gap-2 text-sm font-medium text-brand-green-dark">
-                  {{> icon name="megaphone" class="h-4 w-4"}} <time datetime="{{dateInput publishedAt}}">{{formatDate publishedAt}}</time>
+                <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-brand-green-dark">
+                  <span class="inline-flex items-center gap-2">{{> icon name="megaphone" class="h-4 w-4"}} <time datetime="{{dateInput publishedAt}}">{{formatDate publishedAt}}</time></span>
+                  {{#if isNew}}<span class="rounded bg-brand-yellow px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-black">New</span>{{/if}}
                 </p>
                 <h3 class="mt-3 font-semibold leading-snug text-neutral-900 {{#if (eq @root.announcements.length 1)}}text-xl lg:text-2xl{{else}}text-lg{{/if}}">{{title}}</h3>
               </div>
-              <div class="mt-3 space-y-3 text-sm leading-relaxed text-neutral-700 {{#if (eq @root.announcements.length 1)}}lg:mt-0 lg:flex-1 lg:border-l lg:border-neutral-200 lg:pl-12 lg:text-base{{/if}}">
-                {{#each (paragraphs body)}}<p>{{this}}</p>{{/each}}
+              <div class="mt-3 flex flex-1 flex-col gap-3 text-sm leading-relaxed text-neutral-700 {{#if (eq @root.announcements.length 1)}}lg:mt-0 lg:border-l lg:border-neutral-200 lg:pl-12 lg:text-base{{/if}}">
+                {{#if (and (eq @root.announcements.length 1) (not isLong))}}
+                  {{#each (paragraphs body)}}<p>{{this}}</p>{{/each}}
+                {{else}}
+                  <p class="line-clamp-4">{{teaser}}</p>
+                  {{#if hasMore}}
+                    <p class="mt-auto"><a href="/announcements#notice-{{id}}" class="action-link inline-flex min-h-11 items-center gap-1.5 font-semibold">Read full notice<span class="sr-only">: {{title}}</span> {{> icon name="arrow" class="h-4 w-4"}}</a></p>
+                  {{/if}}
+                {{/if}}
               </div>
             </article>
           </li>
@@ -197,7 +208,7 @@
 {{!-- ══ 6. From the gallery ════════════════════════════════════════════════════ --}}
 <section aria-labelledby="gallery-heading" class="{{#unless announcements.length}}bg-neutral-50{{/unless}}">
   <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
-    {{#if albums.length}}
+    {{#if mediaTiles.length}}
       <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div class="max-w-2xl">
           <h2 id="gallery-heading" class="section-heading">{{page.galleryHeading}}</h2>
@@ -207,9 +218,9 @@
           {{> icon name="camera" class="h-4 w-4"}} Visit the gallery{{#if videoCount}} and videos{{/if}}
         </a>
       </div>
-      <div class="mt-10">{{> album-cards albums=albums feature=(eq albums.length 1)}}</div>
+      <div class="mt-10">{{> media-tiles tiles=mediaTiles feature=(eq mediaTiles.length 1)}}</div>
     {{else}}
-      {{!-- No albums yet: a call-out to the gallery page --}}
+      {{!-- No albums or videos yet: a call-out to the gallery page --}}
       <div class="flex flex-col gap-6 rounded-xl bg-brand-green p-8 text-white sm:flex-row sm:items-center sm:justify-between sm:p-10">
         <div class="flex items-start gap-5">
           <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/15 text-brand-yellow">{{> icon name="camera" class="h-7 w-7"}}</span>
