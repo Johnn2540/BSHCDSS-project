@@ -33,6 +33,24 @@ function albumCards(albums) {
 
 // ─── Pages ────────────────────────────────────────────────────────────────────
 
+// 16:9 photo for a card / section page: the uploaded image if there is one, otherwise the built-in
+// photo for that key (null when neither exists). Uploaded images have no description field, so they
+// are treated as decorative (alt ""); the built-in photos carry a real description.
+const COVER_WIDTHS = [640, 960, 1280];
+function coverImage(uploadedUrl, key) {
+  if (uploadedUrl) {
+    const cloud = uploadedUrl.includes('/image/upload/');
+    const at = (w) => uploadedUrl.replace('/image/upload/', `/image/upload/f_auto,q_auto,c_fill,g_auto,ar_16:9,w_${w}/`);
+    return {
+      src: cloud ? at(960) : uploadedUrl,
+      srcset: cloud ? COVER_WIDTHS.map((w) => `${at(w)} ${w}w`).join(', ') : '',
+      width: 960, height: 540, position: '50% 50%', alt: '',
+    };
+  }
+  const builtIn = pageImages.focus[key];
+  return builtIn ? { ...builtIn } : null;
+}
+
 // Cards for the project's areas of work: Curriculum, then each published activity.
 function buildFocusItems(curriculum, activities) {
   return [
@@ -41,16 +59,14 @@ function buildFocusItems(curriculum, activities) {
       title: curriculum.title,
       summary: curriculum.summary,
       href: '/curriculum',
-      imageUrl: curriculum.cardImage?.url || null,
-      imageAlt: curriculum.cardImage?.alt || `${curriculum.title} cover image`,
+      image: coverImage(curriculum.cardImage && curriculum.cardImage.url, 'curriculum'),
     },
     ...activities.map((a) => ({
       icon: ACTIVITY_ICONS[a.slug] || 'growth',
       title: a.title,
       summary: a.summary,
       href: `/activities/${a.slug}`,
-      imageUrl: a.coverImageUrl || null,
-      imageAlt: `${a.title} cover image`,
+      image: coverImage(a.coverImageUrl, a.slug),
     })),
   ];
 }
@@ -121,10 +137,11 @@ async function team(req, res) {
 async function curriculum(req, res) {
   const [page, documentGroups] = await Promise.all([content.getPage('curriculum'), content.getDocuments(['PUBLIC'])]);
   const library = buildDocumentLibrary(documentGroups, req.query);
-  setPageSeo(req, res, { path: '/curriculum', page, noindex: library.isFiltered });
+  const heroImage = coverImage(page.cardImage && page.cardImage.url, 'curriculum');
+  setPageSeo(req, res, { path: '/curriculum', page, noindex: library.isFiltered, image: heroImage && heroImage.src });
   res.render('public/curriculum', {
     title: page.title, metaDescription: page.summary, page,
-    library,
+    library, heroImage,
   });
 }
 
@@ -134,11 +151,13 @@ async function activity(req, res) {
   const [activities, resourceDocuments] = await Promise.all([
     content.getActivities(), content.getActivityDocuments(item.slug),
   ]);
-  setPageSeo(req, res, { path: `/activities/${encodeURIComponent(item.slug)}`, page: item, image: item.coverImageUrl });
+  const heroImage = coverImage(item.coverImageUrl, item.slug);
+  setPageSeo(req, res, { path: `/activities/${encodeURIComponent(item.slug)}`, page: item, image: heroImage && heroImage.src });
   res.render('public/activity', {
     title: item.title,
     metaDescription: item.summary,
-    metaImage: item.coverImageUrl,
+    metaImage: heroImage && heroImage.src,
+    heroImage,
     activity: item,
     resourceDocuments,
     albums: albumCards(item.albums),

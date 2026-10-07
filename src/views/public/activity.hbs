@@ -1,11 +1,8 @@
 {{> page-hero title=activity.title summary=activity.summary parentLabel="Project Activities"}}
+{{> section-hero-image image=heroImage}}
 
-<div class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[2fr_1fr]">
+<div class="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[2fr_1fr]">
   <article class="min-w-0">
-    {{#if activity.coverImageUrl}}
-      <img src="{{img activity.coverImageUrl "w_1200,h_675,c_fill"}}" alt="" width="1200" height="675" class="mb-8 aspect-video w-full rounded bg-neutral-100 object-cover">
-    {{/if}}
-
     {{> prose text=activity.body}}
 
     {{#if activity.externalUrl}}

@@ -1,36 +1,33 @@
-{{!-- Professional cards with images: Curriculum + each published activity.
-     Desktop (lg+): image at top (16:9), fixed height, icon + title + summary below.
-     Mobile/tablet: image visible, click to expand into modal with large hero image.
-     Param: items [{ icon, title, summary, href, imageUrl, imageAlt }] --}}
+{{!-- "What the project does" cards: Curriculum + each published activity.
+     Param: items [{ icon, title, summary, href, image }] (see buildFocusItems in publicController).
+     Each card is one link: 16:9 photo, icon badge straddling its lower edge, then title, summary and a
+     "Read more" cue. Equal-height cards come from the grid (h-full + flex-1 on the summary). The photo is
+     decorative (alt ""): the heading and link text already name the destination. A card with no photo
+     keeps a branded panel so the row stays aligned. --}}
 <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
   {{#each items}}
     <li data-motion="enter">
-      <a href="{{href}}" class="focus-card group relative flex h-full flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition-all hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue lg:border-t-4 lg:border-t-brand-green lg:hover:border-t-brand-blue">
-        {{!-- Image container: responsive 16:9 aspect ratio --}}
-        {{#if imageUrl}}
-          <div class="relative aspect-video w-full overflow-hidden bg-neutral-100">
-            <img src="{{img imageUrl 'c_fill,g_auto,w_600'}}"
-                 srcset="{{img imageUrl 'c_fill,g_auto,w_400'}} 400w, {{img imageUrl 'c_fill,g_auto,w_600'}} 600w, {{img imageUrl 'c_fill,g_auto,w_800'}} 800w"
-                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                 alt="{{imageAlt}}"
-                 loading="lazy" decoding="async"
-                 class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+      <a href="{{href}}" class="motion-card group flex h-full flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm hover:border-brand-blue/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
+        <div class="relative aspect-video w-full overflow-hidden bg-brand-blue-dark">
+          {{#if image}}
+            <img src="{{image.src}}"{{#if image.srcset}} srcset="{{image.srcset}}" sizes="(min-width: 1280px) 290px, (min-width: 1024px) 23vw, (min-width: 640px) 46vw, 92vw"{{/if}}
+                 width="{{image.width}}" height="{{image.height}}" alt="" loading="lazy" decoding="async"
+                 style="object-position: {{image.position}};" class="h-full w-full object-cover">
+          {{else}}
+            <div class="hero-pattern flex h-full w-full items-center justify-center text-white/80" aria-hidden="true">{{> icon name=icon class="h-12 w-12"}}</div>
+          {{/if}}
+          <div class="absolute inset-x-0 bottom-0 flex h-1" aria-hidden="true">
+            <span class="flex-[6] bg-brand-green"></span><span class="flex-1 bg-brand-yellow"></span><span class="flex-1 bg-brand-red"></span>
           </div>
-        {{/if}}
-        {{!-- Content: icon, title, summary, CTA --}}
-        <div class="flex flex-1 flex-col p-5 sm:p-6">
-          {{!-- Icon --}}
-          <span class="inline-flex h-10 w-10 items-center justify-center rounded-full {{#if imageUrl}}bg-brand-blue/15 text-brand-blue{{else}}bg-brand-blue/10 text-brand-blue{{/if}}">
+        </div>
+        <div class="relative flex flex-1 flex-col px-5 pb-5 pt-9 sm:px-6 sm:pb-6">
+          <span class="absolute -top-5 left-5 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand-blue shadow-md ring-1 ring-neutral-200 sm:left-6">
             {{> icon name=icon class="h-5 w-5"}}
           </span>
-          {{!-- Title --}}
-          <h3 class="mt-4 text-lg font-semibold leading-snug text-neutral-900 group-hover:text-brand-blue">{{title}}</h3>
-          {{!-- Summary --}}
-          <p class="mt-3 flex-1 text-sm leading-relaxed text-neutral-700">{{summary}}</p>
-          {{!-- CTA --}}
-          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-blue transition-colors group-hover:text-brand-green">
-            Read more<span class="sr-only"> about {{title}}</span>
-            {{> icon name="arrow" class="motion-arrow h-4 w-4 transition-transform group-hover:translate-x-1"}}
+          <h3 class="text-lg font-semibold leading-snug text-neutral-900 group-hover:text-brand-blue">{{title}}</h3>
+          <p class="mt-2 flex-1 text-sm leading-relaxed text-neutral-700">{{summary}}</p>
+          <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-blue">
+            Read more<span class="sr-only"> about {{title}}</span> {{> icon name="arrow" class="motion-arrow h-4 w-4"}}
           </span>
         </div>
       </a>

@@ -135,7 +135,7 @@ module.exports = [
       },
       ORDER,
       PUBLISHED,
-      { name: 'cover', label: 'Cover image', type: 'image', folder: 'activities', urlField: 'coverImageUrl', publicIdField: 'coverImagePublicId' },
+      { name: 'cover', label: 'Cover image', type: 'image', folder: 'activities', urlField: 'coverImageUrl', publicIdField: 'coverImagePublicId', help: 'Shown on the home page card and at the top of this page. Use a landscape photo at least 1200 pixels wide; it is cropped to 16:9. If empty, a built-in photo is used.' },
       ...SEO_FIELDS,
     ],
     deleteWarning: async (activity) => {

@@ -23,3 +23,9 @@ public/images/Team on Digital Learning content.png
 
 # Original video files are imported into Cloudinary video storage.
 public/Videos
+
+# Original full-size card photos (the site uses the 16:9 copies in public/images/pages/focus-*)
+public/images/image1.png
+public/images/image2.png
+public/images/image3.png
+public/images/image4.png
