@@ -199,17 +199,10 @@ test('an email that has made a request before, whatever the outcome, cannot make
   assert.equal(sent.mail.length, 0);
 });
 
-test('the page offers WhatsApp (when a number is set) and email as other ways to ask', async () => {
-  const none = await (await client()('/request-tutor-access')).text();
-  assert.match(none, /href="mailto:[^"]+"/);
-  assert.doesNotMatch(none, /wa\.me/, 'no WhatsApp button until a number is saved in Site settings');
-  const content = require('../src/services/content');
-  const original = content.getSite;
-  content.getSite = async () => { const site = await original(); return { ...site, contact: { ...site.contact, whatsappUrl: 'https://wa.me/211926540368' } }; };
-  try {
-    const html = await (await client()('/request-tutor-access')).text();
-    assert.match(html, /href="https:\/\/wa\.me\/211926540368\?text(=|&#x3D;)Hello[^"]*"[^>]*rel="noopener noreferrer"/);
-  } finally { content.getSite = original; }
+test('the page offers WhatsApp and email for the named contact, taken from the editable page', async () => {
+  const html = await (await client()('/request-tutor-access')).text();
+  assert.match(html, /href="https:\/\/wa\.me\/254715330094\?text(=|&#x3D;)Hello[^"]*"[^>]*rel="noopener noreferrer"/);
+  assert.match(html, /href="mailto:ndongoli\.cestine@ku\.ac\.ke\?subject/);
 });
 
 test('a cap on unreviewed requests stops a flood from growing the table', async () => {

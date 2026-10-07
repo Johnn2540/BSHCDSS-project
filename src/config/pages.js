@@ -73,14 +73,6 @@ const pageConfigs = [
       },
       { name: 'phone', label: 'Primary phone number', type: 'text', max: 40, default: '0926540368', help: 'Include + and the country code to also use this number in search engine structured data.' },
       { name: 'secondaryPhone', label: 'Alternative phone number', type: 'text', max: 40, default: '0725745166' },
-      {
-        name: 'whatsappNumber', label: 'Project WhatsApp number', type: 'text', max: 40, default: '',
-        help: 'Optional. Full international number including + and the country code, for example +211 926 540 368. Offers visitors a WhatsApp option on the Request tutor access page. Leave blank to hide it.',
-        validate: value => {
-          if (!whatsappUrlFor(value)) throw new Error('Enter a full international WhatsApp number, such as +211 926 540 368.');
-          return true;
-        },
-      },
       { name: 'email', label: 'Contact email', type: 'email', default: 'kussdproject@gmail.com' },
       { name: 'hours', label: 'Office hours', type: 'text', default: 'Monday to Friday, 8:00 am to 5:00 pm' },
       {
@@ -456,6 +448,15 @@ const pageConfigs = [
         ],
       },
       { name: 'formHeading', label: 'Form heading', type: 'text', max: 80, default: 'Your details' },
+      {
+        name: 'directWhatsapp', label: 'Other ways to ask: WhatsApp number', type: 'text', max: 40, default: '+254715330094',
+        help: 'Full international number including + and the country code. Leave blank to hide the WhatsApp button.',
+        validate: value => {
+          if (!whatsappUrlFor(value)) throw new Error('Enter a full international WhatsApp number, such as +254 715 330094.');
+          return true;
+        },
+      },
+      { name: 'directEmail', label: 'Other ways to ask: email address', type: 'email', default: 'ndongoli.cestine@ku.ac.ke', help: 'Leave blank to hide the email button.' },
       { name: 'directHeading', label: 'Other ways to ask: heading', type: 'text', max: 80, default: 'Prefer to ask directly?' },
       {
         name: 'directText',

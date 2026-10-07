@@ -12,7 +12,6 @@ const tutorSections = require('../config/tutorSections');
 const notifications = require('./notifications');
 const { PUBLIC_PAGES } = require('../config/seo');
 const { latestDate } = require('./seo');
-const { whatsappUrlFor } = require('./team');
 
 // On Vercel several function instances run at once and each has its own cache; an admin save
 // only clears the instance that handled it, so others could show old content until expiry.
@@ -128,7 +127,6 @@ async function getSite() {
       phone: page.phone,
       secondaryPhone: page.secondaryPhone,
       email: page.email,
-      whatsappUrl: whatsappUrlFor(page.whatsappNumber),
       hours: page.hours,
     },
     logoUrl,

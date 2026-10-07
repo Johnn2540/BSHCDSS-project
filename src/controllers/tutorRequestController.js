@@ -14,6 +14,7 @@ const { prisma } = require('../lib/db');
 const { sendMail, logMailError } = require('../services/mailer');
 const { tutorRequestEmail } = require('../services/emailTemplates');
 const { emailOrigin } = require('../services/passwordTokens');
+const { whatsappUrlFor } = require('../services/team');
 const { collectErrors } = require('../admin/fields');
 
 const PATH = '/request-tutor-access';
@@ -48,12 +49,12 @@ const rules = [
 ];
 
 // Direct ways to reach the project team instead of the form: WhatsApp (when a number is set in Site settings) and email.
-async function directContacts() {
-  const site = await content.getSite();
+function directContacts(page) {
   const note = 'Hello, I would like to request a tutor account on the BSHCDSS website.';
-  const email = (site.contact.email || '').trim();
+  const wa = whatsappUrlFor(page.directWhatsapp);
+  const email = String(page.directEmail || '').trim();
   return {
-    whatsappUrl: site.contact.whatsappUrl ? `${site.contact.whatsappUrl}?text=${encodeURIComponent(note)}` : null,
+    whatsappUrl: wa ? `${wa}?text=${encodeURIComponent(note)}` : null,
     mailto: email ? `mailto:${email}?subject=${encodeURIComponent('Tutor access request')}&body=${encodeURIComponent(note)}` : null,
     email,
   };
@@ -61,7 +62,7 @@ async function directContacts() {
 
 async function render(req, res, { values = {}, errors = {}, status = 200, sent = false } = {}) {
   const page = await content.getPage('tutor-request');
-  const direct = await directContacts();
+  const direct = directContacts(page);
   const alreadySent = !sent && hasSentBefore(req);
   // The form carries a CSRF token and, once sent, a confirmation: neither belongs in a shared cache.
   res.set('Cache-Control', 'private, no-store');
