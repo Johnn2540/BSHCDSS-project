@@ -4,6 +4,12 @@
   "installCommand": "npm ci --include=dev",
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "public",
+  "headers": [
+    {
+      "source": "/(css|js)/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    }
+  ],
   "rewrites": [{ "source": "/(.*)", "destination": "/api" }],
   "functions": {
     "api/index.js": {
