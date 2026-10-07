@@ -56,7 +56,7 @@ test('home structured data uses real project identity; CMS overrides and share t
   assert.equal(graph[0].address.addressCountry, 'SS');
   assert.equal(graph[0].address.addressLocality, 'Juba');
   assert.equal(graph[0].telephone, '+211900000000');
-  const localPhone = buildPageSeo({ site: { ...site, contact: { ...site.contact, phone: '0926540368' } }, origin, path: '/' });
+  const localPhone = buildPageSeo({ site: { ...site, contact: { ...site.contact, phone: '0726540368' } }, origin, path: '/' });
   assert.equal(JSON.parse(localPhone.structuredData)['@graph'][0].telephone, undefined);
   const html = head({ seo, site, cspNonce: 'test-nonce' });
   assert.match(html, /name="twitter:title" content="Custom search title \| BSHCDSS"/);

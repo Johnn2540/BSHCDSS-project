@@ -71,7 +71,7 @@ const pageConfigs = [
           return true;
         },
       },
-      { name: 'phone', label: 'Primary phone number', type: 'text', max: 40, default: '0926540368', help: 'Include + and the country code to also use this number in search engine structured data.' },
+      { name: 'phone', label: 'Primary phone number', type: 'text', max: 40, default: '0726540368', help: 'Include + and the country code to also use this number in search engine structured data.' },
       { name: 'secondaryPhone', label: 'Alternative phone number', type: 'text', max: 40, default: '0725745166' },
       { name: 'email', label: 'Contact email', type: 'email', default: 'kussdproject@gmail.com' },
       { name: 'hours', label: 'Office hours', type: 'text', default: 'Monday to Friday, 8:00 am to 5:00 pm' },
