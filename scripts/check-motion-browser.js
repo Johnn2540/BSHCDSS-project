@@ -206,6 +206,37 @@ async function main() {
   assert.equal(await evaluate(() => document.querySelector('#contact-heading').closest('[data-motion]').getAnimations().length), 0, 'Printing cancels active entrances');
   console.log('Verified immediate focus safety and print cleanup.');
 
+  // Scroll-linked photo zoom: normal size at load, grows gently and only within its limit while scrolling,
+  // always inside a clipping frame, and plain again for printing.
+  const photoScales = () => evaluate(() => Array.from(document.querySelectorAll('img[data-scroll-zoom]')).map(image => {
+    const transform = getComputedStyle(image).transform;
+    return transform === 'none' ? 1 : Number(transform.match(/matrix\(([^,]+)/)[1]);
+  }));
+  await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
+  await navigate(base + '/');
+  assert.ok((await photoScales()).length >= 5, 'Home photos opt in to the scroll zoom');
+  assert.ok((await photoScales()).every(scale => Math.abs(scale - 1) < 0.002 || scale > 1), 'Photos never shrink');
+  assert.ok(await evaluate(() => Array.from(document.querySelectorAll('img[data-scroll-zoom]')).every(image => {
+    for (let element = image.parentElement; element && element !== document.body; element = element.parentElement) {
+      if (getComputedStyle(element).overflow !== 'visible') return true;
+    }
+    return false;
+  })), 'Every zoomed photo sits inside a clipping frame');
+  assert.ok(Math.abs((await photoScales())[0] - 1) < 0.002, 'The photo on screen at load starts at its normal size');
+  let previousScale = 1;
+  for (const y of [200, 400, 600, 800]) {
+    await evaluate(offset => scrollTo(0, offset), y); await delay(150);
+    const scale = (await photoScales())[0];
+    assert.ok(scale >= previousScale - 0.0015, 'The banner photo only grows while scrolling down: ' + scale);
+    previousScale = scale;
+  }
+  assert.ok(previousScale > 1.02 && previousScale <= 1.1001, 'The banner photo zooms gently within its limit: ' + previousScale);
+  assert.equal(await evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, 'Zoomed photos cause no horizontal overflow');
+  await evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+  assert.ok((await photoScales()).every(scale => scale === 1), 'Printing shows photos at normal size');
+  await evaluate(() => window.dispatchEvent(new Event('afterprint')));
+  console.log('Verified scroll-linked photo zoom, clipping frames and print cleanup.');
+
   await navigate(base + '/');
   await evaluate(() => document.querySelector('#contact-heading').scrollIntoView({ block: 'center' }));
   await until(() => evaluate(() => Array.from(document.querySelectorAll('[data-motion]')).some(element => element.getAnimations().length > 0)), 'active entrance');
@@ -216,6 +247,8 @@ async function main() {
     await navigate(base + route); await assertReadable(route + ' reduced motion');
     assert.equal(await evaluate(() => window.__motionRecords.length), 0, route + ': no JS animation under reduced motion');
     assert.equal(await evaluate(() => document.getAnimations().filter(animation => animation.playState === 'running').length), 0, route + ': no CSS animation under reduced motion');
+    await evaluate(() => scrollTo(0, 900)); await delay(150);
+    assert.ok(await evaluate(() => Array.from(document.querySelectorAll('img[data-scroll-zoom]')).every(image => getComputedStyle(image).transform === 'none')), route + ': photos stay at normal size under reduced motion');
   }
   console.log('Verified all public/auth pages with reduced motion, including a live preference change.');
 

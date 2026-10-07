@@ -13,7 +13,7 @@
             <img src="{{img imageUrl "c_fill,g_auto,ar_16:9,w_800"}}"
                  {{#unless isVideo}}srcset="{{img imageUrl "c_fill,g_auto,ar_16:9,w_480"}} 480w, {{img imageUrl "c_fill,g_auto,ar_16:9,w_800"}} 800w, {{img imageUrl "c_fill,g_auto,ar_16:9,w_1200"}} 1200w"
                  sizes="{{#if ../feature}}(min-width: 1280px) 730px, (min-width: 1024px) 58vw, 100vw{{else if (eq ../tiles.length 2)}}(min-width: 1280px) 600px, (min-width: 640px) 50vw, 92vw{{else}}(min-width: 1280px) 400px, (min-width: 1024px) 31vw, (min-width: 640px) 46vw, 92vw{{/if}}"{{/unless}}
-                 width="800" height="450" alt="" loading="lazy" decoding="async"
+                 width="800" height="450" alt="" loading="lazy" decoding="async" data-scroll-zoom="0.07"
                  class="motion-media absolute inset-0 h-full w-full {{#if isPortrait}}object-contain{{else}}object-cover{{/if}}">
           {{else}}
             <div class="hero-pattern absolute inset-0 flex items-center justify-center text-white/80" aria-hidden="true">{{> icon name="camera" class="h-12 w-12"}}</div>

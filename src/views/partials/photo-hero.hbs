@@ -10,7 +10,7 @@
 <section class="photo-hero relative isolate overflow-hidden bg-brand-blue-dark text-white" aria-labelledby="{{titleId}}">
   <picture>
     <source type="image/webp" srcset="{{image.srcset}}" sizes="(min-width: 1024px) 50vw, 100vw">
-    <img src="{{image.fallback}}" width="{{image.width}}" height="{{image.height}}" alt="{{image.alt}}" fetchpriority="high" decoding="async"
+    <img src="{{image.fallback}}" width="{{image.width}}" height="{{image.height}}" alt="{{image.alt}}" fetchpriority="high" decoding="async" data-scroll-zoom="0.1"
          style="--pos: {{image.position}}; --pos-lg: {{image.positionLg}};"
          class="photo-hero-img absolute inset-0 -z-20 h-full w-full object-cover lg:left-auto lg:w-1/2">
   </picture>

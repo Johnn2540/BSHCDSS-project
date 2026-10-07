@@ -11,13 +11,16 @@
     <div class="absolute inset-0 -z-20 lg:relative lg:inset-auto lg:z-0 lg:order-2 lg:col-span-5">
       <div class="relative h-full w-full lg:h-auto lg:aspect-[4/5]">
         <div class="pointer-events-none absolute -bottom-4 -right-4 hidden h-full w-full rounded-2xl border-2 border-brand-yellow/70 lg:block" aria-hidden="true"></div>
-        <picture>
-          <source type="image/webp" srcset="{{heroImage.srcset}}" sizes="(min-width: 1024px) 40vw, 100vw">
-          <img src="{{heroImage.fallback}}" width="{{heroImage.width}}" height="{{heroImage.height}}" alt="{{heroImage.alt}}"
-               fetchpriority="high" decoding="async"
-               style="--pos: {{heroImage.position}}; --pos-lg: {{heroImage.positionLg}};"
-               class="photo-hero-img absolute inset-0 h-full w-full object-cover lg:rounded-2xl lg:shadow-2xl lg:shadow-black/40">
-        </picture>
+        {{!-- The frame clips the scroll zoom, so the rounded corners and shadow sit on the frame, not the photo --}}
+        <div class="absolute inset-0 overflow-hidden lg:rounded-2xl lg:shadow-2xl lg:shadow-black/40">
+          <picture>
+            <source type="image/webp" srcset="{{heroImage.srcset}}" sizes="(min-width: 1024px) 40vw, 100vw">
+            <img src="{{heroImage.fallback}}" width="{{heroImage.width}}" height="{{heroImage.height}}" alt="{{heroImage.alt}}"
+                 fetchpriority="high" decoding="async" data-scroll-zoom="0.1"
+                 style="--pos: {{heroImage.position}}; --pos-lg: {{heroImage.positionLg}};"
+                 class="photo-hero-img absolute inset-0 h-full w-full object-cover">
+          </picture>
+        </div>
         {{!-- Shades: phones/tablets only --}}
         <div class="photo-shade-top pointer-events-none absolute inset-x-0 top-0 h-40 lg:hidden" aria-hidden="true"></div>
         <div class="home-shade-bottom pointer-events-none absolute inset-0 lg:hidden" aria-hidden="true"></div>
@@ -93,7 +96,7 @@
       {{#if @root.statsImage}}
         <figure class="relative aspect-[3/2] overflow-hidden rounded-lg bg-brand-blue-dark shadow-lg sm:aspect-[16/9] lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1 lg:aspect-auto lg:min-h-[26rem]" data-motion="enter">
           <img src="{{@root.statsImage.src}}"{{#if @root.statsImage.srcset}} srcset="{{@root.statsImage.srcset}}" sizes="(min-width: 1280px) 480px, (min-width: 1024px) 40vw, 100vw"{{/if}}
-               width="{{@root.statsImage.width}}" height="{{@root.statsImage.height}}" alt="{{@root.statsImage.alt}}" loading="lazy" decoding="async"
+               width="{{@root.statsImage.width}}" height="{{@root.statsImage.height}}" alt="{{@root.statsImage.alt}}" loading="lazy" decoding="async" data-scroll-zoom="0.08"
                style="object-position: {{@root.statsImage.position}};" class="absolute inset-0 h-full w-full object-cover">
           <div class="absolute inset-x-0 bottom-0 flex h-1.5" aria-hidden="true">
             <span class="flex-[6] bg-brand-green"></span><span class="flex-1 bg-brand-yellow"></span><span class="flex-1 bg-brand-red"></span>
@@ -155,7 +158,7 @@
       <figure class="relative overflow-hidden rounded-xl bg-brand-blue-dark shadow-xl lg:col-span-12" data-motion="enter">
         <div class="relative aspect-[16/10] sm:aspect-[2/1] lg:aspect-[3/1]">
           <img src="{{introImage.src}}"{{#if introImage.srcset}} srcset="{{introImage.srcset}}" sizes="(min-width: 1280px) 1216px, 100vw"{{/if}}
-               width="{{introImage.width}}" height="{{introImage.height}}" alt="{{introImage.alt}}" loading="lazy" decoding="async"
+               width="{{introImage.width}}" height="{{introImage.height}}" alt="{{introImage.alt}}" loading="lazy" decoding="async" data-scroll-zoom="0.1"
                style="object-position: {{introImage.position}};" class="absolute inset-0 h-full w-full object-cover">
           <div class="absolute inset-x-0 bottom-0 flex h-1.5" aria-hidden="true">
             <span class="flex-[6] bg-brand-green"></span><span class="flex-1 bg-brand-yellow"></span><span class="flex-1 bg-brand-red"></span>
