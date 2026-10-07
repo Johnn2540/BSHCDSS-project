@@ -48,7 +48,26 @@ function privatePages(req, res, next) {
   next();
 }
 
+// Public pages with no forms and nothing personal can be kept by the CDN for a minute, so most anonymous visits skip
+// the server and database. Only cookie-less GETs of these exact paths qualify: anyone with a session cookie (or a
+// query string) is always served fresh, and the response must not set a cookie. Admin edits show within about a minute.
+const EDGE_CACHED_PATHS = new Set(['/', '/about', '/team', '/gallery', '/announcements', '/activities/lms', '/activities/in-service-training', '/activities/cpd']);
+function edgeCachePublic(req, res, next) {
+  if (process.env.VERCEL && req.method === 'GET' && !req.user && !req.headers.cookie && !req.url.includes('?') && EDGE_CACHED_PATHS.has(req.path)) {
+    res.set('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
+    res.vary('Cookie');
+    // Never let a response that sets a cookie be shared.
+    const writeHead = res.writeHead;
+    res.writeHead = function (...args) {
+      if (res.getHeader('Set-Cookie')) res.setHeader('Cache-Control', 'private, no-store');
+      return writeHead.apply(this, args);
+    };
+  }
+  next();
+}
+
 module.exports = {
+  edgeCachePublic,
   cspNonce,
   helmet: helmetMiddleware,
   csrfProtection: csrfSynchronisedProtection,

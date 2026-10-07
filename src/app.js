@@ -73,6 +73,7 @@ app.use(sessionMiddleware);
 app.use(flash);
 app.use(loadUser);
 app.use(security.privatePages);
+app.use(security.edgeCachePublic);
 app.use(security.csrfProtection);
 app.use(security.csrfTokenForUsers);
 
