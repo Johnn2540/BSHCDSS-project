@@ -352,14 +352,14 @@
 
   /* Admin panel */
   .admin-nav-link {
-    @apply flex items-center gap-3 rounded px-3 py-2 text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white
+    @apply flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white
       focus-visible:outline-2 focus-visible:outline-brand-yellow;
   }
   .admin-nav-link[aria-current="page"] {
     @apply bg-white/15 font-semibold text-white shadow-[inset_3px_0_0_var(--color-brand-yellow)];
   }
   .admin-card {
-    @apply rounded border border-neutral-200 bg-white shadow-sm;
+    @apply rounded-lg border border-neutral-200 bg-white shadow-sm;
   }
   .admin-table {
     @apply w-full min-w-[40rem] text-left text-sm;
@@ -652,13 +652,9 @@ html.drawer-locked body {
   }
 }
 
-/* Admin sidebar and desktop dropdowns. Without JS the admin menu shows expanded and dropdowns open on hover/focus. */
-.js .mobile-menu:not(.is-open),
+/* Desktop dropdowns. Without JS they open on hover/focus. */
 .js .dropdown-menu:not(.is-open),
-.no-js .dropdown:not(:hover):not(:focus-within) .dropdown-menu,
-.no-js .menu-toggle,
-.menu-toggle[aria-expanded="true"] .icon-open,
-.menu-toggle[aria-expanded="false"] .icon-close {
+.no-js .dropdown:not(:hover):not(:focus-within) .dropdown-menu {
   display: none;
 }
 
@@ -717,7 +713,7 @@ body { overflow-x: clip; }
   .dropdown [data-dropdown-toggle] svg, .drawer-chevron {
     transition: transform var(--motion-fast) ease, rotate var(--motion-fast) ease;
   }
-  .js .dropdown-menu.is-open, .js .mobile-menu.is-open {
+  .js .dropdown-menu.is-open {
     animation: menu-enter var(--motion-fast) var(--motion-ease);
   }
   .js .dropdown-menu:focus-within {
@@ -822,4 +818,91 @@ body { overflow-x: clip; }
 @media print {
   .portal-sidebar, .portal-topbar, .portal-backdrop { display: none !important; }
   .portal-shell { display: block; }
+}
+
+/* Admin workspace: a navy sidebar from 1024px up and a slide-in drawer below it, with the same behaviour as the
+   Tutor Portal (focus kept inside, background inert, Escape / backdrop / X close it). Without JavaScript the
+   sidebar is simply a navigation list above the page. */
+.admin-body { @apply min-h-screen bg-neutral-100 text-neutral-900 antialiased; }
+.admin-skip { @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded focus:bg-brand-yellow focus:px-4 focus:py-2 focus:font-semibold focus:text-black; }
+.admin-topbar { @apply sticky top-0 z-40 flex min-h-16 items-center justify-between gap-3 border-b-4 border-brand-green bg-brand-blue-dark px-4 py-2 text-white lg:hidden; }
+.admin-brand { @apply flex min-w-0 items-center gap-3 rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-yellow; }
+.admin-topbar-link { @apply inline-flex min-h-11 items-center gap-2 rounded px-2 text-sm font-semibold text-white/85 hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-brand-yellow; }
+.admin-shell { @apply lg:grid lg:grid-cols-[16.5rem_minmax(0,1fr)]; }
+.admin-sidebar { @apply flex flex-col bg-brand-blue-dark text-white lg:sticky lg:top-0 lg:h-screen; }
+.admin-sidebar-head { @apply flex shrink-0 items-center justify-between gap-3 px-5 py-4 lg:py-6; }
+.admin-sidebar-scroll { @apply flex-1 overflow-y-auto overscroll-contain px-3 pb-4; scrollbar-width: thin; scrollbar-color: rgb(255 255 255 / 0.28) transparent; }
+.admin-nav-label { @apply px-3 pb-1.5 pt-5 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-white/60; }
+.admin-sidebar-account { @apply shrink-0 border-t border-white/15 bg-black/15 p-4; }
+.admin-avatar { @apply inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15 text-sm font-bold text-white; }
+.admin-logout { @apply inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-white/30 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-brand-yellow; }
+.admin-menu-toggle, .admin-close { @apply hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-white/30 text-white hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-yellow; }
+.admin-content { @apply min-w-0; }
+.admin-main { @apply mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10; }
+.admin-backdrop { display: none; }
+@media (max-width: 63.999rem) {
+  .admin-enhanced .admin-menu-toggle, .admin-enhanced .admin-close { display: inline-flex; }
+  .admin-enhanced .admin-sidebar {
+    position: fixed; inset-block: 0; left: 0; z-index: 70;
+    width: min(88vw, 20rem); height: 100dvh;
+    visibility: hidden; transform: translateX(-100%);
+    transition: none;
+    box-shadow: 12px 0 32px rgb(10 25 45 / 0.35);
+  }
+  .admin-enhanced.admin-ready .admin-sidebar { transition: transform var(--motion-standard) var(--motion-ease), visibility 0s linear var(--motion-standard); }
+  .admin-enhanced.admin-ready:not(.admin-inert) .admin-sidebar { transition: transform var(--motion-standard) var(--motion-ease), visibility 0s; }
+  .admin-enhanced.admin-menu-open .admin-sidebar {
+    visibility: visible; transform: none;
+    transition: transform var(--motion-standard) var(--motion-ease), visibility 0s;
+  }
+  .admin-enhanced .admin-backdrop {
+    display: block; position: fixed; inset: 0; z-index: 60;
+    background: rgb(10 25 45 / 0.55); opacity: 0; visibility: hidden;
+    transition: none;
+  }
+  .admin-enhanced.admin-ready .admin-backdrop { transition: opacity var(--motion-standard) ease, visibility 0s linear var(--motion-standard); }
+  .admin-enhanced.admin-menu-open .admin-backdrop { opacity: 1; visibility: visible; transition: opacity var(--motion-standard) ease, visibility 0s; }
+  html.admin-menu-open, html.admin-menu-open body { overflow: hidden; }
+}
+@media print {
+  .admin-sidebar, .admin-topbar, .admin-backdrop { display: none !important; }
+  .admin-shell { display: block; }
+}
+
+/* Per-row actions menu (partials/admin/row-menu.hbs): a native <details> so it works without JavaScript. With
+   JavaScript the panel is positioned in the viewport, so a scrolling table can never clip it. */
+.row-menu { @apply relative inline-block text-left; }
+.row-menu-trigger { @apply inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 text-sm font-semibold text-neutral-800 shadow-xs hover:border-brand-blue hover:text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue; }
+.row-menu-trigger::-webkit-details-marker { display: none; }
+.row-menu[open] > .row-menu-trigger { @apply border-brand-blue bg-blue-50 text-brand-blue; }
+.row-menu-chevron { @apply h-4 w-4 shrink-0 text-neutral-500; }
+.row-menu[open] .row-menu-chevron { rotate: 180deg; }
+.row-menu-panel { @apply mt-2 min-w-60 rounded-lg border border-neutral-200 bg-white py-1.5 shadow-xl; }
+.js .row-menu-panel { position: fixed; z-index: 60; margin: 0; max-width: calc(100vw - 1rem); overflow-y: auto; overscroll-behavior: contain; }
+.js .row-menu-panel:not([data-ready]) { visibility: hidden; }
+.row-menu-form { margin: 0; }
+.row-menu-item { @apply flex min-h-11 w-full cursor-pointer items-center gap-3 px-4 py-2 text-left text-sm font-medium text-neutral-800 hover:bg-neutral-100 focus-visible:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand-blue; }
+.row-menu-item svg { @apply h-4 w-4 shrink-0 text-neutral-500; }
+.row-menu-item-success { @apply text-brand-green-dark; }
+.row-menu-item-success svg { @apply text-brand-green-dark; }
+.row-menu-item-danger { @apply text-red-700 hover:bg-red-50 focus-visible:bg-red-50; }
+.row-menu-item-danger svg { @apply text-red-700; }
+.row-menu-sep { @apply my-1.5 border-t border-neutral-200; }
+@media (prefers-reduced-motion: no-preference) {
+  .row-menu-chevron { transition: rotate var(--motion-fast) ease; }
+  .row-menu-item, .row-menu-trigger { transition: background-color var(--motion-fast) ease, color var(--motion-fast) ease, border-color var(--motion-fast) ease; }
+}
+
+/* Tables become one card per row on phones: the headers move into each cell as a small label. */
+.admin-initials { @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-brand-blue; }
+@media (max-width: 39.999rem) {
+  .admin-table-stack { min-width: 0; }
+  .admin-table-stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .admin-table-stack, .admin-table-stack tbody, .admin-table-stack td { display: block; }
+  .admin-table-stack tbody tr { @apply relative grid grid-cols-2 gap-x-4 gap-y-2 border-b border-neutral-200 px-4 py-3.5; }
+  .admin-table-stack tbody tr:last-child { @apply border-b-0; }
+  .admin-table-stack td { @apply min-w-0 border-0 p-0; }
+  .admin-table-stack td[data-label]::before { content: attr(data-label); @apply mb-0.5 block text-[0.7rem] font-semibold uppercase tracking-wider text-neutral-600; }
+  .admin-table-stack td.admin-cell-title { @apply col-span-2 mb-1 pr-32; }
+  .admin-table-stack td.admin-cell-actions { @apply absolute right-3 top-3 p-0; }
 }

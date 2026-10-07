@@ -1,0 +1,19 @@
+{{!-- Row-actions dropdown. A native <details>, so it opens and closes without JavaScript; public/js/admin.js adds
+     positioning, arrow-key navigation, Escape and click-outside. Param: label = the row's name (used in the accessible
+     names). Block = the menu items:
+       <a role="menuitem" class="row-menu-item" href="...">icon Text</a>
+       <form method="post" action="..." class="row-menu-form" role="none">
+         <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+         <button type="submit" role="menuitem" class="row-menu-item">icon Text</button></form>
+       <div class="row-menu-sep" role="separator"></div>
+     Variants on an item: row-menu-item-success, row-menu-item-danger. --}}
+<details class="row-menu" data-row-menu>
+  <summary class="row-menu-trigger" aria-haspopup="menu" aria-label="Actions for {{label}}">
+    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+    <span>Actions</span>
+    <svg class="row-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+  </summary>
+  <div class="row-menu-panel" role="menu" aria-label="Actions for {{label}}">
+    {{> @partial-block}}
+  </div>
+</details>

@@ -4,76 +4,99 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0A2F75">
   <title>{{#if title}}{{title}} | {{/if}}Admin | {{site.shortName}}</title>
   {{> head-icons}}
   <script nonce="{{cspNonce}}">document.documentElement.className = document.documentElement.className.replace('no-js', 'js');</script>
   <link rel="stylesheet" href="/css/style.css?v={{assetVersion "/css/style.css"}}">
   <script src="/js/site.js?v={{assetVersion "/js/site.js"}}" defer></script>
+  <script src="/js/admin.js?v={{assetVersion "/js/admin.js"}}" defer></script>
   <script src="/js/motion.js?v={{assetVersion "/js/motion.js"}}" defer></script>
 </head>
-<body class="min-h-screen bg-neutral-100 text-neutral-900 antialiased">
-  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-brand-yellow focus:px-4 focus:py-2 focus:font-semibold focus:text-black">Skip to main content</a>
+<body class="admin-body">
+  <a href="#main" class="admin-skip">Skip to main content</a>
 
-  <div class="lg:flex">
-    {{!-- Sidebar (desktop) / collapsible menu (mobile) --}}
-    <aside class="bg-brand-blue-dark text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-64 lg:shrink-0 lg:flex-col">
-      <div class="flex items-center justify-between gap-3 px-4 py-3 lg:py-5">
-        <a href="/admin" class="flex min-w-0 items-center gap-3">
+  {{!-- Top bar: phones and tablets only. The menu button opens the sidebar as a drawer. --}}
+  <header class="admin-topbar" data-admin-background>
+    <div class="flex min-w-0 items-center gap-3">
+      <button type="button" class="admin-menu-toggle" data-admin-toggle aria-controls="admin-navigation" aria-expanded="false" aria-haspopup="dialog">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <span class="sr-only">Open administration menu</span>
+      </button>
+      <a href="/admin" class="admin-brand" aria-label="{{site.shortName}} administration dashboard">
+        <img src="{{#if site.brand}}{{site.brand.emblem.webp128}}{{else}}{{site.logoUrl}}{{/if}}" alt="" width="36" height="36" class="h-9 w-9 shrink-0 object-contain">
+        <span class="min-w-0"><span class="block font-bold leading-tight tracking-wide">{{site.shortName}}</span><span class="block text-xs leading-tight text-white/70">Administration</span></span>
+      </a>
+    </div>
+    <a href="/" class="admin-topbar-link">{{> icon name="external" class="h-4 w-4"}}<span class="hidden sm:inline">View website</span><span class="sr-only sm:hidden">View public website</span></a>
+  </header>
+
+  <div class="admin-shell">
+    {{!-- Sidebar (1024px and wider) and drawer (below that) --}}
+    <aside id="admin-navigation" class="admin-sidebar" data-admin-sidebar>
+      <div class="admin-sidebar-head">
+        <a href="/admin" class="admin-brand" aria-label="{{site.shortName}} administration dashboard">
           <img src="{{#if site.brand}}{{site.brand.emblem.webp128}}{{else}}{{site.logoUrl}}{{/if}}" alt="" width="40" height="40" class="h-10 w-10 shrink-0 object-contain">
           <span class="min-w-0">
             <span class="block font-bold tracking-wide">{{site.shortName}}</span>
-            <span class="block text-xs text-white/70">Administration</span>
+            <span id="admin-menu-title" class="block text-xs text-white/70">Administration</span>
           </span>
         </a>
-        <button type="button" class="menu-toggle inline-flex items-center gap-2 rounded border border-white/30 px-3 py-2 text-sm font-semibold hover:bg-white/10 lg:hidden"
-                data-menu-toggle aria-controls="mobile-menu" aria-expanded="false">
-          <svg class="icon-open h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-          <svg class="icon-close h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-          <span>Menu</span>
+        <button type="button" class="admin-close" data-admin-close aria-label="Close administration menu">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>
-      <div class="flex h-1" aria-hidden="true">
+      <div class="flex h-1 shrink-0" aria-hidden="true">
         <span class="flex-[6] bg-brand-green"></span><span class="flex-1 bg-brand-red"></span><span class="flex-1 bg-brand-yellow"></span>
       </div>
 
-      <nav id="mobile-menu" aria-label="Admin" class="mobile-menu flex-1 overflow-y-auto px-3 py-4 lg:block!">
-        <ul class="space-y-0.5">
-          {{#each adminNavigation}}
-            {{#if heading}}
-              <li class="px-3 pb-1 pt-5 text-xs font-semibold uppercase tracking-wider text-white/60">{{heading}}</li>
-            {{else}}
-              <li>
-                <a href="{{href}}" class="admin-nav-link"
-                   {{#if exact}}{{#if (eq ../currentPath href)}}aria-current="page"{{/if}}{{else}}{{#if (isActive ../currentPath href)}}aria-current="page"{{/if}}{{/if}}>
-                  {{> icon name=icon class="h-5 w-5 shrink-0"}} {{label}}
-                </a>
-              </li>
-            {{/if}}
-          {{/each}}
-        </ul>
-        <div class="mt-6 border-t border-white/15 pt-4">
+      <div class="admin-sidebar-scroll">
+        <nav aria-label="Administration">
+          <ul class="space-y-0.5">
+            {{#each adminNavigation}}
+              {{#if heading}}
+                <li class="admin-nav-label">{{heading}}</li>
+              {{else}}
+                <li>
+                  <a href="{{href}}" class="admin-nav-link"
+                     {{#if exact}}{{#if (eq ../currentPath href)}}aria-current="page"{{/if}}{{else}}{{#if (isActive ../currentPath href)}}aria-current="page"{{/if}}{{/if}}>
+                    {{> icon name=icon class="h-5 w-5 shrink-0"}} {{label}}
+                  </a>
+                </li>
+              {{/if}}
+            {{/each}}
+          </ul>
+        </nav>
+        <div class="mt-4 border-t border-white/15 pt-1">
+          <p class="admin-nav-label">Website</p>
           <a href="/" class="admin-nav-link">{{> icon name="external" class="h-5 w-5 shrink-0"}} View website</a>
           <a href="/tutor" class="admin-nav-link">{{> icon name="book" class="h-5 w-5 shrink-0"}} Tutor Portal</a>
-          {{#unless currentUser.permissions.manageAccounts}}<p class="mt-3 px-3 text-xs text-white/70">Content administrator</p>{{/unless}}
-          <p class="mt-4 px-3 text-xs text-white/70">Logged in as<br><span class="font-semibold text-white">{{currentUser.name}}</span></p>
-          <a href="/admin/password" class="admin-nav-link mt-2" {{#if (eq currentPath "/admin/password")}}aria-current="page"{{/if}}>
-            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
-            Change password
-          </a>
-          <form method="post" action="/logout" class="mt-3 px-3">
-            <input type="hidden" name="_csrf" value="{{csrfToken}}">
-            <button type="submit" class="w-full rounded border border-white/30 px-3 py-2 text-sm font-semibold hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-brand-yellow">Log out</button>
-          </form>
         </div>
-      </nav>
+      </div>
+
+      <div class="admin-sidebar-account">
+        <div class="flex min-w-0 items-center gap-3">
+          <span class="admin-avatar" aria-hidden="true">{{nameInitials currentUser.name}}</span>
+          <div class="min-w-0">
+            <p class="truncate text-sm font-semibold">{{currentUser.name}}</p>
+            <p class="text-xs text-white/70">{{#if currentUser.permissions.manageAccounts}}Administrator{{else}}Content administrator{{/if}}</p>
+          </div>
+        </div>
+        <a href="/admin/password" class="admin-nav-link mt-3" {{#if (eq currentPath "/admin/password")}}aria-current="page"{{/if}}>{{> icon name="lock" class="h-5 w-5 shrink-0"}} Change password</a>
+        <form method="post" action="/logout" class="mt-2">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}">
+          <button type="submit" class="admin-logout">{{> icon name="logout" class="h-4 w-4"}} Log out</button>
+        </form>
+      </div>
     </aside>
 
-    <main id="main" tabindex="-1" class="min-w-0 flex-1">
-      <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-10">
+    <div class="admin-content" data-admin-background>
+      <main id="main" tabindex="-1" class="admin-main">
         {{> flash}}
         {{{body}}}
-      </div>
-    </main>
+      </main>
+    </div>
   </div>
+  <div class="admin-backdrop" data-admin-backdrop aria-hidden="true"></div>
 </body>
 </html>

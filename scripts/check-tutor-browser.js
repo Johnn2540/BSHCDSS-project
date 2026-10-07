@@ -173,11 +173,31 @@ async function main() {
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'no-preference' }] });
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 1050, deviceScaleFactor: 1, mobile: true });
   await navigate('/admin/plans/new');
-  await evaluate('document.querySelector("[data-menu-toggle]").focus(); document.querySelector("[data-menu-toggle]").click();');
-  assert.equal(await evaluate('document.querySelector("[data-menu-toggle]").getAttribute("aria-expanded")'), 'true');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("[data-admin-sidebar]")).visibility'), 'hidden', 'The admin drawer starts closed');
+  await evaluate('document.querySelector("[data-admin-toggle]").focus(); document.querySelector("[data-admin-toggle]").click();');
+  assert.equal(await evaluate('document.querySelector("[data-admin-toggle]").getAttribute("aria-expanded")'), 'true');
+  assert.equal(await evaluate('document.querySelector("[data-admin-sidebar]").getAttribute("role")'), 'dialog');
+  assert.ok(await evaluate('document.querySelector("[data-admin-sidebar]").getBoundingClientRect().width < innerWidth - 40'), 'The admin menu is a side drawer, not a cover for the whole page');
+  assert.ok(await evaluate('document.querySelector(".admin-content").inert'), 'The page behind the open drawer is inert');
+  assert.ok(await evaluate('document.activeElement.hasAttribute("data-admin-close")'), 'Focus moves into the drawer');
   await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
-  assert.equal(await evaluate('document.querySelector("[data-menu-toggle]").getAttribute("aria-expanded")'), 'false');
-  console.log('Verified tutor/admin reduced motion, steady admin forms and the mobile admin menu.');
+  assert.equal(await evaluate('document.querySelector("[data-admin-toggle]").getAttribute("aria-expanded")'), 'false');
+  assert.ok(await evaluate('document.activeElement.hasAttribute("data-admin-toggle")'), 'Escape returns focus to the menu button');
+  // Without the admin script the navigation stays a plain, visible list and no button promises a drawer.
+  await send('Network.setBlockedURLs', { urls: ['*/js/admin.js*'] });
+  await navigate('/admin/plans/new?blocked-admin-script=1');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("[data-admin-sidebar]")).visibility'), 'visible');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("[data-admin-toggle]")).display'), 'none');
+  await send('Network.setBlockedURLs', { urls: [] });
+  // Row actions live in one dropdown per row.
+  await navigate('/admin/tutors');
+  assert.equal(await evaluate('document.querySelectorAll("main td .action-link").length'), 0, 'No inline row action links');
+  await evaluate('document.querySelector("[data-row-menu] summary").click()');
+  assert.ok(await evaluate('document.querySelector("[data-row-menu]").open && document.activeElement.getAttribute("role") === "menuitem"'), 'The row menu opens with focus on its first item');
+  assert.ok(await evaluate('(() => { const r = document.querySelector("[data-row-menu] .row-menu-panel").getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.bottom <= innerHeight; })()'), 'The row menu stays inside the screen');
+  await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+  assert.ok(await evaluate('!document.querySelector("[data-row-menu]").open && document.activeElement.tagName === "SUMMARY"'), 'Escape closes the row menu and restores focus');
+  console.log('Verified tutor/admin reduced motion, steady admin forms, the admin drawer and the row-actions menu.');
 }
 main().catch((error) => { console.error(error.message); process.exitCode = 1; }).finally(async () => {
   if (ws) ws.close(); if (chrome) chrome.kill(); for (const command of pending.values()) clearTimeout(command.timeout);

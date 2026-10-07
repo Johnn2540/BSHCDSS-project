@@ -33,10 +33,13 @@
 <ul class="grid grid-cols-2 gap-4 lg:grid-cols-4">
   {{#each stats}}
     <li>
-      <a href="{{href}}" class="admin-card group block h-full p-5 hover:border-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
-        <p class="text-sm font-medium text-neutral-600">{{label}}</p>
-        <p class="mt-1 text-3xl font-bold text-brand-blue">{{value}}</p>
-        {{#if detail}}<p class="mt-1 text-xs text-neutral-600">{{detail}}</p>{{/if}}
+      <a href="{{href}}" class="admin-card group flex h-full flex-col gap-3 p-5 hover:border-brand-blue hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue sm:flex-row sm:items-start sm:gap-4">
+        <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-brand-blue group-hover:bg-brand-blue group-hover:text-white">{{> icon name=icon class="h-5 w-5"}}</span>
+        <span class="min-w-0">
+          <span class="block text-3xl font-bold leading-none text-brand-blue">{{value}}</span>
+          <span class="mt-1.5 block text-sm font-medium text-neutral-800">{{label}}</span>
+          {{#if detail}}<span class="mt-0.5 block text-xs text-neutral-600">{{detail}}</span>{{/if}}
+        </span>
       </a>
     </li>
   {{/each}}

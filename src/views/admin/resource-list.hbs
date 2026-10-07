@@ -4,7 +4,7 @@
 
 {{#if rows.length}}
   <div class="admin-card overflow-x-auto">
-    <table class="admin-table">
+    <table class="admin-table admin-table-stack">
       <caption class="sr-only">{{resource.label}} ({{total}})</caption>
       <thead>
         <tr>
@@ -16,7 +16,7 @@
         {{#each rows}}
           <tr>
             {{#each cells}}
-              <td>
+              <td{{#if isTitle}} class="admin-cell-title"{{else}} data-label="{{label}}"{{/if}}>
                 {{#if isTitle}}
                   <a href="{{../../resource.base}}/{{../id}}/edit" class="font-semibold text-brand-blue underline-offset-2 hover:underline">{{value}}</a>
                 {{else}}
@@ -24,9 +24,12 @@
                 {{/if}}
               </td>
             {{/each}}
-            <td class="whitespace-nowrap text-right">
-              <a href="{{../resource.base}}/{{id}}/edit" class="action-link">Edit<span class="sr-only"> {{title}}</span></a>
-              <a href="{{../resource.base}}/{{id}}/delete" class="action-link action-link-danger">Delete<span class="sr-only"> {{title}}</span></a>
+            <td class="admin-cell-actions text-right">
+              {{#> admin/row-menu label=title}}
+                <a role="menuitem" class="row-menu-item" href="{{@root.resource.base}}/{{id}}/edit">{{> admin/menu-icon name="edit"}} Edit</a>
+                <div class="row-menu-sep" role="separator"></div>
+                <a role="menuitem" class="row-menu-item row-menu-item-danger" href="{{@root.resource.base}}/{{id}}/delete">{{> admin/menu-icon name="delete"}} Delete</a>
+              {{/admin/row-menu}}
             </td>
           </tr>
         {{/each}}

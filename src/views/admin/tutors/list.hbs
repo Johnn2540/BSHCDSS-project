@@ -14,12 +14,11 @@
 
 {{#if tutors.length}}
   <div class="admin-card overflow-x-auto">
-    <table class="admin-table">
+    <table class="admin-table admin-table-stack">
       <caption class="sr-only">Tutor accounts</caption>
       <thead>
         <tr>
-          <th scope="col">Name</th>
-          <th scope="col">Email</th>
+          <th scope="col">Tutor</th>
           <th scope="col">Institution</th>
           <th scope="col">Status</th>
           <th scope="col">Access</th>
@@ -30,58 +29,68 @@
       <tbody>
         {{#each tutors}}
           <tr>
-            <td><a href="/admin/tutors/{{id}}/edit" class="font-semibold text-brand-blue underline-offset-2 hover:underline">{{name}}</a></td>
-            <td class="break-all">{{email}}</td>
-            <td>{{institution}}</td>
-            <td>
+            <td class="admin-cell-title">
+              <div class="flex items-center gap-3">
+                <span class="admin-initials" aria-hidden="true">{{nameInitials name}}</span>
+                <div class="min-w-0">
+                  <a href="/admin/tutors/{{id}}/edit" class="font-semibold text-brand-blue underline-offset-2 hover:underline">{{name}}</a>
+                  <p class="break-all text-xs text-neutral-600">{{email}}</p>
+                </div>
+              </div>
+            </td>
+            <td data-label="Institution">{{#if institution}}{{institution}}{{else}}<span class="text-neutral-500">Not given</span>{{/if}}</td>
+            <td data-label="Status">
               {{#if (eq status "ACTIVE")}}<span class="badge badge-green">Active</span>{{/if}}
               {{#if (eq status "PENDING")}}<span class="badge badge-yellow">Pending</span>{{/if}}
               {{#if (eq status "SUSPENDED")}}<span class="badge badge-red">Suspended</span>{{/if}}
             </td>
-            <td>{{#if canManageContent}}<span class="badge badge-green">Content administrator</span>{{else}}<span class="badge badge-grey">Tutor</span>{{/if}}</td>
-            <td class="whitespace-nowrap">{{#if lastLoginAt}}{{formatDate lastLoginAt}}{{else}}<span class="text-neutral-500">Never</span>{{/if}}</td>
-            <td>
-              <div class="flex flex-wrap justify-end gap-x-3 gap-y-1">
-                {{#if canManageContent}}
-                  <form method="post" action="/admin/tutors/{{id}}/demote" class="inline">
-                    <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
-                    <button type="submit" class="action-link action-link-danger">Revoke admin access<span class="sr-only"> for {{name}}</span></button>
-                  </form>
-                {{else}}
-                  {{#if (eq status "ACTIVE")}}
-                    <form method="post" action="/admin/tutors/{{id}}/promote" class="inline">
-                      <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
-                      <button type="submit" class="action-link">Promote to content admin<span class="sr-only"> {{name}}</span></button>
-                    </form>
-                  {{/if}}
-                {{/if}}
+            <td data-label="Access">{{#if canManageContent}}<span class="badge badge-green">Content administrator</span>{{else}}<span class="badge badge-grey">Tutor</span>{{/if}}</td>
+            <td data-label="Last login" class="whitespace-nowrap">{{#if lastLoginAt}}{{formatDate lastLoginAt}}{{else}}<span class="text-neutral-500">Never</span>{{/if}}</td>
+            <td class="admin-cell-actions text-right">
+              {{#> admin/row-menu label=name}}
+                <a role="menuitem" class="row-menu-item" href="/admin/tutors/{{id}}/edit">{{> admin/menu-icon name="edit"}} Edit details</a>
                 {{#if (eq status "PENDING")}}
-                  <form method="post" action="/admin/tutors/{{id}}/approve" class="inline">
+                  <form method="post" action="/admin/tutors/{{id}}/approve" class="row-menu-form" role="none">
                     <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
-                    <button type="submit" class="action-link text-brand-green!">Approve<span class="sr-only"> {{name}}</span></button>
+                    <button type="submit" role="menuitem" class="row-menu-item row-menu-item-success">{{> admin/menu-icon name="approve"}} Approve account</button>
                   </form>
                 {{/if}}
                 {{#if (eq status "ACTIVE")}}
                   {{#unless lastLoginAt}}
-                    <form method="post" action="/admin/tutors/{{id}}/invite" class="inline">
+                    <form method="post" action="/admin/tutors/{{id}}/invite" class="row-menu-form" role="none">
                       <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
-                      <button type="submit" class="action-link">Resend invitation<span class="sr-only"> to {{name}}</span></button>
+                      <button type="submit" role="menuitem" class="row-menu-item">{{> admin/menu-icon name="invite"}} Resend invitation</button>
                     </form>
                   {{/unless}}
-                  <form method="post" action="/admin/tutors/{{id}}/suspend" class="inline">
+                {{/if}}
+                {{#if canManageContent}}
+                  <form method="post" action="/admin/tutors/{{id}}/demote" class="row-menu-form" role="none">
                     <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
-                    <button type="submit" class="action-link action-link-danger">Suspend<span class="sr-only"> {{name}}</span></button>
+                    <button type="submit" role="menuitem" class="row-menu-item row-menu-item-danger">{{> admin/menu-icon name="revoke"}} Revoke admin access</button>
+                  </form>
+                {{else}}
+                  {{#if (eq status "ACTIVE")}}
+                    <form method="post" action="/admin/tutors/{{id}}/promote" class="row-menu-form" role="none">
+                      <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+                      <button type="submit" role="menuitem" class="row-menu-item">{{> admin/menu-icon name="promote"}} Promote to content admin</button>
+                    </form>
+                  {{/if}}
+                {{/if}}
+                <div class="row-menu-sep" role="separator"></div>
+                {{#if (eq status "ACTIVE")}}
+                  <form method="post" action="/admin/tutors/{{id}}/suspend" class="row-menu-form" role="none">
+                    <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+                    <button type="submit" role="menuitem" class="row-menu-item row-menu-item-danger">{{> admin/menu-icon name="suspend"}} Suspend account</button>
                   </form>
                 {{/if}}
                 {{#if (eq status "SUSPENDED")}}
-                  <form method="post" action="/admin/tutors/{{id}}/reactivate" class="inline">
+                  <form method="post" action="/admin/tutors/{{id}}/reactivate" class="row-menu-form" role="none">
                     <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
-                    <button type="submit" class="action-link">Reactivate<span class="sr-only"> {{name}}</span></button>
+                    <button type="submit" role="menuitem" class="row-menu-item">{{> admin/menu-icon name="reactivate"}} Reactivate account</button>
                   </form>
                 {{/if}}
-                <a href="/admin/tutors/{{id}}/edit" class="action-link">Edit<span class="sr-only"> {{name}}</span></a>
-                <a href="/admin/tutors/{{id}}/delete" class="action-link action-link-danger">Delete<span class="sr-only"> {{name}}</span></a>
-              </div>
+                <a role="menuitem" class="row-menu-item row-menu-item-danger" href="/admin/tutors/{{id}}/delete">{{> admin/menu-icon name="delete"}} Delete account</a>
+              {{/admin/row-menu}}
             </td>
           </tr>
         {{/each}}

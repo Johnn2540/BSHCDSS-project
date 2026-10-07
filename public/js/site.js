@@ -1,27 +1,7 @@
-// Navigation behaviour: mobile menu toggle and desktop dropdowns.
+// Navigation behaviour: the public sidebar menu and desktop dropdowns. (The admin panel's own drawer
+// and row menus live in admin.js; the Tutor Portal's in tutor.js.)
 (function () {
   'use strict';
-
-  // Mobile menu
-  var menuToggle = document.querySelector('[data-menu-toggle]');
-  var mobileMenu = document.getElementById('mobile-menu');
-
-  function setMenuOpen(open) {
-    menuToggle.setAttribute('aria-expanded', String(open));
-    mobileMenu.classList.toggle('is-open', open);
-  }
-
-  if (menuToggle && mobileMenu) {
-    menuToggle.addEventListener('click', function () {
-      setMenuOpen(menuToggle.getAttribute('aria-expanded') !== 'true');
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && menuToggle.getAttribute('aria-expanded') === 'true') {
-        setMenuOpen(false);
-        menuToggle.focus();
-      }
-    });
-  }
 
   // Sidebar menu (public site, phones and tablets)
   var drawer = document.getElementById('site-drawer');

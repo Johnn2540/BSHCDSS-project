@@ -59,7 +59,7 @@ test('all fourteen source files have distinct identities and valid Word signatur
 });
 
 for (const [name, helper] of Object.entries(helpers)) Handlebars.registerHelper(name, helper);
-for (const name of ['icon', 'document-list', 'document-library', 'prose']) {
+for (const name of ['icon', 'document-list', 'document-library', 'prose', 'section-hero-image']) {
   Handlebars.registerPartial(name, fs.readFileSync(path.join(__dirname, '..', 'src', 'views', 'partials', name + '.hbs'), 'utf8'));
 }
 const render = Handlebars.compile(fs.readFileSync(path.join(__dirname, '..', 'src', 'views', 'public', 'curriculum.hbs'), 'utf8'));

@@ -193,6 +193,7 @@ function crudRouter(resource) {
       id: item.id,
       title: item[titleField],
       cells: resource.columns.map((c) => ({
+        label: c.label,
         type: c.type || 'text',
         value: c.value ? c.value(item) : item[c.field],
         isTitle: c.field === titleField,

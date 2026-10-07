@@ -251,11 +251,11 @@ async function getHomeMedia() {
       }),
       // Videos are optional teasers: if their records cannot be read (for example a stale generated client that
       // cannot decode a provider), Home still renders with albums only instead of failing.
-      prisma.video.findMany({
+      Promise.resolve().then(() => prisma.video.findMany({
         where: { isPublished: true },
         orderBy: [{ date: { sort: 'desc', nulls: 'last' } }, { displayOrder: 'asc' }, { createdAt: 'desc' }],
         take: 3,
-      }).catch((error) => {
+      })).catch((error) => {
         console.warn('[home] Video previews unavailable:', error && error.name ? error.name : 'error');
         return [];
       }),

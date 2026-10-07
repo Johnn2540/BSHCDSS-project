@@ -28,14 +28,14 @@ async function dashboard(req, res) {
   const tutorTotal = Object.values(tutors).reduce((a, b) => a + b, 0);
 
   const stats = [
-    ...(manageAccounts ? [{ label: 'Tutors', value: tutorTotal, href: '/admin/tutors', detail: `${tutors.ACTIVE || 0} active` }] : []),
-    { label: 'Team members', value: team, href: '/admin/team' },
-    { label: 'Activities', value: activities, href: '/admin/activities' },
-    { label: 'Documents', value: documents, href: '/admin/documents' },
-    { label: 'Albums', value: albums, href: '/admin/albums', detail: `${photos} photos` },
-    { label: 'Videos', value: videos, href: '/admin/videos' },
-    { label: 'Announcements', value: announcements, href: '/admin/announcements' },
-    { label: 'Partners', value: partners, href: '/admin/partners' },
+    ...(manageAccounts ? [{ label: 'Tutors', icon: 'users', value: tutorTotal, href: '/admin/tutors', detail: `${tutors.ACTIVE || 0} active` }] : []),
+    { label: 'Team members', icon: 'person', value: team, href: '/admin/team' },
+    { label: 'Activities', icon: 'growth', value: activities, href: '/admin/activities' },
+    { label: 'Documents', icon: 'book', value: documents, href: '/admin/documents' },
+    { label: 'Albums', icon: 'camera', value: albums, href: '/admin/albums', detail: `${photos} photos` },
+    { label: 'Videos', icon: 'screen', value: videos, href: '/admin/videos' },
+    { label: 'Announcements', icon: 'megaphone', value: announcements, href: '/admin/announcements' },
+    { label: 'Partners', icon: 'handshake', value: partners, href: '/admin/partners' },
   ];
 
   res.render('admin/dashboard', {

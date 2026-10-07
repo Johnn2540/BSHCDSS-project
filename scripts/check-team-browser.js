@@ -107,7 +107,8 @@ async function main() {
       initials: document.querySelectorAll('.team-initials').length,
       support: document.querySelector('.team-profile-support h3')?.textContent,
       administratorContacts: Array.from(document.querySelectorAll('.team-profile-support .team-contact-link')).map(el => ({href: el.getAttribute('href'), iconInsideLink: Boolean(el.querySelector('svg'))})),
-      contactTargets: Array.from(document.querySelectorAll('.team-contact-link')).map(el => ({height: el.getBoundingClientRect().height, width: el.getBoundingClientRect().width})),
+      // Layout size, not the painted rectangle: a card is briefly scaled while it animates in, but the tap target is not.
+      contactTargets: Array.from(document.querySelectorAll('.team-contact-link')).map(el => ({height: el.offsetHeight, width: el.offsetWidth})),
       portraits: Array.from(document.querySelectorAll('.team-portrait')).map(el => ({height: el.getBoundingClientRect().height, width: el.getBoundingClientRect().width})),
       names: Array.from(document.querySelectorAll('.team-member-name')).map(el => ({client: el.clientWidth, scroll: el.scrollWidth})),
       photos: Array.from(document.querySelectorAll('img.team-portrait')).map(el => ({src: el.currentSrc || el.src}))

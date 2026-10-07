@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { initialsFor } = require('../services/team');
 
 const PUBLIC_DIR = path.join(__dirname, '..', '..', 'public');
 const BOOT_VERSION = Date.now().toString(36);
@@ -87,6 +88,10 @@ module.exports = {
 
   // Phone number for a tel: link, e.g. "+211 912 345 678" -> "+211912345678"
   telHref: (phone) => String(phone || '').replace(/[^\d+]/g, ''),
+
+  // "Project Administrator" -> "PA", "Dr. Grace Achol" -> "GA"; one word -> its first letter; nothing -> "?". Shown in
+  // avatar circles. (Not named `initials`: that is a property on team profiles, and a helper would shadow it.)
+  nameInitials: (name) => initialsFor(typeof name === 'string' ? name : '') || '?',
 
   // "report.pdf" -> "PDF"
   fileExt: (name) => {
