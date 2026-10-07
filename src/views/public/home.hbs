@@ -105,7 +105,7 @@
         <dl class="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
           {{#each stats}}
             <div class="stat-card" data-motion="enter">
-              {{#if label}}<dt class="text-3xl font-bold tracking-tight text-brand-blue sm:text-5xl">{{label}}</dt>{{/if}}
+              {{#if label}}<dt data-countup class="text-3xl font-bold tabular-nums tracking-tight text-brand-blue sm:text-5xl">{{label}}</dt>{{/if}}
               <dd class="{{#if label}}mt-3 {{/if}}text-sm leading-snug text-neutral-700 sm:text-base">{{value}}</dd>
             </div>
           {{/each}}

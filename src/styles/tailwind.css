@@ -686,6 +686,12 @@ html.drawer-locked body {
   .motion-arrow {
     transition: translate var(--motion-standard) var(--motion-ease);
   }
+  .motion-media {
+    transition: scale 700ms var(--motion-ease);
+  }
+  .motion-badge {
+    transition: translate var(--motion-standard) var(--motion-ease), box-shadow var(--motion-standard) ease;
+  }
   .dropdown [data-dropdown-toggle] svg, .drawer-chevron {
     transition: transform var(--motion-fast) ease, rotate var(--motion-fast) ease;
   }
@@ -703,6 +709,11 @@ html.drawer-locked body {
   }
   .motion-card:hover .motion-arrow, .btn:hover .motion-arrow {
     translate: 3px 0;
+  }
+  .motion-card:hover .motion-media { scale: 1.05; }
+  .motion-card:hover .motion-badge {
+    translate: 0 -2px;
+    box-shadow: 0 6px 14px rgb(10 47 117 / 0.28);
   }
   .motion-play {
     transition: scale var(--motion-standard) var(--motion-ease);

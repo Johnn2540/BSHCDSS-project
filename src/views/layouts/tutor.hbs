@@ -8,10 +8,10 @@
   <title>{{title}} | Tutor Portal | {{site.shortName}}</title>
   {{> head-icons}}
   <script nonce="{{cspNonce}}">document.documentElement.className = document.documentElement.className.replace('no-js', 'js');</script>
-  <link rel="stylesheet" href="/css/style.css">
-  <script src="/js/site.js" defer></script>
-  <script src="/js/tutor.js" defer></script>
-  <script src="/js/motion.js" defer></script>
+  <link rel="stylesheet" href="/css/style.css?v={{assetVersion "/css/style.css"}}">
+  <script src="/js/site.js?v={{assetVersion "/js/site.js"}}" defer></script>
+  <script src="/js/tutor.js?v={{assetVersion "/js/tutor.js"}}" defer></script>
+  <script src="/js/motion.js?v={{assetVersion "/js/motion.js"}}" defer></script>
 </head>
 <body class="portal-body">
   <a href="#main" class="portal-skip">Skip to main content</a>

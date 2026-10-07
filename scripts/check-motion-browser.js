@@ -109,7 +109,7 @@ async function main() {
     for (const route of routes) {
       const url = base + route;
       // Compare page actions with and without the optional entrance script.
-      await send('Network.setBlockedURLs', { urls: ['*/js/motion.js'] });
+      await send('Network.setBlockedURLs', { urls: ['*/js/motion.js*'] });
       await navigate(url); const baseline = await assertReadable(route + ' baseline at ' + width);
       await send('Network.setBlockedURLs', { urls: [] });
       await navigate(url); const animated = await assertReadable(route + ' animated at ' + width);

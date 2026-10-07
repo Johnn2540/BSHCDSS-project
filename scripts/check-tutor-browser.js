@@ -143,7 +143,7 @@ async function main() {
   assert.equal(await evaluate('getComputedStyle(document.querySelector("[data-portal-sidebar]")).visibility'), 'visible');
   console.log('Verified search, empty states and navigation/download links without JavaScript.');
   await send('Emulation.setScriptExecutionDisabled', { value: false });
-  await send('Network.setBlockedURLs', { urls: ['*/js/tutor.js'] });
+  await send('Network.setBlockedURLs', { urls: ['*/js/tutor.js*'] });
   await navigate('/tutor/documents?blocked-script-check=1');
   assert.equal(await evaluate('getComputedStyle(document.querySelector("[data-portal-sidebar]")).visibility'), 'visible');
   assert.equal(await evaluate('getComputedStyle(document.querySelector("[data-portal-toggle]")).display'), 'none');

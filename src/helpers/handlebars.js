@@ -1,5 +1,11 @@
 // Custom Handlebars helpers, registered in app.js.
 
+const fs = require('fs');
+const path = require('path');
+
+const PUBLIC_DIR = path.join(__dirname, '..', '..', 'public');
+const BOOT_VERSION = Date.now().toString(36);
+
 function isActive(currentPath, href) {
   if (!currentPath || !href) return false;
   if (href === '/') return currentPath === '/';
@@ -92,6 +98,19 @@ module.exports = {
     if (!bytes) return '';
     if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  },
+
+  // Cache-busting value for static CSS/JS links: {{assetVersion "/css/style.css"}}. Static files are cached by
+  // browsers and Cloudflare, so a fixed ?v= leaves visitors with old styles beside new HTML after a deploy. On Vercel
+  // the deployment id changes every deploy (public/ is not bundled into the function there); elsewhere the file's
+  // modified time changes whenever it is rebuilt. The result is always safe to place in an attribute.
+  assetVersion: (file) => {
+    if (process.env.VERCEL_DEPLOYMENT_ID) return process.env.VERCEL_DEPLOYMENT_ID.replace(/[^a-z0-9_-]/gi, '');
+    try {
+      return Math.floor(fs.statSync(path.join(PUBLIC_DIR, String(file))).mtimeMs).toString(36);
+    } catch {
+      return BOOT_VERSION;
+    }
   },
 
   // Cloudinary delivery transformation, e.g. {{img url "w_400,h_400,c_fill"}}.
