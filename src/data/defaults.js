@@ -63,7 +63,7 @@ const activities = [
     slug: 'lms',
     title: 'Digital Learning Management System',
     summary: 'An online platform giving tutors and teachers access to courses and resources.',
-    body: 'This is placeholder text for the Digital Learning Management System page. Add the link to the external LMS in the "External link" field.',
+    body: "The Digital Learning Management System is coming soon.\n\nThe project is preparing an online learning platform where tutors and teachers will be able to access courses and training resources, supporting the in-service training and continuous professional development described on the other Project Activities pages.\n\nThe platform is not open yet. This page will link to it as soon as it is available. In the meantime, curriculum documents can be downloaded from the Curriculum page, and registered tutors can find further resources in the Tutor Portal.",
     externalUrl: null,
     displayOrder: 3,
   },
