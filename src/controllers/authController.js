@@ -11,6 +11,17 @@ const { permissionsFor, homeForUser } = require('../services/permissions');
 // Compared against when the email doesn't exist, so response time doesn't reveal valid accounts.
 const DUMMY_HASH = bcrypt.hashSync('not-a-real-password', BCRYPT_ROUNDS);
 
+// Wrong passwords are counted in the database (not in server memory), so the limit holds across every server
+// instance. After MAX_FAILED_LOGINS in a row the account refuses sign-in for LOCK_MINUTES, even with the right password.
+const MAX_FAILED_LOGINS = 8;
+const LOCK_MINUTES = 15;
+async function registerFailedLogin(user) {
+  const updated = await prisma.user.update({ where: { id: user.id }, data: { failedLogins: { increment: 1 } }, select: { failedLogins: true } });
+  if (updated.failedLogins >= MAX_FAILED_LOGINS) {
+    await prisma.user.update({ where: { id: user.id }, data: { failedLogins: 0, lockedUntil: new Date(Date.now() + LOCK_MINUTES * 60 * 1000) } });
+  }
+}
+
 // Only allow same-site relative paths that the user's current permissions allow.
 function safeReturnTo(returnTo, user) {
   const fallback = homeForUser(user);
@@ -69,7 +80,12 @@ async function login(req, res) {
   const user = await prisma.user.findUnique({ where: { email } });
   const passwordOk = await bcrypt.compare(req.body.password, user ? user.passwordHash : DUMMY_HASH);
 
-  if (!user || !passwordOk) return fail('Incorrect email or password.');
+  // A locked account gets the same answer as a wrong password, so the lock reveals nothing about the account.
+  if (user && user.lockedUntil && user.lockedUntil > new Date()) return fail('Incorrect email or password.');
+  if (!user || !passwordOk) {
+    if (user) await registerFailedLogin(user);
+    return fail('Incorrect email or password.');
+  }
   // Account status is only revealed after the correct password has been given.
   if (user.status === 'PENDING') return fail('Your account is awaiting approval by an administrator.', 403);
   if (user.status === 'SUSPENDED') {
@@ -83,7 +99,7 @@ async function login(req, res) {
   req.session.userId = user.id;
   await promisify((cb) => req.session.save(cb));
 
-  await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+  await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date(), failedLogins: 0, lockedUntil: null } });
 
   res.redirect(returnTo);
 }

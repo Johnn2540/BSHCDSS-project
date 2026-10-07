@@ -70,7 +70,11 @@ const prisma = {
       const row = { ...initialUsers.tutor, id: 'created-' + Object.keys(users).length, canManageContent: false, ...data };
       users[row.id] = row; state.userWrites.push({ id: row.id, data: { ...data } }); return { ...row };
     },
-    update: async ({ where, data }) => { Object.assign(users[where.id], data); state.userWrites.push({ id: where.id, data: { ...data } }); return { ...users[where.id] }; },
+    update: async ({ where, data }) => {
+      const row = users[where.id];
+      for (const [key, value] of Object.entries(data)) row[key] = value && typeof value === 'object' && 'increment' in value ? (row[key] || 0) + value.increment : value;
+      state.userWrites.push({ id: where.id, data: { ...data } }); return { ...row };
+    },
     updateMany: async ({ where, data }) => {
       if (state.beforeUserUpdate) { const hook = state.beforeUserUpdate; state.beforeUserUpdate = null; hook(); }
       const rows = Object.values(users).filter(user => matches(user, where));
