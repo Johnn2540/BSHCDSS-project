@@ -1,0 +1,87 @@
+{{> page-hero title=page.title summary=page.summary parentLabel="Log in" parentHref="/login"}}
+
+<section class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[2fr_3fr] lg:gap-16">
+  <div>
+    {{#if page.steps.length}}
+      <h2 class="section-heading">{{page.stepsHeading}}</h2>
+      <ol class="mt-8 space-y-5">
+        {{#each page.steps}}
+          <li class="flex gap-4" data-motion="enter">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-blue text-sm font-bold text-white" aria-hidden="true">{{add @index 1}}</span>
+            <span class="pt-1 leading-relaxed text-neutral-800"><span class="sr-only">Step {{add @index 1}}: </span>{{this}}</span>
+          </li>
+        {{/each}}
+      </ol>
+    {{/if}}
+    <p class="mt-10 border-t border-neutral-200 pt-6 text-sm text-neutral-700">
+      Already have an account?
+      <a href="/login" class="font-semibold text-brand-blue underline-offset-2 hover:underline">Log in</a>
+      or <a href="/forgot-password" class="font-semibold text-brand-blue underline-offset-2 hover:underline">reset your password</a>.
+    </p>
+  </div>
+
+  <div class="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm sm:p-8">
+    {{#if sent}}
+      <div role="status" tabindex="-1" id="request-sent">
+        <span class="flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-brand-green-dark">{{> icon name="check" class="h-7 w-7"}}</span>
+        <h2 class="mt-5 text-2xl font-bold text-brand-blue">{{page.successHeading}}</h2>
+        <p class="mt-3 leading-relaxed text-neutral-800">{{page.successText}}</p>
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+          <a href="/" class="btn btn-primary">Back to the home page</a>
+          <a href="/login" class="btn border border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 focus-visible:outline-brand-blue">Log in</a>
+        </div>
+      </div>
+    {{else}}
+      <h2 id="form-heading" class="section-heading">{{page.formHeading}}</h2>
+      {{#if page.privacyNote}}<p class="mt-4 text-sm leading-relaxed text-neutral-600">{{page.privacyNote}}</p>{{/if}}
+
+      {{#if (or errors.name errors.email errors.institution errors.phone errors.message)}}
+        <div role="alert" class="mt-6 rounded border-l-4 border-brand-red bg-red-50 px-4 py-3 text-sm text-red-900">Please correct the highlighted fields and send your request again.</div>
+      {{/if}}
+
+      <form method="post" action="/request-tutor-access" novalidate class="mt-6 space-y-5">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+        {{!-- Honeypot: hidden from people, often filled in by spam bots --}}
+        <div class="hidden" aria-hidden="true">
+          <label for="website">Leave this field empty</label>
+          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label for="f-name" class="form-label">Full name <span class="text-brand-red" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>
+            <input id="f-name" name="name" type="text" required maxlength="120" autocomplete="name" value="{{values.name}}" class="form-input"
+                   {{#if errors.name}}aria-invalid="true" aria-describedby="f-name-error"{{/if}}>
+            {{#if errors.name}}<p id="f-name-error" class="form-error">{{errors.name}}</p>{{/if}}
+          </div>
+          <div>
+            <label for="f-email" class="form-label">Email address <span class="text-brand-red" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>
+            <input id="f-email" name="email" type="email" required maxlength="254" autocomplete="email" value="{{values.email}}" class="form-input"
+                   {{#if errors.email}}aria-invalid="true" aria-describedby="f-email-error"{{/if}}>
+            {{#if errors.email}}<p id="f-email-error" class="form-error">{{errors.email}}</p>{{/if}}
+          </div>
+        </div>
+        <div>
+          <label for="f-institution" class="form-label">Where do you teach or work? <span class="text-brand-red" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>
+          <input id="f-institution" name="institution" type="text" required maxlength="150" autocomplete="organization" value="{{values.institution}}" class="form-input"
+                 {{#if errors.institution}}aria-invalid="true" aria-describedby="f-institution-error"{{/if}}>
+          {{#if errors.institution}}<p id="f-institution-error" class="form-error">{{errors.institution}}</p>{{/if}}
+        </div>
+        <div>
+          <label for="f-phone" class="form-label">Phone number (optional)</label>
+          <input id="f-phone" name="phone" type="tel" maxlength="40" autocomplete="tel" value="{{values.phone}}" class="form-input"
+                 {{#if errors.phone}}aria-invalid="true" aria-describedby="f-phone-error"{{/if}}>
+          {{#if errors.phone}}<p id="f-phone-error" class="form-error">{{errors.phone}}</p>{{/if}}
+        </div>
+        <div>
+          <label for="f-message" class="form-label">Anything we should know? (optional)</label>
+          <textarea id="f-message" name="message" rows="5" maxlength="1000" class="form-input"
+                    {{#if errors.message}}aria-invalid="true" aria-describedby="f-message-error"{{/if}}>{{values.message}}</textarea>
+          {{#if errors.message}}<p id="f-message-error" class="form-error">{{errors.message}}</p>{{/if}}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full sm:w-auto">{{> icon name="check" class="h-4 w-4"}} Send request</button>
+      </form>
+    {{/if}}
+  </div>
+</section>

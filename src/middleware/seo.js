@@ -2,7 +2,7 @@ const { PUBLIC_PAGES } = require('../config/seo');
 const { indexingEnabled } = require('../services/seo');
 
 function indexingRules(req, res, next) {
-  const privateRoute = /^\/(admin|tutor|login|forgot-password|reset-password|logout|documents|api)(\/|$)/i.test(req.path);
+  const privateRoute = /^\/(admin|tutor|login|forgot-password|reset-password|request-tutor-access|logout|documents|api)(\/|$)/i.test(req.path);
   if (!indexingEnabled() || privateRoute || req.path === '/healthz' || !['GET', 'HEAD'].includes(req.method)) {
     res.locals.noindex = true;
     res.locals.robotsPolicy = 'noindex, nofollow';

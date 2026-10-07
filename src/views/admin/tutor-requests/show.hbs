@@ -1,0 +1,56 @@
+{{> admin/page-header title=request.name back="/admin/tutor-requests" backLabel="Tutor requests"}}
+
+<div class="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+  <section aria-labelledby="request-heading" class="admin-card p-5 sm:p-7">
+    <div class="flex flex-wrap items-center gap-3">
+      <span class="admin-initials" aria-hidden="true">{{nameInitials request.name}}</span>
+      <h2 id="request-heading" class="text-lg font-bold">Request for tutor access</h2>
+      {{#if (eq request.status "PENDING")}}<span class="badge badge-yellow">Pending review</span>{{/if}}
+      {{#if (eq request.status "APPROVED")}}<span class="badge badge-green">Approved</span>{{/if}}
+      {{#if (eq request.status "DECLINED")}}<span class="badge badge-grey">Declined</span>{{/if}}
+    </div>
+
+    <dl class="mt-6 grid gap-x-8 gap-y-5 sm:grid-cols-2">
+      <div><dt class="glance-label">Name</dt><dd class="mt-1 font-medium text-neutral-900">{{request.name}}</dd></div>
+      <div><dt class="glance-label">Email</dt><dd class="mt-1 break-all font-medium"><a href="mailto:{{request.email}}" class="text-brand-blue underline-offset-2 hover:underline">{{request.email}}</a></dd></div>
+      <div><dt class="glance-label">Institution</dt><dd class="mt-1 font-medium text-neutral-900">{{request.institution}}</dd></div>
+      <div><dt class="glance-label">Phone</dt><dd class="mt-1 font-medium text-neutral-900">{{#if request.phone}}<a href="tel:{{telHref request.phone}}" class="text-brand-blue underline-offset-2 hover:underline">{{request.phone}}</a>{{else}}<span class="font-normal text-neutral-500">Not given</span>{{/if}}</dd></div>
+      <div><dt class="glance-label">Requested</dt><dd class="mt-1 font-medium text-neutral-900">{{formatDate request.createdAt}}</dd></div>
+      {{#if request.reviewedAt}}
+        <div><dt class="glance-label">Reviewed</dt><dd class="mt-1 font-medium text-neutral-900">{{formatDate request.reviewedAt}}{{#if request.reviewedBy}} by {{request.reviewedBy}}{{/if}}</dd></div>
+      {{/if}}
+    </dl>
+
+    <h3 class="glance-label mt-7">Message</h3>
+    {{#if request.message}}
+      <div class="mt-2 space-y-3 rounded border-l-4 border-brand-green bg-neutral-50 p-4 text-neutral-800 [overflow-wrap:anywhere]">
+        {{#each (paragraphs request.message)}}<p>{{this}}</p>{{/each}}
+      </div>
+    {{else}}
+      <p class="mt-2 text-sm text-neutral-500">The applicant did not add a message.</p>
+    {{/if}}
+  </section>
+
+  <aside aria-labelledby="decision-heading" class="admin-card self-start p-5 sm:p-7">
+    <h2 id="decision-heading" class="text-lg font-bold">{{#if (eq request.status "PENDING")}}Your decision{{else}}Outcome{{/if}}</h2>
+
+    {{#if (eq request.status "PENDING")}}
+      <p class="mt-3 text-sm leading-relaxed text-neutral-700">Approving creates a tutor account for {{request.name}} and emails <span class="break-all font-medium">{{request.email}}</span> a link to choose a password. Declining creates nothing and sends no email.</p>
+      <form method="post" action="/admin/tutor-requests/{{request.id}}/approve" class="mt-5">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+        <button type="submit" class="btn btn-green w-full">{{> icon name="check" class="h-4 w-4"}} Approve and send invitation</button>
+      </form>
+      <form method="post" action="/admin/tutor-requests/{{request.id}}/decline" class="mt-3">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+        <button type="submit" class="btn w-full border border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 focus-visible:outline-brand-blue">Decline request</button>
+      </form>
+    {{else if (eq request.status "APPROVED")}}
+      <p class="mt-3 text-sm leading-relaxed text-neutral-700">A tutor account was created and the invitation emailed.</p>
+      {{#if account}}<a href="/admin/tutors/{{account.id}}/edit" class="btn btn-primary mt-5 w-full">Open the tutor account</a>{{else}}<p class="mt-3 text-sm text-neutral-500">That account has since been removed.</p>{{/if}}
+    {{else}}
+      <p class="mt-3 text-sm leading-relaxed text-neutral-700">This request was declined. No account was created and no email was sent.</p>
+    {{/if}}
+
+    <p class="mt-6 border-t border-neutral-200 pt-4"><a href="/admin/tutor-requests/{{request.id}}/delete" class="action-link action-link-danger">Delete this request</a></p>
+  </aside>
+</div>

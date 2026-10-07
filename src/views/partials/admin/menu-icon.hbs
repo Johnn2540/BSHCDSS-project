@@ -1,4 +1,4 @@
-{{!-- Small icon for a row-actions menu item. Param: name = edit | approve | invite | promote | revoke | suspend | reactivate | delete --}}
+{{!-- Small icon for a row-actions menu item. Param: name = edit | view | approve | invite | promote | revoke | suspend | reactivate | delete --}}
 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   {{#if (eq name "edit")}}<path d="M4 20h4L18.5 9.5a2.1 2.1 0 00-3-3L5 17v3z"/><path d="M13.5 8.5l2 2"/>
   {{else if (eq name "approve")}}<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/>
@@ -7,6 +7,7 @@
   {{else if (eq name "revoke")}}<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z"/><path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/>
   {{else if (eq name "suspend")}}<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>
   {{else if (eq name "reactivate")}}<path d="M4 12a8 8 0 018-8 8 8 0 016 2.7M20 4v4h-4"/><path d="M20 12a8 8 0 01-8 8 8 8 0 01-6-2.7M4 20v-4h4"/>
+  {{else if (eq name "view")}}<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>
   {{else if (eq name "delete")}}<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a1 1 0 001 1h8a1 1 0 001-1l1-12M9 7V4h6v3"/>
   {{/if}}
 </svg>

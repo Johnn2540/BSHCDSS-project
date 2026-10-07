@@ -41,6 +41,12 @@ enum ResourceSection {
   PLANS_ACTIVITIES
 }
 
+enum TutorRequestStatus {
+  PENDING
+  APPROVED
+  DECLINED
+}
+
 // ─── Accounts ─────────────────────────────────────────────────────────────────
 
 model User {
@@ -74,6 +80,25 @@ model PasswordResetToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// A visitor's request for a tutor account. It holds no password and creates no account: an administrator
+// reviews it, and approving it creates the account and emails the invitation.
+model TutorRequest {
+  id             String             @id @default(cuid())
+  name           String
+  email          String // stored lowercase
+  phone          String?
+  institution    String
+  message        String?
+  status         TutorRequestStatus @default(PENDING)
+  createdAt      DateTime           @default(now())
+  reviewedAt     DateTime?
+  reviewedBy     String? // the administrator's name when they decided
+  approvedUserId String? // the tutor account created when the request was approved
+
+  @@index([status, createdAt])
+  @@index([email])
 }
 
 // Session table used by connect-pg-simple. Defined here so Prisma migrations own it.

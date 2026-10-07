@@ -27,7 +27,7 @@ const initialDocuments = [
   document('draft', 'Unpublished report', 'REPORTS', 'TUTORS', false),
   document('plan', 'Quarterly work plan', 'PLANS_ACTIVITIES'),
 ];
-const state = { documents: initialDocuments.map((item) => ({ ...item })), events: [], users, failUpload: false, userWrites: [], accountManagementReads: 0, beforeUserUpdate: null };
+const state = { documents: initialDocuments.map((item) => ({ ...item })), events: [], users, failUpload: false, userWrites: [], accountManagementReads: 0, beforeUserUpdate: null, tutorRequests: [] };
 function matches(row, where = {}) {
   return Object.entries(where).every(([key, value]) => value && typeof value === 'object'
     ? value.in ? value.in.includes(row[key]) : value.not !== undefined ? row[key] !== value.not : row[key] === value
@@ -65,6 +65,8 @@ const prisma = {
       return Object.entries(counts).map(([status, count]) => ({ status, _count: { _all: count } }));
     },
     create: async ({ data }) => {
+      // Like the real unique index on User.email.
+      if (Object.values(users).some((user) => user.email === data.email)) throw Object.assign(new Error('Unique constraint failed on the fields: (`email`)'), { code: 'P2002' });
       const row = { ...initialUsers.tutor, id: 'created-' + Object.keys(users).length, canManageContent: false, ...data };
       users[row.id] = row; state.userWrites.push({ id: row.id, data: { ...data } }); return { ...row };
     },
@@ -79,6 +81,34 @@ const prisma = {
   },
   pageContent: { findUnique: async () => null, findMany: async () => [] },
   announcement: { findMany: async () => [], count: async () => 0 },
+  // Visitors' requests for tutor access, held in memory.
+  tutorRequest: {
+    findUnique: async ({ where }) => { const row = state.tutorRequests.find((request) => request.id === where.id); return row ? { ...row } : null; },
+    findFirst: async ({ where, select: fields }) => { const row = state.tutorRequests.find((request) => matches(request, where)); return row ? select(row, fields) : null; },
+    count: async (query = {}) => state.tutorRequests.filter((request) => matches(request, query.where)).length,
+    groupBy: async () => {
+      const counts = {};
+      for (const request of state.tutorRequests) counts[request.status] = (counts[request.status] || 0) + 1;
+      return Object.entries(counts).map(([status, count]) => ({ status, _count: { _all: count } }));
+    },
+    findMany: async (query = {}) => {
+      const direction = query.orderBy && query.orderBy[0] && query.orderBy[0].createdAt === 'desc' ? -1 : 1;
+      const rows = state.tutorRequests.filter((request) => matches(request, query.where)).sort((a, b) => direction * (a.createdAt - b.createdAt));
+      return rows.slice(query.skip || 0, (query.skip || 0) + (query.take || rows.length)).map((row) => select(row, query.select));
+    },
+    create: async ({ data }) => {
+      const row = { id: 'request-' + (state.tutorRequests.length + 1), phone: null, message: null, status: 'PENDING', createdAt: new Date(Date.now() + state.tutorRequests.length), reviewedAt: null, reviewedBy: null, approvedUserId: null, ...data };
+      state.tutorRequests.push(row);
+      return { ...row };
+    },
+    updateMany: async ({ where, data }) => {
+      const rows = state.tutorRequests.filter((request) => matches(request, where));
+      for (const row of rows) Object.assign(row, data);
+      return { count: rows.length };
+    },
+    update: async ({ where, data }) => { const row = state.tutorRequests.find((request) => request.id === where.id); Object.assign(row, data); return { ...row }; },
+    delete: async ({ where }) => { const index = state.tutorRequests.findIndex((request) => request.id === where.id); return state.tutorRequests.splice(index, 1)[0]; },
+  },
   passwordResetToken: { deleteMany: async () => { state.events.push('revoke-tokens'); return { count: 0 }; } },
   $transaction: async (operations) => Promise.all(operations),
 };
@@ -115,6 +145,7 @@ function createPortalFixture() {
     res.locals.navigation = []; res.locals.currentPath = req.path; res.locals.baseUrl = 'http://localhost';
     next();
   });
+  app.use('/', require('../../src/routes/tutorRequests'));
   app.use('/', require('../../src/routes/auth'));
   app.get('/api/public/notifications', require('../../src/controllers/notificationsController').feed);
   app.use('/tutor', require('../../src/routes/tutor'));
@@ -129,7 +160,7 @@ function resetFixture() {
   state.documents = initialDocuments.map((item) => ({ ...item })); state.events = []; state.failUpload = false;
   for (const key of Object.keys(users)) delete users[key];
   for (const [key, user] of Object.entries(initialUsers)) users[key] = { ...user };
-  state.userWrites = []; state.accountManagementReads = 0; state.beforeUserUpdate = null;
+  state.userWrites = []; state.accountManagementReads = 0; state.beforeUserUpdate = null; state.tutorRequests = [];
   content.clearCache();
 }
 module.exports = { createPortalFixture, resetFixture, state, password, content, prisma };

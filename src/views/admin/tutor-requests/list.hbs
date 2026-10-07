@@ -1,0 +1,82 @@
+{{> admin/page-header title="Tutor requests" intro="Visitors who asked for a tutor account. Approving a request creates the account and emails the person a link to choose a password. Declining does neither, and no email is sent."}}
+
+<nav aria-label="Filter by status" class="mb-4 overflow-x-auto">
+  <ul class="flex gap-1 border-b border-neutral-300">
+    {{#each tabs}}
+      <li>
+        <a href="{{href}}" class="tab-link" {{#if active}}aria-current="page"{{/if}}>{{label}} <span class="tab-count">{{count}}</span></a>
+      </li>
+    {{/each}}
+  </ul>
+</nav>
+
+{{#if requests.length}}
+  <div class="admin-card overflow-x-auto">
+    <table class="admin-table admin-table-stack">
+      <caption class="sr-only">Requests for tutor access</caption>
+      <thead>
+        <tr>
+          <th scope="col">Applicant</th>
+          <th scope="col">Institution</th>
+          <th scope="col">Requested</th>
+          <th scope="col">Status</th>
+          <th scope="col"><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each requests}}
+          <tr>
+            <td class="admin-cell-title">
+              <div class="flex items-center gap-3">
+                <span class="admin-initials" aria-hidden="true">{{nameInitials name}}</span>
+                <div class="min-w-0">
+                  <a href="/admin/tutor-requests/{{id}}" class="font-semibold text-brand-blue underline-offset-2 hover:underline">{{name}}</a>
+                  <p class="break-all text-xs text-neutral-600">{{email}}</p>
+                </div>
+              </div>
+            </td>
+            <td data-label="Institution">{{institution}}</td>
+            <td data-label="Requested" class="whitespace-nowrap">{{formatDate createdAt}}</td>
+            <td data-label="Status">
+              {{#if (eq status "PENDING")}}<span class="badge badge-yellow">Pending review</span>{{/if}}
+              {{#if (eq status "APPROVED")}}<span class="badge badge-green">Approved</span>{{/if}}
+              {{#if (eq status "DECLINED")}}<span class="badge badge-grey">Declined</span>{{/if}}
+              {{#if reviewedAt}}<p class="mt-1 text-xs text-neutral-600">{{formatDate reviewedAt}}{{#if reviewedBy}} by {{reviewedBy}}{{/if}}</p>{{/if}}
+            </td>
+            <td class="admin-cell-actions text-right">
+              {{#> admin/row-menu label=name}}
+                <a role="menuitem" class="row-menu-item" href="/admin/tutor-requests/{{id}}">{{> admin/menu-icon name="view"}} View request</a>
+                {{#if (eq status "PENDING")}}
+                  <form method="post" action="/admin/tutor-requests/{{id}}/approve" class="row-menu-form" role="none">
+                    <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+                    <button type="submit" role="menuitem" class="row-menu-item row-menu-item-success">{{> admin/menu-icon name="approve"}} Approve and send invitation</button>
+                  </form>
+                  <form method="post" action="/admin/tutor-requests/{{id}}/decline" class="row-menu-form" role="none">
+                    <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
+                    <button type="submit" role="menuitem" class="row-menu-item row-menu-item-danger">{{> admin/menu-icon name="suspend"}} Decline request</button>
+                  </form>
+                {{/if}}
+                <div class="row-menu-sep" role="separator"></div>
+                <a role="menuitem" class="row-menu-item row-menu-item-danger" href="/admin/tutor-requests/{{id}}/delete">{{> admin/menu-icon name="delete"}} Delete request</a>
+              {{/admin/row-menu}}
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+
+  {{#if pagination}}
+    <nav aria-label="Pagination" class="mt-4 flex items-center gap-3 text-sm">
+      {{#if pagination.prevHref}}<a href="{{pagination.prevHref}}" class="action-link">&larr; Previous</a>{{/if}}
+      <span>Page {{pagination.page}} of {{pagination.pages}}</span>
+      {{#if pagination.nextHref}}<a href="{{pagination.nextHref}}" class="action-link">Next &rarr;</a>{{/if}}
+    </nav>
+  {{/if}}
+{{else}}
+  <div class="admin-card p-8 text-center">
+    <p class="text-neutral-700">{{#if viewingPending}}No requests are waiting for review.{{else}}No requests here.{{/if}}</p>
+    <p class="mx-auto mt-2 max-w-xl text-sm text-neutral-600">Visitors can ask for access at <span class="font-semibold">/request-tutor-access</span>. You can also add a tutor yourself on the Tutors page.</p>
+    <a href="/admin/tutors/new" class="btn btn-primary mt-4">Add a tutor</a>
+  </div>
+{{/if}}

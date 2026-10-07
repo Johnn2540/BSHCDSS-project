@@ -4,6 +4,7 @@ const notifications = require('../controllers/notificationsController');
 const documents = require('../controllers/documentsController');
 const { provideCsrfToken } = require('../middleware/security');
 const { contactLimiter } = require('../middleware/rateLimits');
+const tutorRequestRoutes = require('./tutorRequests');
 const authRoutes = require('./auth');
 const tutorRoutes = require('./tutor');
 const adminRoutes = require('./admin');
@@ -24,6 +25,7 @@ router.post('/contact', contactLimiter, provideCsrfToken, pub.contactRules, pub.
 
 router.get('/documents/:id/download', documents.download);
 
+router.use('/', tutorRequestRoutes);
 router.use('/', authRoutes);
 router.use('/tutor', tutorRoutes);
 router.use('/admin', adminRoutes);

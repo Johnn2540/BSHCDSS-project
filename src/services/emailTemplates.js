@@ -27,4 +27,19 @@ function contactEmail({ siteName, name, email, phone, subject, message }) {
   };
 }
 
-module.exports = { accountEmail, contactEmail };
+// Sent to the project mailbox (never to the applicant) when a visitor asks for tutor access. Every value was typed
+// by an anonymous visitor: single-line fields are flattened, and the HTML escapes everything.
+function tutorRequestEmail({ siteName, name, email, phone, institution, message, reviewUrl }) {
+  const details = `Name: ${oneLine(name)}\nEmail: ${oneLine(email)}\n${phone ? `Phone: ${oneLine(phone)}\n` : ''}Institution: ${oneLine(institution)}`;
+  const review = reviewUrl ? `Review the request and approve or decline it:\n${reviewUrl}` : 'Open Tutor requests in the admin panel to review it.';
+  return {
+    subject: `[Website] Tutor access request from ${oneLine(name)}`,
+    text: `A visitor has asked for a tutor account on the ${siteName} website.\n\n${details}\n${message ? `\nMessage:\n${message}\n` : ''}\n${review}\n`,
+    html: layout(siteName, 'Tutor access request', paragraph('A visitor has asked for a tutor account.') + paragraph(details)
+      + (message ? `<div style="padding:18px;background:#f5f5f5;border-left:4px solid #078930">${paragraph(message)}</div>` : '')
+      + (reviewUrl ? `<p style="margin:24px 0"><a href="${escape(reviewUrl)}" style="display:inline-block;padding:14px 20px;background:#0F47AF;color:white;border-radius:4px;text-decoration:none;font-weight:bold">Review the request</a></p>` : paragraph('Open Tutor requests in the admin panel to review it.'))
+      + paragraph('Nothing happens until an administrator approves the request. Replying to this email writes to the applicant.')),
+  };
+}
+
+module.exports = { accountEmail, contactEmail, tutorRequestEmail };

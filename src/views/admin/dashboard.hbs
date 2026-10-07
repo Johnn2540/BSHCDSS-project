@@ -7,6 +7,26 @@
   </div>
 {{/if}}
 
+{{#if requestCount}}
+  <section aria-labelledby="requests-heading" class="admin-card mb-6 border-l-4 border-l-brand-blue p-5">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 id="requests-heading" class="text-lg font-bold">{{requestCount}} request{{#unless (eq requestCount 1)}}s{{/unless}} for tutor access to review</h2>
+      <a href="/admin/tutor-requests" class="action-link">Review all</a>
+    </div>
+    <ul class="mt-3 divide-y divide-neutral-200">
+      {{#each requests}}
+        <li class="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0">
+            <p class="font-semibold">{{name}}</p>
+            <p class="break-all text-sm text-neutral-600">{{email}} &middot; {{institution}} &middot; {{formatDate createdAt}}</p>
+          </div>
+          <a href="/admin/tutor-requests/{{id}}" class="btn btn-primary shrink-0 py-2">Review<span class="sr-only"> request from {{name}}</span></a>
+        </li>
+      {{/each}}
+    </ul>
+  </section>
+{{/if}}
+
 {{#if tutorCounts.pending}}
   <section aria-labelledby="pending-heading" class="admin-card mb-6 border-l-4 border-l-brand-yellow p-5">
     <div class="flex flex-wrap items-center justify-between gap-3">

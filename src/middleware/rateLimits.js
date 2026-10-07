@@ -23,6 +23,8 @@ module.exports = {
   loginLimiter: limiter({ windowMs: 15 * 60 * 1000, limit: 10, skipSuccessfulRequests: true }),
   passwordResetLimiter: limiter({ windowMs: 60 * 60 * 1000, limit: 5 }),
   contactLimiter: limiter({ windowMs: 60 * 60 * 1000, limit: 5 }),
+  // Requests for a tutor account; every submission counts, valid or not.
+  tutorRequestLimiter: limiter({ windowMs: 60 * 60 * 1000, limit: 5 }),
   // Guesses at the current password on the change-password form; successful changes don't count.
   changePasswordLimiter: limiter({ windowMs: 15 * 60 * 1000, limit: 10, skipSuccessfulRequests: true }),
 };

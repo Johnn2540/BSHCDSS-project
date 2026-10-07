@@ -420,6 +420,53 @@ const pageConfigs = [
     ],
   },
   {
+    slug: 'tutor-request',
+    label: 'Request tutor access',
+    description: 'The page where visitors ask for a tutor account (/request-tutor-access). Requests are reviewed in Admin > Tutor requests.',
+    fields: [
+      { name: 'title', label: 'Page heading', type: 'text', required: true, max: 100, default: 'Request tutor access' },
+      {
+        name: 'summary',
+        label: 'Introduction',
+        type: 'textarea',
+        rows: 3,
+        max: 500,
+        default: 'Registered tutors can download training documents, reports and plans from the Tutor Portal. Tell us about yourself and the project administrator will review your request.',
+      },
+      { name: 'stepsHeading', label: 'Steps heading', type: 'text', max: 80, default: 'What happens next' },
+      {
+        name: 'steps',
+        label: 'Steps',
+        help: 'One step per line, in order.',
+        type: 'lines',
+        rows: 4,
+        default: [
+          'Send your details using the form.',
+          'The project administrator reviews your request.',
+          'If it is approved, you receive an email with a link to choose your password. You can then log in to the Tutor Portal.',
+        ],
+      },
+      { name: 'formHeading', label: 'Form heading', type: 'text', max: 80, default: 'Your details' },
+      {
+        name: 'privacyNote',
+        label: 'Privacy note beside the form',
+        type: 'textarea',
+        rows: 3,
+        max: 400,
+        default: 'We use these details only to review your request and, if it is approved, to create your tutor account and email you a link to choose a password. We never share them.',
+      },
+      { name: 'successHeading', label: 'Confirmation heading', type: 'text', max: 100, default: 'Request received' },
+      {
+        name: 'successText',
+        label: 'Confirmation text',
+        type: 'textarea',
+        rows: 3,
+        max: 500,
+        default: 'Thank you. The project administrator will review your request. If it is approved, you will receive an email with a link to choose your password.',
+      },
+    ],
+  },
+  {
     slug: 'tutor-portal', label: 'Tutor Portal',
     description: 'Welcome, introduction and help text for approved tutors (/tutor).',
     fields: [

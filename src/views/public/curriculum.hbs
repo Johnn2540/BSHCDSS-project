@@ -47,7 +47,10 @@
           {{> icon name="users" class="mt-0.5 h-6 w-6 shrink-0 text-brand-blue"}}
           <div><h2 class="font-semibold text-brand-blue">{{page.tutorHeading}}</h2><p class="mt-1 text-sm leading-relaxed text-neutral-700">{{page.tutorIntro}}</p></div>
         </div>
-        <a href="/login" class="btn btn-primary shrink-0">Tutor login {{> icon name="arrow" class="h-4 w-4"}}</a>
+        <div class="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">
+          <a href="/login" class="btn btn-primary">Tutor login {{> icon name="arrow" class="h-4 w-4"}}</a>
+          <a href="/request-tutor-access" class="inline-flex min-h-11 items-center justify-center text-sm font-semibold text-brand-blue underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">No account yet? Request access</a>
+        </div>
       </aside>
     {{/if}}
   {{/unless}}

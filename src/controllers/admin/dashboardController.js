@@ -4,7 +4,7 @@ const { permissionsFor } = require('../../services/permissions');
 
 async function dashboard(req, res) {
   const { manageAccounts } = permissionsFor(req.user);
-  const [tutorGroups, team, activities, albums, photos, videos, documents, announcements, partners, pending, recentAnnouncements] =
+  const [tutorGroups, team, activities, albums, photos, videos, documents, announcements, partners, pending, recentAnnouncements, requestCount, requests] =
     await Promise.all([
       manageAccounts ? prisma.user.groupBy({ by: ['status'], where: { role: 'TUTOR' }, _count: { _all: true } }) : [],
       prisma.teamMember.count(),
@@ -22,6 +22,14 @@ async function dashboard(req, res) {
         select: { id: true, name: true, email: true, institution: true, createdAt: true },
       }) : [],
       prisma.announcement.findMany({ orderBy: { publishedAt: 'desc' }, take: 5, select: { id: true, title: true, publishedAt: true, audience: true } }),
+      // Visitors' requests for tutor access: administrators only, like the rest of account management.
+      manageAccounts ? prisma.tutorRequest.count({ where: { status: 'PENDING' } }) : 0,
+      manageAccounts ? prisma.tutorRequest.findMany({
+        where: { status: 'PENDING' },
+        orderBy: { createdAt: 'asc' },
+        take: 5,
+        select: { id: true, name: true, email: true, institution: true, createdAt: true },
+      }) : [],
     ]);
 
   const tutors = Object.fromEntries(tutorGroups.map((g) => [g.status, g._count._all]));
@@ -43,6 +51,8 @@ async function dashboard(req, res) {
     stats,
     tutorCounts: manageAccounts ? { pending: tutors.PENDING || 0, active: tutors.ACTIVE || 0, suspended: tutors.SUSPENDED || 0 } : null,
     pending,
+    requestCount,
+    requests,
     recentAnnouncements,
     storageWarning: !isCloudinaryConfigured,
   });

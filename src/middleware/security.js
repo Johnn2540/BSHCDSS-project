@@ -42,7 +42,7 @@ function csrfTokenForUsers(req, res, next) {
 }
 
 function privatePages(req, res, next) {
-  if (req.user || /^\/(admin|tutor|login|forgot-password|reset-password)(\/|$)/.test(req.path)) {
+  if (req.user || /^\/(admin|tutor|login|forgot-password|reset-password|request-tutor-access)(\/|$)/.test(req.path)) {
     res.set('Cache-Control', 'private, no-store');
   }
   next();

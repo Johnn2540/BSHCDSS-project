@@ -9,6 +9,7 @@ const resources = require('../admin/resources');
 const { dashboard } = require('../controllers/admin/dashboardController');
 const pages = require('../controllers/admin/pagesController');
 const tutors = require('../controllers/admin/tutorsController');
+const tutorRequests = require('../controllers/admin/tutorRequestsController');
 const account = require('../controllers/accountController');
 const { changePasswordLimiter } = require('../middleware/rateLimits');
 
@@ -19,6 +20,7 @@ router.use(requireLogin, requirePermission('manageContent'));
 // Protect the entire account-management subtree, including direct POST requests
 // and any future tutor actions. Delegated tutors have no account permissions.
 router.use('/tutors', requirePermission('manageAccounts'));
+router.use('/tutor-requests', requirePermission('manageAccounts'));
 
 router.use((req, res, next) => {
   res.locals.layout = 'admin';
@@ -55,6 +57,14 @@ router.post('/tutors/:id/demote', tutors.demote);
 router.post('/tutors/:id/invite', tutors.resendInvite);
 router.get('/tutors/:id/delete', tutors.confirmDelete);
 router.post('/tutors/:id/delete', tutors.destroy);
+
+// Visitors' requests for tutor access: review, approve (creates the account and emails the invitation), decline, delete
+router.get('/tutor-requests', tutorRequests.list);
+router.get('/tutor-requests/:id', tutorRequests.show);
+router.post('/tutor-requests/:id/approve', tutorRequests.approve);
+router.post('/tutor-requests/:id/decline', tutorRequests.decline);
+router.get('/tutor-requests/:id/delete', tutorRequests.confirmDelete);
+router.post('/tutor-requests/:id/delete', tutorRequests.destroy);
 
 // Team, activities, documents, albums (+ photos), videos, announcements, partners
 for (const resource of resources) {

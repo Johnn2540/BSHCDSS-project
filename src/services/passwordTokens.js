@@ -70,4 +70,4 @@ async function sendAccountEmail(req, user, kind, ttlMs) {
 const sendResetEmail = (req, user) => sendAccountEmail(req, user, 'reset', RESET_TOKEN_TTL_MS);
 const sendInviteEmail = (req, user) => sendAccountEmail(req, user, 'invite', INVITE_TOKEN_TTL_MS);
 
-module.exports = { hashToken, createToken, findValidToken, sendResetEmail, sendInviteEmail };
+module.exports = { hashToken, createToken, findValidToken, sendResetEmail, sendInviteEmail, emailOrigin };
