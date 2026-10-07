@@ -12,6 +12,7 @@
 // `default` is shown until an admin saves the page for the first time.
 
 const tutorSections = require('./tutorSections');
+const { whatsappUrlFor } = require('../services/team');
 const { PUBLIC_PAGES, SEO_FIELDS } = require('./seo');
 
 const pageConfigs = [
@@ -72,6 +73,14 @@ const pageConfigs = [
       },
       { name: 'phone', label: 'Primary phone number', type: 'text', max: 40, default: '0926540368', help: 'Include + and the country code to also use this number in search engine structured data.' },
       { name: 'secondaryPhone', label: 'Alternative phone number', type: 'text', max: 40, default: '0725745166' },
+      {
+        name: 'whatsappNumber', label: 'Project WhatsApp number', type: 'text', max: 40, default: '',
+        help: 'Optional. Full international number including + and the country code, for example +211 926 540 368. Offers visitors a WhatsApp option on the Request tutor access page. Leave blank to hide it.',
+        validate: value => {
+          if (!whatsappUrlFor(value)) throw new Error('Enter a full international WhatsApp number, such as +211 926 540 368.');
+          return true;
+        },
+      },
       { name: 'email', label: 'Contact email', type: 'email', default: 'kussdproject@gmail.com' },
       { name: 'hours', label: 'Office hours', type: 'text', default: 'Monday to Friday, 8:00 am to 5:00 pm' },
       {
@@ -447,6 +456,24 @@ const pageConfigs = [
         ],
       },
       { name: 'formHeading', label: 'Form heading', type: 'text', max: 80, default: 'Your details' },
+      { name: 'directHeading', label: 'Other ways to ask: heading', type: 'text', max: 80, default: 'Prefer to ask directly?' },
+      {
+        name: 'directText',
+        label: 'Other ways to ask: text',
+        type: 'textarea',
+        rows: 2,
+        max: 300,
+        default: 'You can also message the project team on WhatsApp or by email. Please send only one request: repeated requests are ignored.',
+      },
+      { name: 'alreadyHeading', label: 'Already sent: heading', type: 'text', max: 100, default: 'You have already sent a request' },
+      {
+        name: 'alreadyText',
+        label: 'Already sent: text',
+        type: 'textarea',
+        rows: 3,
+        max: 500,
+        default: 'To protect the project team from repeated messages, each person can send one request. The administrator will review yours. If you need to follow it up, contact the team directly.',
+      },
       {
         name: 'privacyNote',
         label: 'Privacy note beside the form',

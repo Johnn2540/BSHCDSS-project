@@ -1,0 +1,20 @@
+{{> admin/page-header title="Approve tutor request" back=(concat "/admin/tutor-requests/" request.id) backLabel="Request"}}
+
+<section aria-labelledby="approve-heading" class="admin-card max-w-2xl p-5 sm:p-7">
+  <h2 id="approve-heading" class="text-lg font-bold">Create a tutor account for {{request.name}}?</h2>
+  <dl class="mt-4 grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
+    <div><dt class="glance-label">Email</dt><dd class="mt-1 break-all font-medium text-neutral-900">{{request.email}}</dd></div>
+    <div><dt class="glance-label">Institution</dt><dd class="mt-1 font-medium text-neutral-900">{{request.institution}}</dd></div>
+  </dl>
+
+  <p class="mt-6 text-sm leading-relaxed text-neutral-700">The account is created as an active tutor. No password is set by you: the tutor chooses their own through a single-use link that expires in 3 days.</p>
+  <p class="mt-3 font-semibold text-neutral-900">Send the invitation email to <span class="break-all">{{request.email}}</span> now?</p>
+
+  <form method="post" action="/admin/tutor-requests/{{request.id}}/approve" class="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <button type="submit" name="sendInvite" value="yes" class="btn btn-green">{{> icon name="check" class="h-4 w-4"}} Yes, approve and send the invitation</button>
+    <button type="submit" name="sendInvite" value="no" class="btn border border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 focus-visible:outline-brand-blue">Approve without sending an email</button>
+    <a href="/admin/tutor-requests/{{request.id}}" class="btn border border-transparent text-neutral-700 hover:underline">Cancel</a>
+  </form>
+  <p class="mt-4 text-sm text-neutral-600">If you do not send it now, use <strong>Resend invitation</strong> on the Tutors page later.</p>
+</section>

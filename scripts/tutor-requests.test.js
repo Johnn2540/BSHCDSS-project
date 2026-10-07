@@ -40,14 +40,14 @@ test.beforeEach(() => {
 });
 
 function client() {
-  let cookie = '';
+  const jar = new Map();
   return async (path, options = {}) => {
+    const cookie = [...jar].map(([name, value]) => name + '=' + value).join('; ');
     const response = await fetch(base + path, {
       ...options, redirect: 'manual', signal: AbortSignal.timeout(15000),
       headers: { ...options.headers, ...(cookie ? { cookie } : {}) },
     });
-    const value = response.headers.get('set-cookie');
-    if (value) cookie = value.split(';')[0];
+    for (const line of response.headers.getSetCookie()) { const [pair] = line.split(';'); const at = pair.indexOf('='); jar.set(pair.slice(0, at), pair.slice(at + 1)); }
     return response;
   };
 }
@@ -98,7 +98,7 @@ test('the request page is public, carries a CSRF token and a honeypot, and is ke
 });
 
 test('a valid request is stored for review, creates no account, notifies only the project mailbox and confirms once', async () => {
-  const { request, submit } = await visitor();
+  const { request, csrf, submit } = await visitor();
   const response = await submit({ ...valid, name: '  Grace Achol  ', email: '  Grace@Example.TEST ' });
   assert.equal(response.status, 302);
   assert.equal(response.headers.get('location'), '/request-tutor-access');
@@ -124,8 +124,12 @@ test('a valid request is stored for review, creates no account, notifies only th
   assert.match(confirmation, /Request received/);
   assert.doesNotMatch(confirmation, /name="institution"/, 'the confirmation replaces the form');
   const again = await (await request('/request-tutor-access')).text();
-  assert.match(again, /name="institution"/, 'reloading shows the form again');
-  assert.doesNotMatch(again, /Request received/);
+  assert.match(again, /You have already sent a request/, 'reloading shows that one request is all a visitor can send');
+  assert.doesNotMatch(again, /name="institution"|Request received/);
+
+  const second = await request('/request-tutor-access', { method: 'POST', body: form(csrf, { ...valid, email: 'second@example.test' }) });
+  assert.ok([302, 403].includes(second.status));
+  assert.equal(state.tutorRequests.length, 1, 'a second request from the same browser is not stored');
 });
 
 test('submissions without a valid CSRF token are refused and store nothing', async () => {
@@ -185,6 +189,27 @@ test('the response never reveals whether an email already has an account or a pe
   assert.deepEqual(new Set(outcomes.map((outcome) => JSON.stringify(outcome))).size, 1, 'new, repeat and registered emails look identical');
   assert.deepEqual(state.tutorRequests.map((row) => row.email), ['brand-new@example.test'], 'only the first genuinely new request is stored');
   assert.equal(sent.mail.length, 1);
+});
+
+test('an email that has made a request before, whatever the outcome, cannot make another', async () => {
+  seed({ email: 'old@example.test', status: 'DECLINED' });
+  const { submit } = await visitor();
+  assert.equal((await submit({ ...valid, email: 'old@example.test' })).status, 302);
+  assert.equal(state.tutorRequests.length, 1);
+  assert.equal(sent.mail.length, 0);
+});
+
+test('the page offers WhatsApp (when a number is set) and email as other ways to ask', async () => {
+  const none = await (await client()('/request-tutor-access')).text();
+  assert.match(none, /href="mailto:[^"]+"/);
+  assert.doesNotMatch(none, /wa\.me/, 'no WhatsApp button until a number is saved in Site settings');
+  const content = require('../src/services/content');
+  const original = content.getSite;
+  content.getSite = async () => { const site = await original(); return { ...site, contact: { ...site.contact, whatsappUrl: 'https://wa.me/211926540368' } }; };
+  try {
+    const html = await (await client()('/request-tutor-access')).text();
+    assert.match(html, /href="https:\/\/wa\.me\/211926540368\?text(=|&#x3D;)Hello[^"]*"[^>]*rel="noopener noreferrer"/);
+  } finally { content.getSite = original; }
 });
 
 test('a cap on unreviewed requests stops a flood from growing the table', async () => {
@@ -258,10 +283,19 @@ test('only administrators can reach any tutor-request page or action', async () 
 test('state-changing actions need POST and a CSRF token; GET cannot approve, decline or delete', async () => {
   const row = seed();
   const admin = await login('admin');
+  assert.equal((await admin(`/admin/tutor-requests/${row.id}/decline`)).status, 404, 'GET decline is not a route');
+  const prompt = await admin(`/admin/tutor-requests/${row.id}/approve`);
+  assert.equal(prompt.status, 200, 'GET approve only shows the question');
+  assert.match(await prompt.text(), /Send the invitation email to/);
   for (const action of ['approve', 'decline']) {
-    assert.equal((await admin(`/admin/tutor-requests/${row.id}/${action}`)).status, 404, `GET ${action} is not a route`);
     assert.equal((await admin(`/admin/tutor-requests/${row.id}/${action}`, { method: 'POST', body: form(null, {}) })).status, 403, `POST ${action} without a token`);
   }
+  const csrf = await adminCsrf(admin);
+  for (const fields of [{}, { sendInvite: 'maybe' }, { sendInvite: '' }]) {
+    const response = await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrf, fields) });
+    assert.equal(response.headers.get('location'), `/admin/tutor-requests/${row.id}/approve`, 'no explicit yes or no: asked again');
+  }
+  assert.equal(accountWrites().length, 0);
   assert.equal((await admin(`/admin/tutor-requests/${row.id}/delete`, { method: 'POST', body: form(null, {}) })).status, 403);
   assert.equal(state.tutorRequests[0].status, 'PENDING');
   assert.equal(accountWrites().length, 0);
@@ -272,7 +306,7 @@ test('unknown or malformed request ids are a plain 404', async () => {
   const csrf = await adminCsrf(admin);
   for (const id of ['missing', '..%2F..%2Fetc', "x'%20OR%20'1'='1", '%00', 'a'.repeat(200)]) {
     assert.equal((await admin('/admin/tutor-requests/' + id)).status, 404, 'show ' + id);
-    assert.equal((await admin(`/admin/tutor-requests/${id}/approve`, { method: 'POST', body: form(csrf, {}) })).status, 404, 'approve ' + id);
+    assert.equal((await admin(`/admin/tutor-requests/${id}/approve`, { method: 'POST', body: form(csrf, { sendInvite: 'yes' }) })).status, 404, 'approve ' + id);
   }
 });
 
@@ -290,11 +324,11 @@ test('the list opens on pending requests, filters by status, counts them and esc
   assert.match(pending, /Pending <span class="tab-count">1<\/span>/);
   assert.match(pending, /Approved <span class="tab-count">1<\/span>/);
   assert.match(pending, /All <span class="tab-count">3<\/span>/);
-  assert.match(pending, /action="\/admin\/tutor-requests\/request-1\/approve"/);
+  assert.match(pending, /href="\/admin\/tutor-requests\/request-1\/approve"/);
 
   const approved = await (await admin('/admin/tutor-requests?status=APPROVED')).text();
   assert.match(approved, /Approved Person/);
-  assert.doesNotMatch(approved, /xss@example\.test|action="\/admin\/tutor-requests\/[^"]+\/approve"/, 'decided requests offer no approve action');
+  assert.doesNotMatch(approved, /xss@example\.test|href="\/admin\/tutor-requests\/[^"]+\/approve"/, 'decided requests offer no approve action');
   assert.match((await (await admin('/admin/tutor-requests?status=ALL')).text()), /Declined Person/);
   assert.match((await (await admin('/admin/tutor-requests?status=DROP%20TABLE')).text()), /xss@example\.test/, 'an unknown status falls back to pending');
 });
@@ -304,7 +338,7 @@ test('approving creates an active tutor, records the decision, emails one invita
   const admin = await login('admin');
   const csrf = await adminCsrf(admin);
 
-  const response = await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrf, { role: 'ADMIN', status: 'SUSPENDED', canManageContent: 'true' }) });
+  const response = await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrf, { sendInvite: 'yes', role: 'ADMIN', status: 'SUSPENDED', canManageContent: 'true' }) });
   assert.equal(response.status, 302);
   assert.equal(response.headers.get('location'), '/admin/tutor-requests');
 
@@ -327,17 +361,27 @@ test('approving creates an active tutor, records the decision, emails one invita
   const next = await (await admin('/admin/tutor-requests')).text();
   assert.match(next, /Grace Achol approved and their tutor account created\. An invitation email/);
 
-  const again = await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrf, {}) });
+  const again = await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrf, { sendInvite: 'yes' }) });
   assert.equal(again.status, 302);
   assert.match(await (await admin('/admin/tutor-requests')).text(), /already been reviewed/);
   assert.equal(Object.values(state.users).filter((user) => user.email === 'grace@example.test').length, 1);
   assert.equal(sent.invites.length, 1, 'no second invitation');
 });
 
+test('approving without sending leaves the account created, the request approved and no email sent', async () => {
+  const row = seed();
+  const admin = await login('admin');
+  await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(await adminCsrf(admin), { sendInvite: 'no' }) });
+  assert.equal(row.status, 'APPROVED');
+  assert.ok(Object.values(state.users).some((user) => user.email === row.email && user.status === 'ACTIVE'));
+  assert.equal(sent.invites.length, 0);
+  assert.match(await (await admin('/admin/tutor-requests')).text(), /No invitation email was sent/);
+});
+
 test('a request whose email already has an account cannot be approved and stays pending', async () => {
   const row = seed({ email: 'tutor@example.test' });
   const admin = await login('admin');
-  const response = await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(await adminCsrf(admin), {}) });
+  const response = await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(await adminCsrf(admin), { sendInvite: 'yes' }) });
   assert.equal(response.status, 302);
   assert.equal(response.headers.get('location'), '/admin/tutor-requests/' + row.id);
   assert.match(await (await admin('/admin/tutor-requests/' + row.id)).text(), /already exists/);
@@ -353,7 +397,7 @@ test('if the account cannot be created the claim is released and the request goe
   const original = prisma.user.create;
   prisma.user.create = async () => { throw Object.assign(new Error('Unique constraint failed'), { code: 'P2002' }); };
   try {
-    const response = await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrf, {}) });
+    const response = await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrf, { sendInvite: 'yes' }) });
     assert.equal(response.status, 302);
   } finally { prisma.user.create = original; }
   assert.equal(row.status, 'PENDING');
@@ -362,7 +406,7 @@ test('if the account cannot be created the claim is released and the request goe
   assert.equal(sent.invites.length, 0);
   assert.match(await (await admin('/admin/tutor-requests/' + row.id)).text(), /already exists/);
 
-  const retry = await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrf, {}) });
+  const retry = await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrf, { sendInvite: 'yes' }) });
   assert.equal(retry.status, 302);
   assert.equal(row.status, 'APPROVED', 'the request can be approved normally afterwards');
 });
@@ -372,8 +416,8 @@ test('two administrators approving at once create one account', async () => {
   const [first, second] = [await login('admin'), await login('admin')];
   const [csrfOne, csrfTwo] = [await adminCsrf(first), await adminCsrf(second)];
   await Promise.all([
-    first(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrfOne, {}) }),
-    second(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrfTwo, {}) }),
+    first(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrfOne, { sendInvite: 'yes' }) }),
+    second(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrfTwo, { sendInvite: 'yes' }) }),
   ]);
   assert.equal(Object.values(state.users).filter((user) => user.email === row.email).length, 1);
   assert.equal(sent.invites.length, 1);
@@ -384,7 +428,7 @@ test('an invitation email failure leaves the account created and tells the admin
   sent.failInvite = true;
   const row = seed();
   const admin = await login('admin');
-  await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(await adminCsrf(admin), {}) });
+  await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(await adminCsrf(admin), { sendInvite: 'yes' }) });
   assert.equal(row.status, 'APPROVED');
   assert.ok(Object.values(state.users).some((user) => user.email === row.email && user.status === 'ACTIVE'));
   const page = await (await admin('/admin/tutor-requests')).text();
@@ -404,7 +448,7 @@ test('declining records the decision, creates nothing and sends nothing', async 
   assert.equal(sent.invites.length + sent.mail.length, 0);
   assert.match(await (await admin('/admin/tutor-requests')).text(), /was declined\. No email was sent/);
 
-  await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrf, {}) });
+  await admin(`/admin/tutor-requests/${row.id}/approve`, { method: 'POST', body: form(csrf, { sendInvite: 'yes' }) });
   assert.equal(row.status, 'DECLINED', 'a declined request cannot be approved afterwards');
   assert.equal(accountWrites().length, 0);
 });
@@ -434,7 +478,7 @@ test('the detail page shows the full message safely and offers the right actions
   assert.match(html, /&lt;b&gt;bold&lt;\/b&gt; line two/);
   assert.doesNotMatch(html, /<b>bold<\/b>/);
   assert.match(html, /href="mailto:peter@example\.test"/);
-  assert.match(html, /action="\/admin\/tutor-requests\/request-1\/approve"/);
+  assert.match(html, /href="\/admin\/tutor-requests\/request-1\/approve"/);
   assert.match(html, /action="\/admin\/tutor-requests\/request-1\/decline"/);
 
   const done = await (await admin('/admin/tutor-requests/' + decided.id)).text();

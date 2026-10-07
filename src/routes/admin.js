@@ -61,6 +61,7 @@ router.post('/tutors/:id/delete', tutors.destroy);
 // Visitors' requests for tutor access: review, approve (creates the account and emails the invitation), decline, delete
 router.get('/tutor-requests', tutorRequests.list);
 router.get('/tutor-requests/:id', tutorRequests.show);
+router.get('/tutor-requests/:id/approve', tutorRequests.confirmApprove);
 router.post('/tutor-requests/:id/approve', tutorRequests.approve);
 router.post('/tutor-requests/:id/decline', tutorRequests.decline);
 router.get('/tutor-requests/:id/delete', tutorRequests.confirmDelete);

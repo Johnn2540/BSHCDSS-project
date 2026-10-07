@@ -17,6 +17,16 @@ const { emailOrigin } = require('../services/passwordTokens');
 const { collectErrors } = require('../admin/fields');
 
 const PATH = '/request-tutor-access';
+// Each visitor may send one request. A cookie remembers it in this browser (the person sees a clear notice instead of
+// the form), and an email address that has ever made a request is never accepted again, whatever its outcome.
+const SENT_COOKIE = 'tutor_request_sent';
+const SENT_COOKIE_DAYS = 90;
+const hasSentBefore = (req) => /(?:^|;\s*)tutor_request_sent=1(?:;|$)/.test(req.headers.cookie || '');
+function rememberSent(res) {
+  res.cookie(SENT_COOKIE, '1', {
+    httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/', maxAge: SENT_COOKIE_DAYS * 24 * 60 * 60 * 1000,
+  });
+}
 const FIELDS = ['name', 'email', 'institution', 'phone', 'message', 'website'];
 // A ceiling on unreviewed requests, so a flood of submissions cannot grow the table without limit.
 const MAX_PENDING_REQUESTS = 500;
@@ -37,11 +47,25 @@ const rules = [
   body('message').trim().optional({ values: 'falsy' }).isLength({ max: 1000 }).withMessage('Your message must be 1,000 characters or fewer.'),
 ];
 
+// Direct ways to reach the project team instead of the form: WhatsApp (when a number is set in Site settings) and email.
+async function directContacts() {
+  const site = await content.getSite();
+  const note = 'Hello, I would like to request a tutor account on the BSHCDSS website.';
+  const email = (site.contact.email || '').trim();
+  return {
+    whatsappUrl: site.contact.whatsappUrl ? `${site.contact.whatsappUrl}?text=${encodeURIComponent(note)}` : null,
+    mailto: email ? `mailto:${email}?subject=${encodeURIComponent('Tutor access request')}&body=${encodeURIComponent(note)}` : null,
+    email,
+  };
+}
+
 async function render(req, res, { values = {}, errors = {}, status = 200, sent = false } = {}) {
   const page = await content.getPage('tutor-request');
+  const direct = await directContacts();
+  const alreadySent = !sent && hasSentBefore(req);
   // The form carries a CSRF token and, once sent, a confirmation: neither belongs in a shared cache.
   res.set('Cache-Control', 'private, no-store');
-  res.status(status).render('public/tutor-request', { title: page.title, metaDescription: page.summary, page, values, errors, sent });
+  res.status(status).render('public/tutor-request', { title: page.title, metaDescription: page.summary, page, values, errors, sent, alreadySent, direct });
 }
 
 // The confirmation replaces the form once, right after a submission (the flash message is read and cleared by the
@@ -77,17 +101,20 @@ async function submit(req, res) {
     return res.redirect(PATH);
   }
 
+  // One request per person: a browser that has already sent one gets the same notice the form page shows.
+  if (hasSentBefore(req)) return res.redirect(PATH);
+
   const errors = collectErrors(req);
   if (Object.keys(errors).length) return render(req, res, { values: req.body, errors, status: 422 });
 
   const { name, email, institution, phone, message } = req.body;
   const [account, pending, pendingTotal] = await Promise.all([
     prisma.user.findFirst({ where: { email }, select: { id: true } }),
-    prisma.tutorRequest.findFirst({ where: { email, status: 'PENDING' }, select: { id: true } }),
+    prisma.tutorRequest.findFirst({ where: { email }, select: { id: true } }),
     prisma.tutorRequest.count({ where: { status: 'PENDING' } }),
   ]);
 
-  // Existing accounts and repeat requests are quietly ignored (see the note at the top of this file).
+  // Existing accounts and emails that have already made a request are quietly ignored (see the note at the top of this file).
   if (!account && !pending && pendingTotal < MAX_PENDING_REQUESTS) {
     const request = await prisma.tutorRequest.create({
       data: { name, email, institution, phone: phone || null, message: message || null },
@@ -95,6 +122,7 @@ async function submit(req, res) {
     await notifyAdministrator(request);
   }
 
+  rememberSent(res);
   req.flash('success', 'sent');
   res.redirect(PATH);
 }

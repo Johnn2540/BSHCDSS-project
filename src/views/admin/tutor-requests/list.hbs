@@ -47,10 +47,7 @@
               {{#> admin/row-menu label=name}}
                 <a role="menuitem" class="row-menu-item" href="/admin/tutor-requests/{{id}}">{{> admin/menu-icon name="view"}} View request</a>
                 {{#if (eq status "PENDING")}}
-                  <form method="post" action="/admin/tutor-requests/{{id}}/approve" class="row-menu-form" role="none">
-                    <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
-                    <button type="submit" role="menuitem" class="row-menu-item row-menu-item-success">{{> admin/menu-icon name="approve"}} Approve and send invitation</button>
-                  </form>
+                  <a role="menuitem" class="row-menu-item row-menu-item-success" href="/admin/tutor-requests/{{id}}/approve">{{> admin/menu-icon name="approve"}} Approve request</a>
                   <form method="post" action="/admin/tutor-requests/{{id}}/decline" class="row-menu-form" role="none">
                     <input type="hidden" name="_csrf" value="{{@root.csrfToken}}">
                     <button type="submit" role="menuitem" class="row-menu-item row-menu-item-danger">{{> admin/menu-icon name="suspend"}} Decline request</button>

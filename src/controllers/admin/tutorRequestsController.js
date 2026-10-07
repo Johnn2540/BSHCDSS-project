@@ -77,11 +77,27 @@ async function show(req, res) {
   res.render('admin/tutor-requests/show', { title: 'Tutor request', request, account });
 }
 
+// Approving is a two-step decision: the administrator must say, explicitly, whether the invitation email is sent.
+async function confirmApprove(req, res) {
+  const request = await findRequest(req.params.id);
+  if (request.status !== 'PENDING') {
+    req.flash('error', `The request from ${request.name} has already been reviewed.`);
+    return res.redirect(BASE);
+  }
+  res.render('admin/tutor-requests/approve', { title: 'Approve tutor request', request });
+}
+
 async function approve(req, res) {
   const request = await findRequest(req.params.id);
   if (request.status !== 'PENDING') {
     req.flash('error', `The request from ${request.name} has already been reviewed.`);
     return res.redirect(BASE);
+  }
+  // Nothing is assumed: without an explicit yes or no the request stays pending and the question is asked again.
+  const choice = typeof req.body.sendInvite === 'string' ? req.body.sendInvite : '';
+  if (choice !== 'yes' && choice !== 'no') {
+    req.flash('error', 'Choose whether to send the invitation email before approving.');
+    return res.redirect(`${BASE}/${request.id}/approve`);
   }
   if (await prisma.user.findFirst({ where: { email: request.email }, select: { id: true } })) {
     req.flash('error', `An account with the email address ${request.email} already exists, so this request cannot be approved. Decline it, or find the account on the Tutors page.`);
@@ -125,6 +141,10 @@ async function approve(req, res) {
     console.error('[tutor requests] could not link the approved account to its request');
   }
 
+  if (choice === 'no') {
+    req.flash('success', `${tutor.name} approved and their tutor account created. No invitation email was sent: use "Resend invitation" on the Tutors page when you are ready.`);
+    return res.redirect(BASE);
+  }
   const sent = await emailInvite(req, tutor);
   req.flash('success', `${tutor.name} approved and their tutor account created.${sent ? ` An invitation email with a link to choose a password has been sent to ${tutor.email}.` : ' Use "Resend invitation" on the Tutors page once email is working.'}`);
   res.redirect(BASE);
@@ -159,4 +179,4 @@ async function destroy(req, res) {
   res.redirect(BASE);
 }
 
-module.exports = { list, show, approve, decline, confirmDelete, destroy };
+module.exports = { list, show, confirmApprove, approve, decline, confirmDelete, destroy };

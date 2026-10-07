@@ -35,17 +35,14 @@
     <h2 id="decision-heading" class="text-lg font-bold">{{#if (eq request.status "PENDING")}}Your decision{{else}}Outcome{{/if}}</h2>
 
     {{#if (eq request.status "PENDING")}}
-      <p class="mt-3 text-sm leading-relaxed text-neutral-700">Approving creates a tutor account for {{request.name}} and emails <span class="break-all font-medium">{{request.email}}</span> a link to choose a password. Declining creates nothing and sends no email.</p>
-      <form method="post" action="/admin/tutor-requests/{{request.id}}/approve" class="mt-5">
-        <input type="hidden" name="_csrf" value="{{csrfToken}}">
-        <button type="submit" class="btn btn-green w-full">{{> icon name="check" class="h-4 w-4"}} Approve and send invitation</button>
-      </form>
+      <p class="mt-3 text-sm leading-relaxed text-neutral-700">Approving creates a tutor account for {{request.name}}; you then choose whether to email <span class="break-all font-medium">{{request.email}}</span> a link to choose a password. Declining creates nothing and sends no email.</p>
+      <a href="/admin/tutor-requests/{{request.id}}/approve" class="btn btn-green mt-5 w-full">{{> icon name="check" class="h-4 w-4"}} Approve request</a>
       <form method="post" action="/admin/tutor-requests/{{request.id}}/decline" class="mt-3">
         <input type="hidden" name="_csrf" value="{{csrfToken}}">
         <button type="submit" class="btn w-full border border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 focus-visible:outline-brand-blue">Decline request</button>
       </form>
     {{else if (eq request.status "APPROVED")}}
-      <p class="mt-3 text-sm leading-relaxed text-neutral-700">A tutor account was created and the invitation emailed.</p>
+      <p class="mt-3 text-sm leading-relaxed text-neutral-700">A tutor account was created. If the invitation was not sent, use Resend invitation on the Tutors page.</p>
       {{#if account}}<a href="/admin/tutors/{{account.id}}/edit" class="btn btn-primary mt-5 w-full">Open the tutor account</a>{{else}}<p class="mt-3 text-sm text-neutral-500">That account has since been removed.</p>{{/if}}
     {{else}}
       <p class="mt-3 text-sm leading-relaxed text-neutral-700">This request was declined. No account was created and no email was sent.</p>
