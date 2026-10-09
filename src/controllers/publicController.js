@@ -121,6 +121,10 @@ const homeStatsImage = (page) =>
 const homeIntroImage = (page) =>
   homePhoto(page, { imageField: 'introImage', altField: 'introImageAlt', fallback: pageImages.introDefault, widths: [640, 1000, 1448], crop: '16:10' });
 
+// Home shows a slideshow of workshop photos where no photo has been uploaded for the spot (Admin -> Page content -> Home);
+// an uploaded photo always wins and is shown on its own.
+const hasUpload = (page, field) => Boolean(page[field] && page[field].url);
+
 // Home gallery teasers: albums and videos share one tile style. Up to two albums, then videos to fill three
 // tiles, so a published video always gets a place; with no videos, up to three albums.
 function buildMediaTiles(albums, videos) {
@@ -172,8 +176,10 @@ async function home(req, res) {
     isHome: true,
     page,
     heroImage, // the share preview for Home stays the branded logo image (og-image.jpg)
-    statsImage: homeStatsImage(page),
-    introImage: homeIntroImage(page),
+    statsImage: hasUpload(page, 'statsImage') ? homeStatsImage(page) : null,
+    statsSlides: hasUpload(page, 'statsImage') ? null : pageImages.slideshows.portrait,
+    introImage: hasUpload(page, 'introImage') ? homeIntroImage(page) : null,
+    introSlides: hasUpload(page, 'introImage') ? null : pageImages.slideshows.landscape,
     focusItems: buildFocusItems(curriculum, activities),
     announcements: noticeCards(announcements),
     mediaTiles: buildMediaTiles(albumCards(albums), withVideoLinks(videos)),
@@ -197,6 +203,7 @@ async function about(req, res) {
     heroImage: pageImages.about,
     page,
     focusItems,
+    gallerySlides: pageImages.slideshows.landscape,
   });
 }
 

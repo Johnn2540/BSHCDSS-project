@@ -4,7 +4,47 @@
 // position / positionLg: CSS object-position used on phones and on desktop (lg+), chosen so
 // the people in each photo stay in view when the banner crops it.
 
+// Workshop photos for slideshows (partials/photo-slider.hbs). Optimised copies live in
+// public/images/pages/workshop/ (never upscaled: landscape originals are 1280 px wide, portrait 960 px);
+// the originals in public/images/ are not deployed (.vercelignore).
+function slide(set, key, sizes, [width, height], alt, position = '50% 50%') {
+  const file = (w) => `/images/pages/workshop/${set}-${key}-${w}.webp`;
+  return {
+    src: file(sizes[1]),
+    srcset: sizes.map((w) => `${file(w)} ${w}w`).join(', '),
+    width,
+    height,
+    alt,
+    position,
+  };
+}
+const landscape = (key, alt, position) => slide('landscape', key, [640, 960, 1280], [1280, 960], alt, position);
+const portrait = (key, alt, position) => slide('portrait', key, [480, 720, 960], [960, 1280], alt, position);
+
+const landscapeSlides = [
+  landscape('a', 'Facilitators supporting participants at laptops during a training workshop', '45% 55%'),
+  landscape('b', 'Participants working on laptops at desks in a large training room', '55% 55%'),
+  landscape('c', 'A facilitator helping a participant at a laptop while colleagues look on', '60% 45%'),
+  landscape('d', 'Participants and facilitators talking during a hands-on training session', '70% 45%'),
+  landscape('e', 'Participants working at desks in a training room', '40% 55%'),
+];
+
 module.exports = {
+  // Slideshows used when a page photo has not been replaced by an upload in the admin.
+  slideshows: {
+    // Home, wide banner under "About the project"; About, "The training in pictures".
+    landscape: landscapeSlides,
+    // Home, beside the statistics.
+    portrait: [
+      portrait('a', 'Participants working on laptops at tables during a training workshop', '50% 55%'),
+      portrait('b', 'Participants at laptops around a table in the training hall', '50% 55%'),
+      portrait('c', 'A participant typing on a laptop as other groups work behind in the training room', '45% 60%'),
+      portrait('d', 'Participants gathered for a discussion during a group session in the training hall', '50% 40%'),
+      portrait('e', 'Participants seated at tables with laptops while a group talks behind them', '50% 50%'),
+      portrait('f', 'Participants seated at tables facing the front of the training hall', '50% 60%'),
+    ],
+  },
+
   contact: {
     srcset:
       '/images/pages/contact-480.webp 480w, /images/pages/contact-800.webp 800w, /images/pages/contact-1200.webp 1200w, /images/pages/contact-1600.webp 1600w',

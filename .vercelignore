@@ -31,3 +31,6 @@ public/images/image3.png
 public/images/image4.png
 public/images/image5.png
 public/images/image6.png
+
+# Original workshop photos (the site uses public/images/pages/workshop/; the gallery albums are imported into Cloudinary)
+public/images/WhatsApp Image*

@@ -35,6 +35,7 @@
     "team:import": "node scripts/import-project-team.js",
     "check:team": "node --test scripts/team.test.js scripts/team-uploads.test.js",
     "videos:import": "node scripts/import-project-video.js",
+    "photos:import": "node scripts/import-workshop-photos.js",
     "check:videos": "node --test scripts/video.test.js scripts/video-admin.test.js"
   },
   "dependencies": {

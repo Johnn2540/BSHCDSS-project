@@ -1,0 +1,41 @@
+{{!-- Photo slideshow: each photo slides in over the one before it. Without JavaScript it shows the first photo only
+     (no controls). Controls sit below the frame, never inside it, so the frame can still scroll-expand.
+     Params: slides [{ src, srcset, width, height, alt, position }], label (accessible name of the slideshow),
+             frameClass (aspect ratio and shape of the frame), rootClass (optional: layout classes for the whole slideshow), sizes (the images' sizes attribute),
+             rule (true: tricolour rule along the bottom of the frame). Behaviour: public/js/slider.js --}}
+<div class="photo-slider {{rootClass}}" data-slider role="group" aria-roledescription="carousel" aria-label="{{label}}">
+  <div class="slider-frame relative overflow-hidden bg-brand-blue-dark shadow-xl {{frameClass}}" data-scroll-expand="0.9" data-slider-frame>
+    <ul class="absolute inset-0 m-0 list-none p-0">
+      {{#each slides}}
+        <li class="slider-slide" data-slider-slide data-state="{{#if @first}}active{{else}}idle{{/if}}" role="group" aria-roledescription="slide" aria-label="{{add @index 1}} of {{../slides.length}}">
+          <img src="{{src}}" srcset="{{srcset}}" sizes="{{../sizes}}" width="{{width}}" height="{{height}}" alt="{{alt}}"
+               loading="lazy" decoding="async" style="object-position: {{position}};" class="h-full w-full object-cover">
+        </li>
+      {{/each}}
+    </ul>
+    {{#if rule}}
+      <div class="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex h-1.5" aria-hidden="true">
+        <span class="flex-[6] bg-brand-green"></span><span class="flex-1 bg-brand-yellow"></span><span class="flex-1 bg-brand-red"></span>
+      </div>
+    {{/if}}
+  </div>
+
+  {{#if (gt slides.length 1)}}
+    <div class="slider-controls mt-3 items-center justify-between gap-3" data-slider-controls>
+      <div class="flex items-center">
+        {{#each slides}}
+          <button type="button" class="slider-dot" data-slider-dot="{{@index}}" aria-label="Show photo {{add @index 1}} of {{../slides.length}}"><span></span></button>
+        {{/each}}
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" class="slider-btn" data-slider-toggle aria-label="Pause slideshow">
+          <svg class="h-4 w-4" data-slider-icon="pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+          <svg class="hidden h-4 w-4" data-slider-icon="play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+        </button>
+        <button type="button" class="slider-btn" data-slider-prev aria-label="Previous photo">{{> icon name="arrow" class="h-4 w-4 rotate-180"}}</button>
+        <button type="button" class="slider-btn" data-slider-next aria-label="Next photo">{{> icon name="arrow" class="h-4 w-4"}}</button>
+      </div>
+    </div>
+    <p class="sr-only" aria-live="polite" data-slider-status></p>
+  {{/if}}
+</div>

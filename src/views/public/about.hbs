@@ -101,6 +101,26 @@
   </section>
 {{/if}}{{/with}}
 
+{{!-- ── Training in pictures: slideshow of workshop photos (hidden when its heading is cleared) ─────────── --}}
+{{#if page.galleryHeading}}
+  <section aria-labelledby="pictures-heading" class="border-t border-neutral-200">
+    <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div class="max-w-2xl">
+          <h2 id="pictures-heading" class="section-heading">{{page.galleryHeading}}</h2>
+          {{#if page.galleryLead}}<p class="mt-4 text-neutral-700 sm:text-lg">{{page.galleryLead}}</p>{{/if}}
+        </div>
+        <a href="/gallery" class="action-link inline-flex min-h-11 shrink-0 items-center gap-2 self-start font-semibold sm:self-auto">All photos and videos {{> icon name="arrow" class="h-4 w-4"}}</a>
+      </div>
+      <div class="mt-10">
+        {{> photo-slider slides=gallerySlides label="Photos from the project's training workshops" rule=true
+            sizes="(min-width: 1280px) 1216px, 100vw"
+            frameClass="aspect-[4/3] rounded-xl sm:aspect-[16/9] lg:aspect-[2/1]"}}
+      </div>
+    </div>
+  </section>
+{{/if}}
+
 {{!-- ── Areas of work ─────────────────────────────────────────────────────────── --}}
 {{#if focusItems.length}}
   <section aria-labelledby="work-heading" class="bg-neutral-50">

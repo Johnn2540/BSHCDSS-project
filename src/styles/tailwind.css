@@ -906,3 +906,28 @@ body { overflow-x: clip; }
   .admin-table-stack td.admin-cell-title { @apply col-span-2 mb-1 pr-32; }
   .admin-table-stack td.admin-cell-actions { @apply absolute right-3 top-3 p-0; }
 }
+
+/* Photo slideshow (partials/photo-slider.hbs, public/js/slider.js). Photos are stacked; the next one slides in over the
+   current one while that one drifts back and dims. Without JavaScript the first photo shows and nothing moves. */
+.slider-frame { touch-action: pan-y; }
+.slider-slide { position: absolute; inset: 0; visibility: hidden; transform: translate3d(100%, 0, 0); }
+.slider-slide[data-from="left"] { transform: translate3d(-100%, 0, 0); }
+.slider-slide[data-state="active"] { visibility: visible; z-index: 2; transform: none; box-shadow: 0 0 2.5rem rgb(0 0 0 / 0.35); }
+.slider-slide[data-state="leaving"] { visibility: visible; z-index: 1; transform: translate3d(-22%, 0, 0); }
+.slider-slide[data-state="leaving"][data-dir="back"] { transform: translate3d(22%, 0, 0); }
+.slider-slide[data-state="leaving"] img { filter: brightness(0.65); }
+@media (prefers-reduced-motion: no-preference) {
+  .slider-slide[data-state="active"], .slider-slide[data-state="leaving"] { transition: transform 900ms cubic-bezier(0.65, 0, 0.35, 1); }
+  .slider-slide img { transition: filter 900ms ease; }
+}
+.slider-controls { display: none; }
+.js .slider-controls { display: flex; }
+.slider-btn { @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-neutral-300 bg-white text-brand-blue-dark
+  hover:border-brand-blue hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue; }
+.slider-dot { @apply inline-flex h-11 w-5 items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand-blue; }
+.slider-dot span { @apply block h-2.5 w-2.5 rounded-full bg-neutral-500; }
+.slider-dot[aria-current="true"] span { @apply w-6 bg-brand-blue; }
+@media (prefers-reduced-motion: no-preference) {
+  .slider-dot span { transition: width 300ms ease, background-color 300ms ease; }
+}
+@media print { .slider-controls { display: none; } }
